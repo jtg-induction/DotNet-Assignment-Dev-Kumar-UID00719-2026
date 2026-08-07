@@ -13,3 +13,7 @@ packages/
 *.sln.docstates
 
 ConnectionString.config
+<<<<<<< HEAD
+=======
+Secrets.config
+>>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)

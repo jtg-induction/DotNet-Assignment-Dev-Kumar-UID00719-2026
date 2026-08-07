@@ -191,6 +191,10 @@
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="Controllers\AuthControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+<<<<<<< HEAD
+=======
+    <Compile Include="SampleTests.cs" />
+>>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
     <Compile Include="Services\AuthenticationServiceTests.cs" />
     <Compile Include="Services\JwtServiceTests.cs" />
     <Compile Include="Services\PasswordServiceTests.cs" />
@@ -238,4 +242,8 @@
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Import Project="..\packages\Microsoft.CodeCoverage.17.10.0\build\netstandard2.0\Microsoft.CodeCoverage.targets" Condition="Exists('..\packages\Microsoft.CodeCoverage.17.10.0\build\netstandard2.0\Microsoft.CodeCoverage.targets')" />
   <Import Project="..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets')" />
+<<<<<<< HEAD
 </Project>
+=======
+</Project>
+>>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
