@@ -8,3 +8,5 @@ packages/
 *.suo
 *.userosscache
 *.sln.docstates
+
+ConnectionString.config
