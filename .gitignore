@@ -10,3 +10,4 @@ packages/
 *.sln.docstates
 
 ConnectionString.config
+Secrets.config

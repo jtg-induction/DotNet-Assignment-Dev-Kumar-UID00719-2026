@@ -1,4 +1,5 @@
-﻿using dotNetAssignment.Models.Entities;
+﻿using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -26,6 +27,8 @@ namespace dotNetAssignment.Data
         public DbSet<Orders> Orders { get; set; }
 
         public DbSet<OrderItem> OrderItems { get; set; }
+
+        public DbSet<RefreshTokens> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
