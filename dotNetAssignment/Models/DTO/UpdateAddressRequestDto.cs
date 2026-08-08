@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.ComponentModel.DataAnnotations;
 
 namespace dotNetAssignment.Models.DTO.Address
 {
-    public class AddressResponseDto
+    public class UpdateAddressRequestDto
     {
-        public Guid Id { get; set; }
+        public Guid AddressId { get; set; }
 
+        [StringLength(255)]
         public string LineOne { get; set; }
 
+        [StringLength(255)]
         public string Landmark { get; set; }
 
         public string Pincode { get; set; }
 
+        [StringLength(100)]
         public string City { get; set; }
 
+        [StringLength(100)]
         public string State { get; set; }
     }
 }

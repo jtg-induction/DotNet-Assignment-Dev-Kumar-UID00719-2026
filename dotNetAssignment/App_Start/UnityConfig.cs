@@ -64,6 +64,9 @@ namespace dotNetAssignment
             container.RegisterType<IUserRepository, UserRepository>(
                 new HierarchicalLifetimeManager());
 
+            container.RegisterType<IUserService, UserService>(
+                new HierarchicalLifetimeManager());
+
             container.RegisterType<RestaurantDbContext>(
                 new HierarchicalLifetimeManager());
         }

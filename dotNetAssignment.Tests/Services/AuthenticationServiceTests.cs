@@ -1,4 +1,12 @@
-﻿using dotNetAssignment.Models.DTO;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+using Microsoft.IdentityModel.Tokens;
+using Moq;
+using NUnit.Framework;
+
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
@@ -7,12 +15,6 @@ using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Repositories.User;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
-using Microsoft.IdentityModel.Tokens;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace dotNetAssignment.Tests.Services
 {

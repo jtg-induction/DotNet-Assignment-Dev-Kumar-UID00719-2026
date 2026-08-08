@@ -1,13 +1,15 @@
-﻿using dotNetAssignment.Controllers;
+﻿using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http.Results;
+
+using Moq;
+using NUnit.Framework;
+
+using dotNetAssignment.Controllers;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
-using Moq;
-using NUnit.Framework;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http.Results;
 
 namespace dotNetAssignment.Tests.Controllers
 {

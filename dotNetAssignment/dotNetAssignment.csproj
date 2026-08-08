@@ -204,6 +204,7 @@
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AuthController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -225,8 +226,8 @@
       <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\DTO\AddressRequestDto.cs" />
-    <Compile Include="Models\DTO\AddressResponseDto.cs" />
+    <Compile Include="Models\DTO\AddAddressRequestDto.cs" />
+    <Compile Include="Models\DTO\UpdateAddressRequestDto.cs" />
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
     <Compile Include="Models\DTO\LoginRequestDto.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Models\DTO\RefreshTokenDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenResponseDto.cs" />
     <Compile Include="Models\DTO\SignupRequestDto.cs" />
+    <Compile Include="Models\DTO\UpdateUserRequestDto.cs" />
     <Compile Include="Models\Entities\RefreshTokens.cs" />
     <Compile Include="Models\Entities\RestaurantOwners.cs" />
     <Compile Include="Models\Entities\UserAddresses.cs" />
@@ -252,9 +254,11 @@
     <Compile Include="Services\Implementations\AuthenticationService.cs" />
     <Compile Include="Services\Implementations\JwtService.cs" />
     <Compile Include="Services\Implementations\PasswordService.cs" />
+    <Compile Include="Services\Implementations\UserService.cs" />
     <Compile Include="Services\Interfaces\IAuthenticationService.cs" />
     <Compile Include="Services\Interfaces\IJwtService.cs" />
     <Compile Include="Services\Interfaces\IPasswordService.cs" />
+    <Compile Include="Services\Interfaces\IUserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

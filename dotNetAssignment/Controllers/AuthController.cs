@@ -1,10 +1,11 @@
-﻿using dotNetAssignment.Models.DTO.Login;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
+using System.Net;
+
+using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Models.DTO;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Net;
 
 namespace dotNetAssignment.Controllers
 {

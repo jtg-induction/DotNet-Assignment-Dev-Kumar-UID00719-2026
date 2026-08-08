@@ -1,5 +1,6 @@
-﻿using dotNetAssignment.Services.Implementations;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+
+using dotNetAssignment.Services.Implementations;
 
 namespace dotNetAssignment.Tests.Services
 {

@@ -1,9 +1,8 @@
-﻿using dotNetAssignment.Models.DTO;
+﻿using System.Threading.Tasks;
+
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.DTO.Login;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace dotNetAssignment.Services.Interfaces
 {
