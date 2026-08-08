@@ -5,6 +5,7 @@
 =======
   <Folder Name="/Solution items/">
     <File Path=".gitignore" />
+    <File Path="dotNetAssignment/ConnectionStrings.config" />
     <File Path="README.md" />
 >>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
   </Folder>

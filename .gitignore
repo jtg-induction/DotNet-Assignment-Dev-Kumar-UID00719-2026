@@ -12,8 +12,13 @@ packages/
 *.userosscache
 *.sln.docstates
 
+<<<<<<< HEAD
 ConnectionString.config
 <<<<<<< HEAD
 =======
 Secrets.config
 >>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
+=======
+ConnectionStrings.config
+Secrets.config
+>>>>>>> 2d20e48 ([DS_DA_01] : Added created at field in refreshtoken table)

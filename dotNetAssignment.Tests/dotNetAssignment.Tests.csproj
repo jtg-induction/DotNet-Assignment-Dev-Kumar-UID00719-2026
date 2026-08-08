@@ -192,9 +192,12 @@
     <Compile Include="Controllers\AuthControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     <Compile Include="SampleTests.cs" />
 >>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
+=======
+>>>>>>> 2d20e48 ([DS_DA_01] : Added created at field in refreshtoken table)
     <Compile Include="Services\AuthenticationServiceTests.cs" />
     <Compile Include="Services\JwtServiceTests.cs" />
     <Compile Include="Services\PasswordServiceTests.cs" />
