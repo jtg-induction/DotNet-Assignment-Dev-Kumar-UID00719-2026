@@ -16,5 +16,7 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<string>> UpdateAddressAsync(Guid UserId, UpdateAddressRequestDto request);
 
+        Task<ApiResponseDto<string>> ChangePasswordAsync(Guid UserId, ChangePasswordRequestDto request);
+
     }
 }

@@ -49,7 +49,6 @@ namespace dotNetAssignment.Services.Implementations
             }
 
             user.UpdatedAt = DateTime.UtcNow;
-
             await _userRepository.SaveChangesAsync();
 
             return new ApiResponseDto<string>
@@ -155,7 +154,7 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
-        public async Task<ApiResponseDto<string>> UpdatePasswordAsync(Guid userId, ChangePasswordRequestDto request)
+        public async Task<ApiResponseDto<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
 
@@ -178,6 +177,7 @@ namespace dotNetAssignment.Services.Implementations
             }
 
             user.Password = request.NewPassword;
+            user.UpdatedAt = DateTime.UtcNow;
             await _userRepository.SaveChangesAsync();
 
             return new ApiResponseDto<string>

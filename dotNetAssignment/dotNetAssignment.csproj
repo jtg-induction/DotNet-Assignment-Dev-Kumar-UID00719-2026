@@ -227,6 +227,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\AddAddressRequestDto.cs" />
+    <Compile Include="Models\DTO\ChangePasswordRequestDto.cs" />
     <Compile Include="Models\DTO\UpdateAddressRequestDto.cs" />
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
@@ -261,6 +262,7 @@
     <Compile Include="Services\Interfaces\IUserService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ConnectionStrings.config" />
     <None Include="packages.config" />
     <Content Include="Secrets.config" />
     <None Include="Web.Debug.config">

@@ -41,7 +41,7 @@ namespace dotNetAssignment.Repositories.User
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
         }
 
-        public async Task<UserAddresses> GetAddressByIDAsync(Guid addressId)
+        public async Task<UserAddresses> GetAddressByIdAsync(Guid addressId)
         {
             return await _context.UserAddresses.FirstOrDefaultAsync(x => x.Id == addressId);
         }

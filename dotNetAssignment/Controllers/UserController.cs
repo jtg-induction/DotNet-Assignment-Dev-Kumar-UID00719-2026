@@ -82,5 +82,26 @@ namespace dotNetAssignment.Controllers
 
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpPost]
+        [Route("address")]
+        public async Task<IHttpActionResult> ChangePassword(ChangePasswordRequestDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var response = await _userService.ChangePasswordAsync(userId, request);
+
+            if (!response.Success)
+            {
+                return Content(HttpStatusCode.BadRequest, response);
+            }
+
+            return Ok(response);
+        }
     }
 }
