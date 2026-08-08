@@ -220,18 +220,20 @@
     <Compile Include="Migrations\202608071031091_AddRefreshTokens.Designer.cs">
       <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.cs" />
+    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.Designer.cs">
+      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\DTO\Address\AddressRequestDto.cs" />
-    <Compile Include="Models\DTO\Address\AddressResponseDto.cs" />
+    <Compile Include="Models\DTO\AddressRequestDto.cs" />
+    <Compile Include="Models\DTO\AddressResponseDto.cs" />
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
-    <Compile Include="Models\DTO\Login\LoginRequestDto.cs" />
-    <Compile Include="Models\DTO\Login\LoginResponseDto.cs" />
+    <Compile Include="Models\DTO\LoginRequestDto.cs" />
     <Compile Include="Models\DTO\LogoutDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenResponseDto.cs" />
-    <Compile Include="Models\DTO\Signup\SignupRequestDto.cs" />
-    <Compile Include="Models\DTO\Signup\SignupResponseDto.cs" />
+    <Compile Include="Models\DTO\SignupRequestDto.cs" />
     <Compile Include="Models\Entities\RefreshTokens.cs" />
     <Compile Include="Models\Entities\RestaurantOwners.cs" />
     <Compile Include="Models\Entities\UserAddresses.cs" />
@@ -276,6 +278,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202608071031091_AddRefreshTokens.resx">
       <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202608080933043_AddAuditsInJwtTable.resx">
+      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

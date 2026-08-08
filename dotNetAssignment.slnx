@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution items/">
     <File Path=".gitignore" />
+    <File Path="dotNetAssignment/ConnectionStrings.config" />
     <File Path="README.md" />
   </Folder>
   <Project Path="dotNetAssignment.Tests/dotNetAssignment.Tests.csproj" Id="c4cfaa21-1a2f-4281-9e3c-d88f5d407a94" />

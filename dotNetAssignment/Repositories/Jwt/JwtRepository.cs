@@ -20,7 +20,8 @@ namespace dotNetAssignment.Repositories.Jwt
         {
             _context.RefreshTokens.Add(new RefreshTokens
             {
-                JwtId = jwtId
+                JwtId = jwtId,
+                CreatedAt = DateTime.UtcNow
             });
         }
 

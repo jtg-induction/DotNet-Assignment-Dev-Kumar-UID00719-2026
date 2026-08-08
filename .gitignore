@@ -9,5 +9,5 @@ packages/
 *.userosscache
 *.sln.docstates
 
-ConnectionString.config
+ConnectionStrings.config
 Secrets.config
