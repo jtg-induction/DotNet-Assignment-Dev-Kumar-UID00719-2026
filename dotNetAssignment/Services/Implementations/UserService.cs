@@ -187,5 +187,29 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
+        public async Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = "User not found."
+                };
+            }
+
+            user.IsActive = false;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userRepository.SaveChangesAsync();
+
+            return new ApiResponseDto<string>
+            {
+                Success = true,
+                Message = "User deactivated successfully."
+            };
+        }
+
     }
 }

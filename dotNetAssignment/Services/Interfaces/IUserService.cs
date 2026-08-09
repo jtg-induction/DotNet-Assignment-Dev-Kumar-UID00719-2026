@@ -10,13 +10,15 @@ namespace dotNetAssignment.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<ApiResponseDto<string>> UpdateUserAsync(Guid UserId, UpdateUserRequestDto request);
+        Task<ApiResponseDto<string>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request);
 
-        Task<ApiResponseDto<string>> AddAddressAsync(Guid UserId, AddAddressRequestDto request);
+        Task<ApiResponseDto<string>> AddAddressAsync(Guid userId, AddAddressRequestDto request);
 
-        Task<ApiResponseDto<string>> UpdateAddressAsync(Guid UserId, UpdateAddressRequestDto request);
+        Task<ApiResponseDto<string>> UpdateAddressAsync(Guid userId, UpdateAddressRequestDto request);
 
-        Task<ApiResponseDto<string>> ChangePasswordAsync(Guid UserId, ChangePasswordRequestDto request);
+        Task<ApiResponseDto<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request);
+
+        Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId);
 
     }
 }

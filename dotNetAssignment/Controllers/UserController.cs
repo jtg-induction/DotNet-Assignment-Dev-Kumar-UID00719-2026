@@ -21,7 +21,7 @@ namespace dotNetAssignment.Controllers
         }
 
         [Authorize]
-        [HttpPut]
+        [HttpPatch]
         [Route("")]
         public async Task<IHttpActionResult> UpdateUser(UpdateUserRequestDto request)
         {
@@ -63,7 +63,7 @@ namespace dotNetAssignment.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPatch]
         [Route("address")]
         public async Task<IHttpActionResult> UpdateAddress(UpdateAddressRequestDto request)
         {
@@ -84,8 +84,8 @@ namespace dotNetAssignment.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        [Route("address")]
+        [HttpPatch]
+        [Route("password")]
         public async Task<IHttpActionResult> ChangePassword(ChangePasswordRequestDto request)
         {
             if (!ModelState.IsValid)
@@ -95,6 +95,23 @@ namespace dotNetAssignment.Controllers
 
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
             var response = await _userService.ChangePasswordAsync(userId, request);
+
+            if (!response.Success)
+            {
+                return Content(HttpStatusCode.BadRequest, response);
+            }
+
+            return Ok(response);
+        }
+
+
+        [Authorize]
+        [HttpPatch]
+        [Route("deactivate")]
+        public async Task<IHttpActionResult> DeactivateUSer()
+        {
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var response = await _userService.DeactivateUserAsync(userId);
 
             if (!response.Success)
             {
