@@ -27,7 +27,6 @@ namespace dotNetAssignment.Tests.Controllers
         {
             _userService = new Mock<IUserService>();
             _controller = new UserController(_userService.Object);
-
             _userId = Guid.NewGuid();
 
             var identity = new ClaimsIdentity(
@@ -44,7 +43,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task UpdateUser_WhenServiceReturnsSuccess_ReturnsOk()
         {
             var request = new UpdateUserRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -56,9 +54,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.UpdateUser(request);
-
-            var okResult =
-                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -72,7 +68,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task UpdateUser_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new UpdateUserRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -84,9 +79,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.UpdateUser(request);
-
-            var badRequest =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
+            var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -111,7 +104,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task AddAddress_WhenServiceReturnsSuccess_ReturnsOk()
         {
             var request = new AddAddressRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -123,9 +115,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.AddAddress(request);
-
-            var okResult =
-                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -139,7 +129,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task AddAddress_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new AddAddressRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -151,9 +140,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.AddAddress(request);
-
-            var badRequest =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
+            var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -178,7 +165,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task UpdateAddress_WhenServiceReturnsSuccess_ReturnsOk()
         {
             var request = new UpdateAddressRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -190,9 +176,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.UpdateAddress(request);
-
-            var okResult =
-                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -206,7 +190,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task UpdateAddress_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new UpdateAddressRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -218,9 +201,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.UpdateAddress(request);
-
-            var badRequest =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
+            var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -245,7 +226,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task ChangePassword_WhenServiceReturnsSuccess_ReturnsOk()
         {
             var request = new ChangePasswordRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -257,9 +237,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.ChangePassword(request);
-
-            var okResult =
-                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -273,7 +251,6 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task ChangePassword_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new ChangePasswordRequestDto();
-
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -286,8 +263,7 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.ChangePassword(request);
 
-            var badRequest =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
+            var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -322,9 +298,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.DeactivateUSer();
-
-            var okResult =
-                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
@@ -348,9 +322,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.DeactivateUSer();
-
-            var badRequest =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
+            var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.Multiple(() =>
             {
