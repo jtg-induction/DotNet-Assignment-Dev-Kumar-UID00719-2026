@@ -1,5 +1,4 @@
-﻿using dotNetAssignment.Models.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,39 +7,35 @@ using System.Web;
 
 namespace dotNetAssignment.Models.Entities
 {
-    public class Orders
+    public class UserAddress
     {
         public Guid Id { get; set; }
 
-        [ForeignKey("User")]
         public Guid UserId { get; set; }
+        public virtual User User { get; set; }
 
-        [ForeignKey("Restaurant")]
-        public Guid RestaurantId { get; set; }
-
-        public OrderStatus Status { get; set; }
-
-        public DateTime PlacedAt { get; set; }
-
-        public DateTime UpdatedAt { get; set; }
-
+        [Required]
         [StringLength(255)]
-        public string AddressLineOne { get; set; }
+        public string LineOne { get; set; }
 
         [StringLength(255)]
         public string Landmark { get; set; }
 
+        [Required]
+        [RegularExpression(@"^[1-9][0-9]{5}$")]
         public string Pincode { get; set; }
-
+        
+        [Required]
         [StringLength(100)]
         public string City { get; set; }
-
+        
+        [Required]
         [StringLength(100)]
         public string State { get; set; }
 
-        public virtual Users User { get; set; }
-        public virtual Restaurants Restaurant { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
 
     }
 }

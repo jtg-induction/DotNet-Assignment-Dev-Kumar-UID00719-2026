@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace dotNetAssignment.Models.Entities
 {
-    public class Restaurants
+    public class Restaurant
     {
         public Guid Id { get; set; }
 
@@ -19,9 +19,11 @@ namespace dotNetAssignment.Models.Entities
         [StringLength(255)]
         public string AddressLineOne { get; set; }
 
+        [Range(0, 5)]
         public int Rating { get; set; }
 
         [Required]
+        [RegularExpression(@"^[1-9][0-9]{5}$")]
         public string Pincode { get; set; }
 
         [Required]
@@ -40,8 +42,8 @@ namespace dotNetAssignment.Models.Entities
         public DateTime UpdatedAt { get; set; }
 
         public virtual ICollection<Menu> Menus { get; set; }
-        public virtual ICollection<Orders> Orders { get; set; }
-        public virtual ICollection<RestaurantOwners> RestaurantOwners { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<RestaurantOwner> RestaurantOwners { get; set; }
 
     }
 }

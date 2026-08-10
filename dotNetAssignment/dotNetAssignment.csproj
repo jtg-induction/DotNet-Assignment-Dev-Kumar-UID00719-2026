@@ -50,6 +50,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=3.3.2.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.3.3.2\lib\net462\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web.DynamicData" />
@@ -96,27 +99,29 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202608030558273_InitialCreate.cs" />
-    <Compile Include="Migrations\202608030558273_InitialCreate.Designer.cs">
-      <DependentUpon>202608030558273_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.cs" />
-    <Compile Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.Designer.cs">
-      <DependentUpon>202608031028384_AddUniqueIndexOnUserEmail.cs</DependentUpon>
+    <Compile Include="Handlers\GlobalExceptionHandler.cs" />
+    <Compile Include="Migrations\202608101120159_InitialCreate.cs" />
+    <Compile Include="Migrations\202608101120159_InitialCreate.Designer.cs">
+      <DependentUpon>202608101120159_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\Entities\RestaurantOwners.cs" />
-    <Compile Include="Models\Entities\UserAddresses.cs" />
+    <Compile Include="Models\DTO\ApiResponseDto.cs" />
+    <Compile Include="Models\Entities\RestaurantOwner.cs" />
+    <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\Entities\Menu.cs" />
     <Compile Include="Models\Entities\OrderItem.cs" />
-    <Compile Include="Models\Entities\Orders.cs" />
-    <Compile Include="Models\Entities\Restaurants.cs" />
-    <Compile Include="Models\Entities\Users.cs" />
+    <Compile Include="Models\Entities\Order.cs" />
+    <Compile Include="Models\Entities\Restaurant.cs" />
+    <Compile Include="Models\Entities\User.cs" />
     <Compile Include="Models\Enums\OrderStatus.cs" />
     <Compile Include="Models\Enums\UserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ConnectionStrings.config" />
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -128,14 +133,10 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Models\DTO\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202608030558273_InitialCreate.resx">
-      <DependentUpon>202608030558273_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.resx">
-      <DependentUpon>202608031028384_AddUniqueIndexOnUserEmail.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202608101120159_InitialCreate.resx">
+      <DependentUpon>202608101120159_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -3,6 +3,9 @@
 bin/
 obj/
 
+*.mdf
+*.ldf
+
 packages/
 *.user
 *.suo

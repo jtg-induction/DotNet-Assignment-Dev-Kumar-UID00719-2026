@@ -9,7 +9,7 @@ using dotNetAssignment.Models.Enums;
 
 namespace dotNetAssignment.Models.Entities
 {
-    public class Users
+    public class User
     {
         public Guid Id { get; set; }
 
@@ -23,7 +23,8 @@ namespace dotNetAssignment.Models.Entities
         [Required]
         [EmailAddress]
         [Index("IX_Email", IsUnique = true)]
-        [StringLength(100)]
+        [StringLength(255)]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
         public string Email { get; set; }
 
         [Required]
@@ -32,19 +33,21 @@ namespace dotNetAssignment.Models.Entities
 
         public bool IsActive { get; set; }
 
+        [Range(0, int.MaxValue)]
         public decimal Balance { get; set; }
 
         [Required]
         [Phone]
+        [RegularExpression(@"^[0-9]{10}$")]
         public string PhoneNumber { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 
-        public virtual ICollection<UserAddresses> UserAddresses { get; set; }
-        public virtual ICollection<Orders> Orders { get; set; }
-        public virtual ICollection<RestaurantOwners> RestaurantOwners { get; set; }
+        public virtual ICollection<UserAddress> UserAddresses { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<RestaurantOwner> RestaurantOwners { get; set; }
 
     }
 }
