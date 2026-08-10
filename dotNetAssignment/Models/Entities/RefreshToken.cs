@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace dotNetAssignment.Models.Entities
 {
-    public class RefreshTokens
+    public class RefreshToken
     {
         [Key]
         public Guid JwtId { get; set; }

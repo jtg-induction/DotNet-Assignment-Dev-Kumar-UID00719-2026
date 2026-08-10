@@ -16,6 +16,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
+        [RegularExpression(@"^[1-9][0-9]{5}$")]
         public string Pincode { get; set; }
 
         [Required]

@@ -16,7 +16,8 @@ namespace dotNetAssignment.Models.DTO.SignUp
 
         [Required]
         [EmailAddress]
-        [StringLength(100)]
+        [StringLength(255)]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
         public string Email { get; set; }
 
         [Required]
@@ -25,6 +26,7 @@ namespace dotNetAssignment.Models.DTO.SignUp
 
         [Required]
         [Phone]
+        [RegularExpression(@"^[0-9]{10}$")]
         public string PhoneNumber { get; set; }
 
         public UserRole Role { get; set; }

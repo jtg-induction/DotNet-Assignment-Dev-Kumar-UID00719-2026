@@ -3,7 +3,7 @@ using Unity;
 using Unity.Lifetime;
 
 using dotNetAssignment.Data;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Repositories.Jwt;

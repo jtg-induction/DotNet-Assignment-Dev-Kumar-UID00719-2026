@@ -7,7 +7,7 @@ using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.Jwt;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 
 namespace dotNetAssignment.Services.Implementations
@@ -32,6 +32,14 @@ namespace dotNetAssignment.Services.Implementations
 
         }
 
+        /// <summary>
+        /// Handles user signup by creating a new user, hashing the password, generating JWT tokens, and saving the user to the repository.
+        /// </summary>
+        /// <param name="request">The signup request DTO.</param>
+        /// <returns>
+        /// An API response containing the authentication tokens on success
+        /// or an error message when signup fails
+        /// </returns>
         public async Task<ApiResponseDto<AuthenticationResponseDto>> SignupAsync(SignupRequestDto request)
         {
             if (await _userRepository.EmailExistsAsync(request.Email))
@@ -43,7 +51,7 @@ namespace dotNetAssignment.Services.Implementations
                 };
             }
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
@@ -62,7 +70,16 @@ namespace dotNetAssignment.Services.Implementations
             var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
             _jwtRepository.AddJwtId(refreshToken.JwtId);
+
+            try
+            {
             await _jwtRepository.SaveChangesAsync();
+
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
 
             return new ApiResponseDto<AuthenticationResponseDto>
             {
@@ -76,6 +93,14 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
+        /// <summary>
+        /// Handles user login by verifying credentials, generating JWT tokens, and returning them in the response.
+        /// </summary>
+        /// <param name="request">The login request DTO.</param>
+        /// <returns>
+        /// An API response containing the authentication tokens on success
+        /// or an error message when login fails
+        /// </returns>
         public async Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
@@ -106,7 +131,14 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
-        public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenDto request)
+        /// <summary>
+        /// Handles user logout by validating the refresh token, removing the associated JWT ID from the repository, and returning a success or error response.
+        /// </summary>
+        /// <param name="request">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response indicating the success or failure of the logout operation
+        /// </returns>
+        public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto request)
         {
             try
             {
@@ -141,7 +173,15 @@ namespace dotNetAssignment.Services.Implementations
             }
         }
 
-        public async Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenDto request)
+        /// <summary>
+        /// Handles token refresh by validating the provided refresh token, generating a new access token, and returning it in the response.
+        /// </summary>
+        /// <param name="request">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response containing the refreshed authentication tokens on success
+        /// or an error message when token refresh fails
+        /// </returns>
+        public async Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenRequestDto request)
         {
             try
             {

@@ -13,9 +13,9 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto LoginRequestDto);
 
-        Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenDto refreshTokenDto);
+        Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto refreshTokenDto);
 
-        Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenDto refreshTokenDto);
+        Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenRequestDto refreshTokenDto);
 
     }
 }

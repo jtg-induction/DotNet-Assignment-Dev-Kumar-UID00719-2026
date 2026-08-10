@@ -28,7 +28,7 @@ namespace dotNetAssignment.Data
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        public DbSet<RefreshTokens> RefreshTokens { get; set; }
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

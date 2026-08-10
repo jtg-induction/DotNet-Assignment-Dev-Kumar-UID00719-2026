@@ -157,7 +157,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task Refresh_WhenServiceReturnsSuccess_ReturnsOk()
         {
-            var request = new RefreshTokenDto();
+            var request = new RefreshTokenRequestDto();
 
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
@@ -190,7 +190,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task Refresh_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
-            var request = new RefreshTokenDto();
+            var request = new RefreshTokenRequestDto();
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = false,
@@ -215,7 +215,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task Logout_WhenServiceReturnsSuccess_ReturnsOk()
         {
-            var request = new RefreshTokenDto();
+            var request = new RefreshTokenRequestDto();
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -239,7 +239,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task Logout_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
-            var request = new RefreshTokenDto();
+            var request = new RefreshTokenRequestDto();
             var response = new ApiResponseDto<string>
             {
                 Success = false,

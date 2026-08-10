@@ -1,10 +1,9 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace dotNetAssignment.Models.DTO
 {
-    public class RefreshTokenResponseDto
+    public class RefreshTokenRequestDto
     {
         public string RefreshToken { get; set; }
-        public Guid JwtId { get; set; }
     }
 }

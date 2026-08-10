@@ -60,10 +60,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-<<<<<<< HEAD
     <Reference Include="log4net, Version=3.3.2.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.3.3.2\lib\net462\log4net.dll</HintPath>
-=======
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -72,7 +71,6 @@
     </Reference>
     <Reference Include="Microsoft.Bcl.TimeProvider, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.TimeProvider.8.0.1\lib\net462\Microsoft.Bcl.TimeProvider.dll</HintPath>
->>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -214,42 +212,23 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Handlers\GlobalExceptionHandler.cs" />
-    <Compile Include="Migrations\202608101120159_InitialCreate.cs" />
-    <Compile Include="Migrations\202608101120159_InitialCreate.Designer.cs">
-      <DependentUpon>202608101120159_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608071031091_AddRefreshTokens.cs" />
-    <Compile Include="Migrations\202608071031091_AddRefreshTokens.Designer.cs">
-      <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.cs" />
-    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.Designer.cs">
-      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
+    <Compile Include="Migrations\202608101452204_InitialCreate.cs" />
+    <Compile Include="Migrations\202608101452204_InitialCreate.Designer.cs">
+      <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
-=======
-    <Compile Include="Models\DTO\Address\AddressRequestDto.cs" />
-    <Compile Include="Models\DTO\Address\AddressResponseDto.cs" />
-=======
     <Compile Include="Models\DTO\AddressRequestDto.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />
->>>>>>> 2d20e48 ([DS_DA_01] : Added created at field in refreshtoken table)
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
     <Compile Include="Models\DTO\LoginRequestDto.cs" />
-    <Compile Include="Models\DTO\LogoutDto.cs" />
-    <Compile Include="Models\DTO\RefreshTokenDto.cs" />
+    <Compile Include="Models\DTO\LogoutRequestDto.cs" />
+    <Compile Include="Models\DTO\RefreshTokenRequestDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenResponseDto.cs" />
     <Compile Include="Models\DTO\SignupRequestDto.cs" />
-    <Compile Include="Models\Entities\RefreshTokens.cs" />
-    <Compile Include="Models\Entities\RestaurantOwners.cs" />
-    <Compile Include="Models\Entities\UserAddresses.cs" />
->>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
+    <Compile Include="Models\Entities\RefreshToken.cs" />
     <Compile Include="Models\Entities\Menu.cs" />
     <Compile Include="Models\Entities\OrderItem.cs" />
     <Compile Include="Models\Entities\Order.cs" />
@@ -260,8 +239,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Jwt\IJwtRepository.cs" />
     <Compile Include="Repositories\Jwt\JwtRepository.cs" />
-    <Compile Include="Repositories\User\IUserRepository.cs" />
-    <Compile Include="Repositories\User\UserRepository.cs" />
+    <Compile Include="Repositories\UserRepo\IUserRepository.cs" />
+    <Compile Include="Repositories\UserRepo\UserRepository.cs" />
     <Compile Include="Services\Implementations\AuthenticationService.cs" />
     <Compile Include="Services\Implementations\JwtService.cs" />
     <Compile Include="Services\Implementations\PasswordService.cs" />
@@ -285,20 +264,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-<<<<<<< HEAD
-    <Folder Include="Controllers\" />
-=======
->>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202608101120159_InitialCreate.resx">
-      <DependentUpon>202608101120159_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608071031091_AddRefreshTokens.resx">
-      <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608080933043_AddAuditsInJwtTable.resx">
-      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202608101452204_InitialCreate.resx">
+      <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
@@ -349,11 +318,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets'))" />
   </Target>
   <Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.targets')" />
-<<<<<<< HEAD
-</Project>
-=======
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Import Project="..\packages\Microsoft.CodeCoverage.17.10.0\build\netstandard2.0\Microsoft.CodeCoverage.targets" Condition="Exists('..\packages\Microsoft.CodeCoverage.17.10.0\build\netstandard2.0\Microsoft.CodeCoverage.targets')" />
   <Import Project="..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets" Condition="Exists('..\packages\Microsoft.NET.Test.Sdk.17.10.0\build\net462\Microsoft.NET.Test.Sdk.targets')" />
 </Project>
->>>>>>> d636554 ([DS_DA_01] : Implemented authentication and testases)
