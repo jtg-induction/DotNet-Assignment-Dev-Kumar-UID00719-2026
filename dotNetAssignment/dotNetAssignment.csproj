@@ -60,6 +60,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=3.3.2.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.3.3.2\lib\net462\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -203,66 +206,59 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Constants\ExceptionMessages.cs" />
+    <Compile Include="Constants\Regex.cs" />
+    <Compile Include="Constants\SuccessMessages.cs" />
     <Compile Include="Controllers\AuthController.cs" />
-    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202608030558273_InitialCreate.cs" />
-    <Compile Include="Migrations\202608030558273_InitialCreate.Designer.cs">
-      <DependentUpon>202608030558273_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.cs" />
-    <Compile Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.Designer.cs">
-      <DependentUpon>202608031028384_AddUniqueIndexOnUserEmail.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608071031091_AddRefreshTokens.cs" />
-    <Compile Include="Migrations\202608071031091_AddRefreshTokens.Designer.cs">
-      <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.cs" />
-    <Compile Include="Migrations\202608080933043_AddAuditsInJwtTable.Designer.cs">
-      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
+    <Compile Include="Handlers\GlobalExceptionHandler.cs" />
+    <Compile Include="Migrations\202608101452204_InitialCreate.cs" />
+    <Compile Include="Migrations\202608101452204_InitialCreate.Designer.cs">
+      <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Entities\RestaurantOwner.cs" />
+    <Compile Include="Models\Entities\UserAddress.cs" />
+    <Compile Include="Models\DTO\AddressRequestDto.cs" />
+    <Compile Include="Models\DTO\AddressResponseDto.cs" />
     <Compile Include="Models\DTO\AddAddressRequestDto.cs" />
     <Compile Include="Models\DTO\ChangePasswordRequestDto.cs" />
     <Compile Include="Models\DTO\UpdateAddressRequestDto.cs" />
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
     <Compile Include="Models\DTO\LoginRequestDto.cs" />
-    <Compile Include="Models\DTO\LogoutDto.cs" />
-    <Compile Include="Models\DTO\RefreshTokenDto.cs" />
+    <Compile Include="Models\DTO\LogoutRequestDto.cs" />
+    <Compile Include="Models\DTO\RefreshTokenRequestDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenResponseDto.cs" />
     <Compile Include="Models\DTO\SignupRequestDto.cs" />
-    <Compile Include="Models\DTO\UpdateUserRequestDto.cs" />
-    <Compile Include="Models\Entities\RefreshTokens.cs" />
-    <Compile Include="Models\Entities\RestaurantOwners.cs" />
-    <Compile Include="Models\Entities\UserAddresses.cs" />
+    <Compile Include="Models\Entities\RefreshToken.cs" />
     <Compile Include="Models\Entities\Menu.cs" />
     <Compile Include="Models\Entities\OrderItem.cs" />
-    <Compile Include="Models\Entities\Orders.cs" />
-    <Compile Include="Models\Entities\Restaurants.cs" />
-    <Compile Include="Models\Entities\Users.cs" />
+    <Compile Include="Models\Entities\Order.cs" />
+    <Compile Include="Models\Entities\Restaurant.cs" />
+    <Compile Include="Models\Entities\User.cs" />
     <Compile Include="Models\Enums\OrderStatus.cs" />
     <Compile Include="Models\Enums\UserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Jwt\IJwtRepository.cs" />
     <Compile Include="Repositories\Jwt\JwtRepository.cs" />
-    <Compile Include="Repositories\User\IUserRepository.cs" />
-    <Compile Include="Repositories\User\UserRepository.cs" />
+    <Compile Include="Repositories\UserRepo\IUserRepository.cs" />
+    <Compile Include="Repositories\UserRepo\UserRepository.cs" />
     <Compile Include="Services\Implementations\AuthenticationService.cs" />
     <Compile Include="Services\Implementations\JwtService.cs" />
     <Compile Include="Services\Implementations\PasswordService.cs" />
-    <Compile Include="Services\Implementations\UserService.cs" />
     <Compile Include="Services\Interfaces\IAuthenticationService.cs" />
     <Compile Include="Services\Interfaces\IJwtService.cs" />
     <Compile Include="Services\Interfaces\IPasswordService.cs" />
-    <Compile Include="Services\Interfaces\IUserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ConnectionStrings.config" />
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <Content Include="Secrets.config" />
     <None Include="Web.Debug.config">
@@ -276,17 +272,8 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202608030558273_InitialCreate.resx">
-      <DependentUpon>202608030558273_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608031028384_AddUniqueIndexOnUserEmail.resx">
-      <DependentUpon>202608031028384_AddUniqueIndexOnUserEmail.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608071031091_AddRefreshTokens.resx">
-      <DependentUpon>202608071031091_AddRefreshTokens.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608080933043_AddAuditsInJwtTable.resx">
-      <DependentUpon>202608080933043_AddAuditsInJwtTable.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202608101452204_InitialCreate.resx">
+      <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

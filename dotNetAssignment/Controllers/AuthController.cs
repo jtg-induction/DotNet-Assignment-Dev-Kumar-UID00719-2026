@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using System.Net;
-
-using dotNetAssignment.Models.DTO.Login;
+﻿using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Models.DTO;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Net;
 
 namespace dotNetAssignment.Controllers
 {
@@ -19,6 +18,13 @@ namespace dotNetAssignment.Controllers
             _authenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Handles user signup requests.
+        /// </summary>
+        /// <param name="signupRequestDto">The signup request DTO.</param>
+        /// <returns>
+        /// An API response indicating the success or failure of the signup operation.
+        /// </returns>
         [HttpPost]
         [Route("signup")]
         public async Task<IHttpActionResult> Signup(SignupRequestDto signupRequestDto)
@@ -38,6 +44,14 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Handles user login requests.
+        /// </summary>
+        /// <param name="loginRequestDto">The login request DTO.</param>
+        /// <returns>
+        /// An API response containing the authentication tokens on success
+        /// or an error message when login fails
+        /// </returns>
         [HttpPost]
         [Route("login")]
         public async Task<IHttpActionResult> Login(LoginRequestDto loginRequestDto)
@@ -57,9 +71,17 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Handles token refresh requests.
+        /// </summary>
+        /// <param name="refreshTokenDto">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response containing the refreshed authentication tokens on success
+        /// or an error message when token refresh fails
+        /// </returns>
         [HttpPost]
         [Route("refresh")]
-        public async Task<IHttpActionResult> Refresh(RefreshTokenDto refreshTokenDto)
+        public async Task<IHttpActionResult> Refresh(RefreshTokenRequestDto refreshTokenDto)
         {
             var response = await _authenticationService.TokenRefreshAsync(refreshTokenDto);
 
@@ -71,9 +93,16 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Handles user logout requests.
+        /// </summary>
+        /// <param name="refreshTokenDto">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response indicating the success or failure of the logout operation.
+        /// </returns>
         [HttpPost]
         [Route("logout")]
-        public async Task<IHttpActionResult> Logout(RefreshTokenDto refreshTokenDto) 
+        public async Task<IHttpActionResult> Logout(RefreshTokenRequestDto refreshTokenDto) 
         {
             var response = await _authenticationService.LogoutAsync(refreshTokenDto);
 

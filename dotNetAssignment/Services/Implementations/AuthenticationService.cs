@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using dotNetAssignment.Models.DTO;
@@ -6,8 +7,9 @@ using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.Jwt;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -31,6 +33,14 @@ namespace dotNetAssignment.Services.Implementations
 
         }
 
+        /// <summary>
+        /// Handles user signup by creating a new user, hashing the password, generating JWT tokens, and saving the user to the repository.
+        /// </summary>
+        /// <param name="request">The signup request DTO.</param>
+        /// <returns>
+        /// An API response containing the authentication tokens on success
+        /// or an error message when signup fails
+        /// </returns>
         public async Task<ApiResponseDto<AuthenticationResponseDto>> SignupAsync(SignupRequestDto request)
         {
             if (await _userRepository.EmailExistsAsync(request.Email))
@@ -38,11 +48,11 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Email already exists"
+                    Message = ExceptionMessages.EmailAlreadyExists
                 };
             }
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
@@ -66,7 +76,7 @@ namespace dotNetAssignment.Services.Implementations
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
-                Message = "User registered successfully",
+                Message = SuccessMessages.UserCreated,
                 Data = new AuthenticationResponseDto
                 {
                     AccessToken = accessToken,
@@ -75,6 +85,14 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
+        /// <summary>
+        /// Handles user login by verifying credentials, generating JWT tokens, and returning them in the response.
+        /// </summary>
+        /// <param name="request">The login request DTO.</param>
+        /// <returns>
+        /// An API response containing the authentication tokens on success
+        /// or an error message when login fails
+        /// </returns>
         public async Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
@@ -84,7 +102,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Invalid email or password"
+                    Message = ExceptionMessages.InvalidEmailOrPassword
                 };
             }
 
@@ -96,7 +114,7 @@ namespace dotNetAssignment.Services.Implementations
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
-                Message = "Login successful",
+                Message = SuccessMessages.UserLoggedIn,
                 Data = new AuthenticationResponseDto
                 {
                     AccessToken = accessToken,
@@ -105,7 +123,14 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
-        public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenDto request)
+        /// <summary>
+        /// Handles user logout by validating the refresh token, removing the associated JWT ID from the repository, and returning a success or error response.
+        /// </summary>
+        /// <param name="request">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response indicating the success or failure of the logout operation
+        /// </returns>
+        public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto request)
         {
             try
             {
@@ -117,7 +142,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<string>
                     {
                         Success = false,
-                        Message = "Invalid refresh token."
+                        Message = ExceptionMessages.InvalidRefreshToken
                     };
                 }
 
@@ -127,7 +152,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<string>
                 {
                     Success = true,
-                    Message = "Logged out successfully."
+                    Message = SuccessMessages.UserLoggedOut
                 };
             }
             catch
@@ -135,12 +160,20 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<string>
                 {
                     Success = false,
-                    Message = "Invalid refresh token."
+                    Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
         }
 
-        public async Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenDto request)
+        /// <summary>
+        /// Handles token refresh by validating the provided refresh token, generating a new access token, and returning it in the response.
+        /// </summary>
+        /// <param name="request">The refresh token request DTO.</param>
+        /// <returns>
+        /// An API response containing the refreshed authentication tokens on success
+        /// or an error message when token refresh fails
+        /// </returns>
+        public async Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenRequestDto request)
         {
             try
             {
@@ -152,7 +185,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<AuthenticationResponseDto>
                     {
                         Success = false,
-                        Message = "Invalid refresh token."
+                        Message = ExceptionMessages.InvalidRefreshToken
                     };
                 }
 
@@ -167,7 +200,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<AuthenticationResponseDto>
                     {
                         Success = false,
-                        Message = "User not found."
+                        Message = ExceptionMessages.UserNotFound
                     };
                 }
 
@@ -176,7 +209,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = true,
-                    Message = "Token refreshed successfully.",
+                    Message = SuccessMessages.TokenRefreshed,
                     Data = new AuthenticationResponseDto
                     {
                         AccessToken = accessToken,
@@ -189,7 +222,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Invalid refresh token."
+                    Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
         }

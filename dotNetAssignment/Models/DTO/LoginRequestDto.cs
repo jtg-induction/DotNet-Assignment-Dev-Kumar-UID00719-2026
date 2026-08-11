@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
 
 namespace dotNetAssignment.Models.DTO.Login
 {
@@ -6,7 +10,8 @@ namespace dotNetAssignment.Models.DTO.Login
     {
         [Required]
         [EmailAddress]
-        [StringLength(100)]
+        [StringLength(255)]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
         public string Email { get; set; }
 
         [Required]

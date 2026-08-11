@@ -14,7 +14,7 @@
                         Id = c.Guid(nullable: false),
                         DishName = c.String(nullable: false, maxLength: 100),
                         Price = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        Rating = c.Int(nullable: false),
+                        Rating = c.Decimal(nullable: false, precision: 18, scale: 2),
                         RestaurantId = c.Guid(nullable: false),
                         CreatedAt = c.DateTime(nullable: false),
                         UpdatedAt = c.DateTime(nullable: false),
@@ -49,11 +49,11 @@
                         Status = c.Int(nullable: false),
                         PlacedAt = c.DateTime(nullable: false),
                         UpdatedAt = c.DateTime(nullable: false),
-                        AddressLineOne = c.String(maxLength: 255),
+                        AddressLineOne = c.String(nullable: false, maxLength: 255),
                         Landmark = c.String(maxLength: 255),
-                        Pincode = c.String(),
-                        City = c.String(maxLength: 100),
-                        State = c.String(maxLength: 100),
+                        Pincode = c.String(nullable: false),
+                        City = c.String(nullable: false, maxLength: 100),
+                        State = c.String(nullable: false, maxLength: 100),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Restaurants", t => t.RestaurantId, cascadeDelete: true)
@@ -99,7 +99,7 @@
                         Id = c.Guid(nullable: false),
                         Name = c.String(nullable: false, maxLength: 100),
                         Role = c.Int(nullable: false),
-                        Email = c.String(nullable: false, maxLength: 100),
+                        Email = c.String(nullable: false, maxLength: 255),
                         Password = c.String(nullable: false, maxLength: 100),
                         IsActive = c.Boolean(nullable: false),
                         Balance = c.Decimal(nullable: false, precision: 18, scale: 2),
@@ -107,7 +107,8 @@
                         CreatedAt = c.DateTime(nullable: false),
                         UpdatedAt = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.Id);
+                .PrimaryKey(t => t.Id)
+                .Index(t => t.Email, unique: true);
             
             CreateTable(
                 "dbo.UserAddresses",
@@ -127,19 +128,29 @@
                 .ForeignKey("dbo.Users", t => t.UserId, cascadeDelete: true)
                 .Index(t => t.UserId);
             
+            CreateTable(
+                "dbo.RefreshTokens",
+                c => new
+                    {
+                        JwtId = c.Guid(nullable: false),
+                        CreatedAt = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.JwtId);
+            
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.Menus", "RestaurantId", "dbo.Restaurants");
             DropForeignKey("dbo.Orders", "UserId", "dbo.Users");
-            DropForeignKey("dbo.Orders", "RestaurantId", "dbo.Restaurants");
             DropForeignKey("dbo.UserAddresses", "UserId", "dbo.Users");
             DropForeignKey("dbo.RestaurantOwners", "UserId", "dbo.Users");
             DropForeignKey("dbo.RestaurantOwners", "RestaurantId", "dbo.Restaurants");
+            DropForeignKey("dbo.Orders", "RestaurantId", "dbo.Restaurants");
+            DropForeignKey("dbo.Menus", "RestaurantId", "dbo.Restaurants");
             DropForeignKey("dbo.OrderItems", "OrderId", "dbo.Orders");
             DropForeignKey("dbo.OrderItems", "MenuId", "dbo.Menus");
             DropIndex("dbo.UserAddresses", new[] { "UserId" });
+            DropIndex("dbo.Users", new[] { "Email" });
             DropIndex("dbo.RestaurantOwners", new[] { "RestaurantId" });
             DropIndex("dbo.RestaurantOwners", new[] { "UserId" });
             DropIndex("dbo.Orders", new[] { "RestaurantId" });
@@ -147,6 +158,7 @@
             DropIndex("dbo.OrderItems", new[] { "MenuId" });
             DropIndex("dbo.OrderItems", new[] { "OrderId" });
             DropIndex("dbo.Menus", new[] { "RestaurantId" });
+            DropTable("dbo.RefreshTokens");
             DropTable("dbo.UserAddresses");
             DropTable("dbo.Users");
             DropTable("dbo.RestaurantOwners");

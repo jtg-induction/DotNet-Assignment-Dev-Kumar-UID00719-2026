@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -136,8 +136,8 @@ namespace dotNetAssignment.Tests.Services
                 .Returns("hashed-password");
 
             _userRepository
-                .Setup(x => x.AddUser(It.IsAny<Users>()))
-                .Callback<Users>(user => capturedUser = user);
+                .Setup(x => x.AddUser(It.IsAny<User>()))
+                .Callback<User>(user => capturedUser = user);
 
             _jwtService
                 .Setup(x => x.GenerateAccessToken(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<UserRole>()))
@@ -170,7 +170,7 @@ namespace dotNetAssignment.Tests.Services
 
             _userRepository
                 .Setup(x => x.GetUserByEmailAsync(request.Email))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var result = await _authenticationService.LoginAsync(request);
 
@@ -187,7 +187,7 @@ namespace dotNetAssignment.Tests.Services
                 Password = "Password123"
             };
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -218,7 +218,7 @@ namespace dotNetAssignment.Tests.Services
                 Password = "Password123"
             };
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -259,7 +259,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_InvalidRefreshToken_ReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "invalid-token"
             };
@@ -277,7 +277,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_JwtIdDoesNotExist_ReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -306,7 +306,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_ValidRefreshToken_RemovesJwtId()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -335,7 +335,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task TokenRefreshAsync_InvalidRefreshToken_ReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "invalid-token"
             };
@@ -353,7 +353,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task TokenRefreshAsync_JwtIdDoesNotExist_ReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -382,7 +382,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task TokenRefreshAsync_UserNotFound_RemovesJwtIdAndReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -409,7 +409,7 @@ namespace dotNetAssignment.Tests.Services
 
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var result = await _authenticationService.TokenRefreshAsync(request);
 
@@ -420,7 +420,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task TokenRefreshAsync_ValidRequest_ReturnsNewAccessToken()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -428,7 +428,7 @@ namespace dotNetAssignment.Tests.Services
             var principal = new ClaimsPrincipal();
             var jwtId = Guid.NewGuid();
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Email = "test@test.com",
@@ -471,7 +471,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task TokenRefreshAsync_UserInactive_RemovesJwtIdAndReturnsFailure()
         {
-            var request = new RefreshTokenDto
+            var request = new RefreshTokenRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -479,7 +479,7 @@ namespace dotNetAssignment.Tests.Services
             var principal = new ClaimsPrincipal();
             var jwtId = Guid.NewGuid();
 
-            var user = new Users
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 Email = "test@test.com",

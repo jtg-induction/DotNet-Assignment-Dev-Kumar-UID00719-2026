@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
-
-using dotNetAssignment.Models.DTO;
+﻿using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.DTO.Login;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dotNetAssignment.Services.Interfaces
 {
@@ -12,9 +13,9 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto LoginRequestDto);
 
-        Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenDto refreshTokenDto);
+        Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto refreshTokenDto);
 
-        Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenDto refreshTokenDto);
+        Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenRequestDto refreshTokenDto);
 
     }
 }

@@ -3,7 +3,7 @@ using Unity;
 using Unity.Lifetime;
 
 using dotNetAssignment.Data;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Repositories.Jwt;
@@ -62,9 +62,6 @@ namespace dotNetAssignment
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<IUserRepository, UserRepository>(
-                new HierarchicalLifetimeManager());
-
-            container.RegisterType<IUserService, UserService>(
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<RestaurantDbContext>(

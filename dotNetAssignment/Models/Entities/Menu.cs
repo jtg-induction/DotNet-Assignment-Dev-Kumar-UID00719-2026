@@ -14,18 +14,20 @@ namespace dotNetAssignment.Models.Entities
         public string DishName { get; set; }
         
         [Required]
+        [Range(0, int.MaxValue)]
         public decimal Price { get; set; }
 
-        public int Rating { get; set; }
+        [Required]
+        [Range(0,5)]
+        public decimal Rating { get; set; }
 
-        [ForeignKey("Restaurant")]
         public Guid RestaurantId { get; set; }
+        public virtual Restaurant Restaurant { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 
-        public virtual Restaurants Restaurant { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }

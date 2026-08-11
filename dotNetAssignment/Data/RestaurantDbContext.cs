@@ -14,25 +14,25 @@ namespace dotNetAssignment.Data
         {
         }
 
-        public DbSet<Users> Users { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
-        public DbSet<UserAddresses> UserAddresses { get; set; }
+        public virtual DbSet<UserAddress> UserAddresses { get; set; }
 
-        public DbSet<Restaurants> Restaurants { get; set; }
+        public DbSet<Restaurant> Restaurants { get; set; }
 
-        public DbSet<RestaurantOwners> RestaurantOwners { get; set; }
+        public DbSet<RestaurantOwner> RestaurantOwners { get; set; }
 
         public DbSet<Menu> Menus { get; set; }
 
-        public DbSet<Orders> Orders { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        public DbSet<RefreshTokens> RefreshTokens { get; set; }
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Orders>()
+            modelBuilder.Entity<Order>()
                 .HasRequired(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId)

@@ -4,17 +4,19 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using dotNetAssignment.Constants;
+
 namespace dotNetAssignment.Models.Entities
 {
-    public class Orders
+    public class Order
     {
         public Guid Id { get; set; }
 
-        [ForeignKey("User")]
         public Guid UserId { get; set; }
+        public virtual User User { get; set; }
 
-        [ForeignKey("Restaurant")]
         public Guid RestaurantId { get; set; }
+        public virtual Restaurant Restaurant { get; set; }
 
         public OrderStatus Status { get; set; }
 
@@ -22,23 +24,25 @@ namespace dotNetAssignment.Models.Entities
 
         public DateTime UpdatedAt { get; set; }
 
+        [Required]
         [StringLength(255)]
         public string AddressLineOne { get; set; }
 
         [StringLength(255)]
         public string Landmark { get; set; }
 
+        [Required]
+        [RegularExpression(Regex.validPincodeRegex)]
         public string Pincode { get; set; }
 
+        [Required]
         [StringLength(100)]
         public string City { get; set; }
 
+        [Required]
         [StringLength(100)]
         public string State { get; set; }
 
-        public virtual Users User { get; set; }
-        public virtual Restaurants Restaurant { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
-
     }
 }

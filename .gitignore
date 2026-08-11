@@ -3,11 +3,14 @@
 bin/
 obj/
 
+*.mdf
+*.ldf
+
 packages/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-ConnectionStrings.config
+ConnectionString.config
 Secrets.config

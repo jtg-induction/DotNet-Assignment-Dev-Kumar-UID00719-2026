@@ -2,14 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using dotNetAssignment.Constants;
+
 namespace dotNetAssignment.Models.Entities
 {
-    public class UserAddresses
+    public class UserAddress
     {
         public Guid Id { get; set; }
 
-        [ForeignKey("User")]
         public Guid UserId { get; set; }
+        public virtual User User { get; set; }
 
         [Required]
         [StringLength(255)]
@@ -19,6 +21,7 @@ namespace dotNetAssignment.Models.Entities
         public string Landmark { get; set; }
 
         [Required]
+        [RegularExpression(Regex.validPincodeRegex)]
         public string Pincode { get; set; }
         
         [Required]
@@ -33,6 +36,5 @@ namespace dotNetAssignment.Models.Entities
 
         public DateTime UpdatedAt { get; set; }
 
-        public virtual Users User { get; set; }
     }
 }
