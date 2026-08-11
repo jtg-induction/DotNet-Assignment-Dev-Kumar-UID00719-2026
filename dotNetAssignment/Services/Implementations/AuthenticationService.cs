@@ -9,6 +9,7 @@ using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -47,7 +48,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Email already exists"
+                    Message = ExceptionMessages.EmailAlreadyExists
                 };
             }
 
@@ -71,20 +72,12 @@ namespace dotNetAssignment.Services.Implementations
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
             _jwtRepository.AddJwtId(refreshToken.JwtId);
 
-            try
-            {
             await _jwtRepository.SaveChangesAsync();
-
-            }
-            catch(Exception ex)
-            {
-                throw;
-            }
 
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
-                Message = "User registered successfully",
+                Message = SuccessMessages.UserCreated,
                 Data = new AuthenticationResponseDto
                 {
                     AccessToken = accessToken,
@@ -110,7 +103,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Invalid email or password"
+                    Message = ExceptionMessages.InvalidEmailOrPassword
                 };
             }
 
@@ -122,7 +115,7 @@ namespace dotNetAssignment.Services.Implementations
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
-                Message = "Login successful",
+                Message = SuccessMessages.UserLoggedIn,
                 Data = new AuthenticationResponseDto
                 {
                     AccessToken = accessToken,
@@ -150,7 +143,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<string>
                     {
                         Success = false,
-                        Message = "Invalid refresh token."
+                        Message = ExceptionMessages.InvalidRefreshToken
                     };
                 }
 
@@ -160,7 +153,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<string>
                 {
                     Success = true,
-                    Message = "Logged out successfully."
+                    Message = SuccessMessages.UserLoggedOut
                 };
             }
             catch
@@ -168,7 +161,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<string>
                 {
                     Success = false,
-                    Message = "Invalid refresh token."
+                    Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
         }
@@ -193,7 +186,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<AuthenticationResponseDto>
                     {
                         Success = false,
-                        Message = "Invalid refresh token."
+                        Message = ExceptionMessages.InvalidRefreshToken
                     };
                 }
 
@@ -208,7 +201,7 @@ namespace dotNetAssignment.Services.Implementations
                     return new ApiResponseDto<AuthenticationResponseDto>
                     {
                         Success = false,
-                        Message = "User not found."
+                        Message = ExceptionMessages.UserNotFound
                     };
                 }
 
@@ -217,7 +210,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = true,
-                    Message = "Token refreshed successfully.",
+                    Message = SuccessMessages.TokenRefreshed,
                     Data = new AuthenticationResponseDto
                     {
                         AccessToken = accessToken,
@@ -230,7 +223,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = "Invalid refresh token."
+                    Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
         }

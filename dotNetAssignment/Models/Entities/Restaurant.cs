@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+using dotNetAssignment.Constants;
+
 namespace dotNetAssignment.Models.Entities
 {
     public class Restaurant
@@ -20,7 +22,7 @@ namespace dotNetAssignment.Models.Entities
         public int Rating { get; set; }
 
         [Required]
-        [RegularExpression(@"^[1-9][0-9]{5}$")]
+        [RegularExpression(Regex.validPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

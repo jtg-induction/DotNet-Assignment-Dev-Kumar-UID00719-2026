@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using dotNetAssignment.Constants;
+
 namespace dotNetAssignment.Models.Entities
 {
     public class Order
@@ -30,7 +32,7 @@ namespace dotNetAssignment.Models.Entities
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(@"^[1-9][0-9]{5}$")]
+        [RegularExpression(Regex.validPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

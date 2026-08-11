@@ -14,9 +14,9 @@ namespace dotNetAssignment.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
-        public DbSet<UserAddress> UserAddresses { get; set; }
+        public virtual DbSet<UserAddress> UserAddresses { get; set; }
 
         public DbSet<Restaurant> Restaurants { get; set; }
 

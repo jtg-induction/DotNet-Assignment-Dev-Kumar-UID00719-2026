@@ -206,6 +206,9 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Constants\ExceptionMessages.cs" />
+    <Compile Include="Constants\Regex.cs" />
+    <Compile Include="Constants\SuccessMessages.cs" />
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
     <Compile Include="Global.asax.cs">
