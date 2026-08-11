@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using dotNetAssignment.Constants;
+
 namespace dotNetAssignment.Models.DTO.Address
 {
     public class AddAddressRequestDto
@@ -12,6 +14,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
+        [RegularExpression(Regex.validPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

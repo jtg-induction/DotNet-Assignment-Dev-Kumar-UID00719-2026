@@ -1,7 +1,7 @@
 ﻿using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.Entities;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -71,7 +71,7 @@ namespace dotNetAssignment.Services.Implementations
                 };
             }
 
-            var address = new UserAddresses
+            var address = new UserAddress
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,

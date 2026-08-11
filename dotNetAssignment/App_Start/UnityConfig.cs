@@ -58,6 +58,9 @@ namespace dotNetAssignment
             container.RegisterType<IJwtService, JwtService>(
                 new HierarchicalLifetimeManager());
 
+            container.RegisterType<IUserService, UserService>(
+                new HierarchicalLifetimeManager());
+
             container.RegisterType<IJwtRepository, JwtRepository>(
                 new HierarchicalLifetimeManager());
 

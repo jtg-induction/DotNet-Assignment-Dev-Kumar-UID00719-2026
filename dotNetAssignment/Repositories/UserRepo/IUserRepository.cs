@@ -17,6 +17,8 @@ namespace dotNetAssignment.Repositories.UserRepo
 
         Task<User> GetUserByIdAsync(Guid UserId);
 
+        Task<UserAddress> GetAddressByIdAsync(Guid UserId);
+
         Task SaveChangesAsync();
     }
 }

@@ -7,7 +7,7 @@ using NUnit.Framework;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.Entities;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
 
@@ -39,7 +39,7 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var request = new UpdateUserRequestDto
             {
@@ -59,7 +59,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task UpdateUserAsync_WhenUserIsInactive_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = false
@@ -87,7 +87,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task UpdateUserAsync_WhenValidRequest_UpdatesUser()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 Name = "Old Name",
@@ -121,7 +121,7 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var request = new AddAddressRequestDto
             {
@@ -144,7 +144,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task AddAddressAsync_WhenUserIsInactive_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = false
@@ -175,7 +175,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task AddAddressAsync_WhenValidRequest_AddsAddressAndReturnsSuccess()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = true
@@ -208,7 +208,7 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var request = new UpdateAddressRequestDto
             {
@@ -228,7 +228,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task UpdateAddressAsync_WhenUserIsInactive_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = false
@@ -256,7 +256,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task UpdateAddressAsync_WhenAddressDoesNotExist_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = true
@@ -270,7 +270,7 @@ namespace dotNetAssignment.Tests.Services
 
             _userRepository
                 .Setup(x => x.GetAddressByIdAsync(addressId))
-                .ReturnsAsync((UserAddresses)null);
+                .ReturnsAsync((UserAddress)null);
 
             var request = new UpdateAddressRequestDto
             {
@@ -290,7 +290,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task UpdateAddressAsync_WhenValidRequest_UpdatesAddress()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = true
@@ -298,7 +298,7 @@ namespace dotNetAssignment.Tests.Services
 
             var addressId = Guid.NewGuid();
 
-            var address = new UserAddresses
+            var address = new UserAddress
             {
                 Id = addressId,
                 UserId = _userId,
@@ -346,7 +346,7 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var request = new ChangePasswordRequestDto
             {
@@ -366,7 +366,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task ChangePasswordAsync_WhenUserIsInactive_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 Password = "hashedPassword",
@@ -395,7 +395,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task ChangePasswordAsync_WhenOldPasswordIsWrong_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 Password = "hashedPassword",
@@ -431,7 +431,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task ChangePasswordAsync_WhenOldPasswordIsCorrect_ChangesPassword()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 Password = "oldHashedPassword",
@@ -469,7 +469,7 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((Users)null);
+                .ReturnsAsync((User)null);
 
             var result = await _userService.DeactivateUserAsync(_userId);
 
@@ -483,7 +483,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task DeactivateUserAsync_WhenUserIsInactive_ReturnsFailure()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = false
@@ -505,7 +505,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task DeactivateUserAsync_WhenUserIsActive_DeactivatesUser()
         {
-            var user = new Users
+            var user = new User
             {
                 Id = _userId,
                 IsActive = true

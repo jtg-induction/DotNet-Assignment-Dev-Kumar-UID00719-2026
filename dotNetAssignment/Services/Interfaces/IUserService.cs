@@ -1,5 +1,6 @@
 ﻿using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
+using dotNetAssignment.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -65,6 +65,16 @@ namespace dotNetAssignment.Repositories.UserRepo
         }
 
         /// <summary>
+        /// Retrieves a user's Address from the database by addressId.
+        /// </summary>
+        /// <param name="addressId">The unique id of the address to retrieve.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<UserAddress> GetAddressByIdAsync(Guid addressId)
+        {
+            return await _context.UserAddresses.FirstOrDefaultAsync(x => x.Id == addressId);
+        }
+
+        /// <summary>
         /// Saves all changes made in the context to the database asynchronously.
         /// </summary>
         /// <returns>A task representing the asynchronous operation.</returns>

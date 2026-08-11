@@ -12,9 +12,10 @@ using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.Jwt;
-using dotNetAssignment.Repositories.User;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Tests.Services
 {
@@ -62,7 +63,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.SignupAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Email already exists"));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.EmailAlreadyExists));
         }
 
         [Test]
@@ -102,7 +103,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.SignupAsync(request);
 
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("User registered successfully"));
+            Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserCreated));
             Assert.That(result.Data.AccessToken, Is.EqualTo("access-token"));
             Assert.That(result.Data.RefreshToken, Is.EqualTo("refresh-token"));
         }
@@ -125,7 +126,7 @@ namespace dotNetAssignment.Tests.Services
                 RefreshToken = "refresh-token"
             };
 
-            Users capturedUser = null;
+            User capturedUser = null;
 
             _userRepository
                 .Setup(x => x.EmailExistsAsync(request.Email))
@@ -175,7 +176,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LoginAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid email or password"));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
         }
 
         [Test]
@@ -206,7 +207,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LoginAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid email or password"));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
         }
 
         [Test]
@@ -251,7 +252,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LoginAsync(request);
 
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("Login successful"));
+            Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserLoggedIn));
             Assert.That(result.Data.AccessToken, Is.EqualTo("access-token"));
             Assert.That(result.Data.RefreshToken, Is.EqualTo("refresh-token"));
         }
@@ -271,7 +272,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LogoutAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid refresh token."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
         }
 
         [Test]
@@ -300,7 +301,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LogoutAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid refresh token."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
         }
 
         [Test]
@@ -329,7 +330,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.LogoutAsync(request);
 
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("Logged out successfully."));
+            Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserLoggedOut));
         }
 
         [Test]
@@ -347,7 +348,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.TokenRefreshAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid refresh token."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
         }
 
         [Test]
@@ -376,7 +377,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.TokenRefreshAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("Invalid refresh token."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
         }
 
         [Test]
@@ -414,7 +415,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.TokenRefreshAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("User not found."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
         }
 
         [Test]
@@ -463,7 +464,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.TokenRefreshAsync(request);
 
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("Token refreshed successfully."));
+            Assert.That(result.Message, Is.EqualTo(SuccessMessages.TokenRefreshed));
             Assert.That(result.Data.AccessToken, Is.EqualTo("new-access-token"));
             Assert.That(result.Data.RefreshToken, Is.EqualTo(request.RefreshToken));
         }
@@ -510,7 +511,7 @@ namespace dotNetAssignment.Tests.Services
             var result = await _authenticationService.TokenRefreshAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo("User not found."));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
         }
     }
 }
