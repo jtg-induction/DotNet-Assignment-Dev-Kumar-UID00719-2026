@@ -28,7 +28,5 @@ namespace dotNetAssignment.Models.DTO.SignUp
         [Phone]
         [RegularExpression(@"^[0-9]{10}$")]
         public string PhoneNumber { get; set; }
-
-        public UserRole Role { get; set; }
     }
 }

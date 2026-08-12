@@ -10,6 +10,7 @@ using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Constants;
+using dotNetAssignment.Models.Enums;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -56,7 +57,7 @@ namespace dotNetAssignment.Services.Implementations
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
-                Role = request.Role,
+                Role = UserRole.Customer,
                 Email = request.Email,
                 Password = _passwordService.HashPassword(request.Password),
                 IsActive = true,

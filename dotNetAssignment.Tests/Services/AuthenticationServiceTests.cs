@@ -53,7 +53,6 @@ namespace dotNetAssignment.Tests.Services
                 Email = "dev@test.com",
                 Password = "Password123",
                 PhoneNumber = "9999999999",
-                Role = UserRole.Customer
             };
 
             _userRepository
@@ -75,7 +74,6 @@ namespace dotNetAssignment.Tests.Services
                 Email = "dev@test.com",
                 Password = "Password123",
                 PhoneNumber = "9999999999",
-                Role = UserRole.Customer
             };
 
             var refreshResponse = new RefreshTokenResponseDto
@@ -83,6 +81,8 @@ namespace dotNetAssignment.Tests.Services
                 JwtId = Guid.NewGuid(),
                 RefreshToken = "refresh-token"
             };
+
+            var role = UserRole.Customer;
 
             _userRepository
                 .Setup(x => x.EmailExistsAsync(request.Email))
@@ -93,7 +93,7 @@ namespace dotNetAssignment.Tests.Services
                 .Returns("hashed-password");
 
             _jwtService
-                .Setup(x => x.GenerateAccessToken(It.IsAny<Guid>(), request.Email, request.Role))
+                .Setup(x => x.GenerateAccessToken(It.IsAny<Guid>(), request.Email, role))
                 .Returns("access-token");
 
             _jwtService
@@ -116,8 +116,7 @@ namespace dotNetAssignment.Tests.Services
                 Name = "Dev",
                 Email = "dev@test.com",
                 Password = "Password123",
-                PhoneNumber = "9999999999",
-                Role = UserRole.Customer
+                PhoneNumber = "9999999999"
             };
 
             var refreshResponse = new RefreshTokenResponseDto
@@ -126,6 +125,7 @@ namespace dotNetAssignment.Tests.Services
                 RefreshToken = "refresh-token"
             };
 
+            var role = UserRole.Customer;
             User capturedUser = null;
 
             _userRepository
@@ -154,7 +154,7 @@ namespace dotNetAssignment.Tests.Services
             Assert.That(capturedUser.Name, Is.EqualTo(request.Name));
             Assert.That(capturedUser.Email, Is.EqualTo(request.Email));
             Assert.That(capturedUser.PhoneNumber, Is.EqualTo(request.PhoneNumber));
-            Assert.That(capturedUser.Role, Is.EqualTo(request.Role));
+            Assert.That(capturedUser.Role, Is.EqualTo(role));
             Assert.That(capturedUser.Password, Is.EqualTo("hashed-password"));
             Assert.That(capturedUser.IsActive, Is.True);
             Assert.That(capturedUser.Balance, Is.EqualTo(1000m));
