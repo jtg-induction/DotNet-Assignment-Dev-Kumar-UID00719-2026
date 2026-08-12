@@ -11,5 +11,6 @@ namespace dotNetAssignment.Constants
         public const string UserLoggedIn = "Login successful";
         public const string UserLoggedOut = "Logged out successfully";
         public const string TokenRefreshed = "Token refreshed successfully";
+        public const string OrderPlaced = "Order Placed successfully";
     }
 }

@@ -1,12 +1,13 @@
-using System;
-using Unity;
-using Unity.Lifetime;
-
 using dotNetAssignment.Data;
+using dotNetAssignment.Repositories.Jwt;
+using dotNetAssignment.Repositories.OrderRepository;
+using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
-using dotNetAssignment.Repositories.Jwt;
+using System;
+using Unity;
+using Unity.Lifetime;
 
 namespace dotNetAssignment
 {
@@ -61,10 +62,22 @@ namespace dotNetAssignment
             container.RegisterType<IUserService, UserService>(
                 new HierarchicalLifetimeManager());
 
+            container.RegisterType<IRestaurantService, RestaurantService>(
+                new HierarchicalLifetimeManager());
+
+            container.RegisterType<IOrderService, OrderService>(
+                new HierarchicalLifetimeManager());
+
             container.RegisterType<IJwtRepository, JwtRepository>(
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<IUserRepository, UserRepository>(
+                new HierarchicalLifetimeManager());
+
+            container.RegisterType<IRestaurantRepository, RestaurantRepository>(
+                new HierarchicalLifetimeManager());
+
+            container.RegisterType<IOrderRepository, OrderRepository>(
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<RestaurantDbContext>(

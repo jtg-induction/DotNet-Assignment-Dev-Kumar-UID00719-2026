@@ -11,5 +11,8 @@ namespace dotNetAssignment.Constants
         public const string UserNotFound = "User not found";
         public const string InvalidEmailOrPassword = "Invalid email or password";
         public const string InvalidRefreshToken = "Invalid refresh token";
+        public const string RestaurantDoesntExists = "Restaurant doesn't exists";
+        public const string MenuItemDoesntExists = "Item doesn't exists";
+        public const string InsufficientBalance = "Insufficient Balance";
     }
 }
