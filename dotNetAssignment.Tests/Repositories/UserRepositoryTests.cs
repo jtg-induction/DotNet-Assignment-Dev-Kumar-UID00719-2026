@@ -41,34 +41,42 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
             _repository = new UserRepository(_context.Object);
         }
 
-        private void SetupAsyncUserDbSet(IQueryable<User> data)
+        private Mock<DbSet<T>> CreateAsyncDbSet<T>(
+            IQueryable<T> data) where T : class
         {
-            _users
-                .As<IDbAsyncEnumerable<User>>()
+            var mockSet = new Mock<DbSet<T>>();
+
+            mockSet
+                .As<IDbAsyncEnumerable<T>>()
                 .Setup(x => x.GetAsyncEnumerator())
-                .Returns(new TestDbAsyncEnumerator<User>(
-                    data.GetEnumerator()));
+                .Returns(() =>
+                    new TestDbAsyncEnumerator<T>(
+                        data.GetEnumerator()));
 
-            _users
-                .As<IQueryable<User>>()
+            mockSet
+                .As<IQueryable<T>>()
                 .Setup(x => x.Provider)
-                .Returns(new TestDbAsyncQueryProvider<User>(
-                    data.Provider));
+                .Returns(() =>
+                    new TestDbAsyncQueryProvider<T>(
+                        data.Provider));
 
-            _users
-                .As<IQueryable<User>>()
+            mockSet
+                .As<IQueryable<T>>()
                 .Setup(x => x.Expression)
                 .Returns(data.Expression);
 
-            _users
-                .As<IQueryable<User>>()
+            mockSet
+                .As<IQueryable<T>>()
                 .Setup(x => x.ElementType)
                 .Returns(data.ElementType);
 
-            _users
-                .As<IQueryable<User>>()
+            mockSet
+                .As<IQueryable<T>>()
                 .Setup(x => x.GetEnumerator())
-                .Returns(() => data.GetEnumerator());
+                .Returns(() =>
+                    data.GetEnumerator());
+
+            return mockSet;
         }
 
         [Test]
@@ -85,7 +93,11 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
                 }
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
 
             var result = await _repository.EmailExistsAsync(email);
 
@@ -95,21 +107,24 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
         [Test]
         public async Task EmailExistsAsync_WhenEmailDoesNotExist_ReturnsFalse()
         {
-            var existingEmail = "existing@example.com";
-            var searchedEmail = "user@example.com";
-
             var data = new List<User>
             {
                 new User
                 {
                     Id = Guid.NewGuid(),
-                    Email = existingEmail
+                    Email = "existing@example.com"
                 }
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
 
-            var result = await _repository.EmailExistsAsync(searchedEmail);
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.EmailExistsAsync(
+                    "user@example.com");
 
             Assert.That(result, Is.False);
         }
@@ -158,9 +173,14 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
                 user
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
 
-            var result = await _repository.GetUserByEmailAsync(email);
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.GetUserByEmailAsync(email);
 
             Assert.That(result, Is.EqualTo(user));
         }
@@ -177,10 +197,15 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
                 }
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
 
             var result =
-                await _repository.GetUserByEmailAsync("user@example.com");
+                await _repository.GetUserByEmailAsync(
+                    "user@example.com");
 
             Assert.That(result, Is.Null);
         }
@@ -201,9 +226,14 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
                 user
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
 
-            var result = await _repository.GetUserByIdAsync(userId);
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.GetUserByIdAsync(userId);
 
             Assert.That(result, Is.EqualTo(user));
         }
@@ -223,7 +253,11 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
                 }
             }.AsQueryable();
 
-            SetupAsyncUserDbSet(data);
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
 
             var result =
                 await _repository.GetUserByIdAsync(searchedUserId);

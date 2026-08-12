@@ -253,9 +253,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ConnectionStrings.config" />
-    <Content Include="log4net.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
     <Content Include="Secrets.config" />
     <None Include="Web.Debug.config">
