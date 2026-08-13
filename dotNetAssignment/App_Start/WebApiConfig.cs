@@ -28,6 +28,10 @@ namespace dotNetAssignment
             );
 
             config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
+
+            config.Filters.Add(new ModelStateHandler());
+
+            config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
         }
     }
 }

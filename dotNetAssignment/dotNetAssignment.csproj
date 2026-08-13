@@ -214,6 +214,7 @@
     <Compile Include="Controllers\RestaurantController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
+    <Compile Include="Filters\ModelStateHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -234,6 +235,11 @@
     <Compile Include="Models\DTO\OrderRequestDto.cs" />
     <Compile Include="Models\DTO\RestaurantListResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantResponseDto.cs" />
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.cs" />
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.Designer.cs">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />
@@ -280,11 +286,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ConnectionStrings.config" />
-    <Content Include="log4net.config">
+    <None Include="packages.config" />
+    <Content Include="Secrets.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="packages.config" />
-    <Content Include="Secrets.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -301,6 +306,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202608121210477_AddQuantityAvailableInMenu.resx">
       <DependentUpon>202608121210477_AddQuantityAvailableInMenu.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.resx">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

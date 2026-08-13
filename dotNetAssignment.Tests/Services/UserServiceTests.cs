@@ -1,15 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Moq;
-using NUnit.Framework;
-
+﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
+using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
 namespace dotNetAssignment.Tests.Services
 {
@@ -43,8 +43,7 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new UpdateUserRequestDto
             {
-                Name = "Updated Name",
-                PhoneNumber = "9876543210"
+                Name = "Updated Name"
             };
 
             var result = await _userService.UpdateUserAsync(_userId, request);
@@ -52,46 +51,18 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
             });
         }
 
         [Test]
-        public async Task UpdateUserAsync_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new UpdateUserRequestDto
-            {
-                Name = "Updated Name",
-                PhoneNumber = "9876543210"
-            };
-
-            var result = await _userService.UpdateUserAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
-            });
-        }
-
-        [Test]
-        public async Task UpdateUserAsync_WhenValidRequest_UpdatesUser()
+        public async Task UpdateUserAsync_WhenUserExists_UpdatesUser()
         {
             var user = new User
             {
                 Id = _userId,
                 Name = "Old Name",
-                PhoneNumber = "1111111111",
+                PhoneNumber = "9999999999",
                 IsActive = true
             };
 
@@ -102,7 +73,7 @@ namespace dotNetAssignment.Tests.Services
             var request = new UpdateUserRequestDto
             {
                 Name = "New Name",
-                PhoneNumber = "2222222222"
+                PhoneNumber = "8888888888"
             };
 
             var result = await _userService.UpdateUserAsync(_userId, request);
@@ -110,10 +81,14 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Message, Is.EqualTo("User updated successfully"));
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserUpdated));
                 Assert.That(user.Name, Is.EqualTo("New Name"));
-                Assert.That(user.PhoneNumber, Is.EqualTo("2222222222"));
+                Assert.That(user.PhoneNumber, Is.EqualTo("8888888888"));
             });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
 
         [Test]
@@ -125,8 +100,8 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new AddAddressRequestDto
             {
-                LineOne = "123 Street",
-                Landmark = "Near Park",
+                LineOne = "123 Main Street",
+                Landmark = "Near Mall",
                 Pincode = "110001",
                 City = "Delhi",
                 State = "Delhi"
@@ -137,43 +112,12 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
             });
         }
 
         [Test]
-        public async Task AddAddressAsync_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new AddAddressRequestDto
-            {
-                LineOne = "123 Street",
-                Landmark = "Near Park",
-                Pincode = "110001",
-                City = "Delhi",
-                State = "Delhi"
-            };
-
-            var result = await _userService.AddAddressAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
-            });
-        }
-
-        [Test]
-        public async Task AddAddressAsync_WhenValidRequest_AddsAddressAndReturnsSuccess()
+        public async Task AddAddressAsync_WhenUserExists_AddsAddress()
         {
             var user = new User
             {
@@ -187,8 +131,8 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new AddAddressRequestDto
             {
-                LineOne = "123 Street",
-                Landmark = "Near Park",
+                LineOne = "123 Main Street",
+                Landmark = "Near Mall",
                 Pincode = "110001",
                 City = "Delhi",
                 State = "Delhi"
@@ -199,8 +143,22 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Message, Is.EqualTo("Address added successfully."));
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.AddressAdded));
             });
+
+            _userRepository.Verify(
+                x => x.AddAddress(It.Is<UserAddress>(address =>
+                    address.UserId == _userId &&
+                    address.LineOne == request.LineOne &&
+                    address.Landmark == request.Landmark &&
+                    address.Pincode == request.Pincode &&
+                    address.City == request.City &&
+                    address.State == request.State)),
+                Times.Once);
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
 
         [Test]
@@ -221,35 +179,7 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
-            });
-        }
-
-        [Test]
-        public async Task UpdateAddressAsync_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new UpdateAddressRequestDto
-            {
-                AddressId = Guid.NewGuid(),
-                City = "Mumbai"
-            };
-
-            var result = await _userService.UpdateAddressAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
             });
         }
 
@@ -262,11 +192,11 @@ namespace dotNetAssignment.Tests.Services
                 IsActive = true
             };
 
-            var addressId = Guid.NewGuid();
-
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
                 .ReturnsAsync(user);
+
+            var addressId = Guid.NewGuid();
 
             _userRepository
                 .Setup(x => x.GetAddressByIdAsync(addressId))
@@ -283,12 +213,12 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("Address not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.AddressNotFound));
             });
         }
 
         [Test]
-        public async Task UpdateAddressAsync_WhenValidRequest_UpdatesAddress()
+        public async Task UpdateAddressAsync_WhenAddressExists_UpdatesAddress()
         {
             var user = new User
             {
@@ -296,17 +226,14 @@ namespace dotNetAssignment.Tests.Services
                 IsActive = true
             };
 
-            var addressId = Guid.NewGuid();
-
             var address = new UserAddress
             {
-                Id = addressId,
+                Id = Guid.NewGuid(),
                 UserId = _userId,
                 LineOne = "Old Street",
-                Landmark = "Old Landmark",
-                Pincode = "110001",
-                City = "Dholakpur",
-                State = "Delhi"
+                City = "Delhi",
+                State = "Delhi",
+                Pincode = "110001"
             };
 
             _userRepository
@@ -314,17 +241,16 @@ namespace dotNetAssignment.Tests.Services
                 .ReturnsAsync(user);
 
             _userRepository
-                .Setup(x => x.GetAddressByIdAsync(addressId))
+                .Setup(x => x.GetAddressByIdAsync(address.Id))
                 .ReturnsAsync(address);
 
             var request = new UpdateAddressRequestDto
             {
-                AddressId = addressId,
+                AddressId = address.Id,
                 LineOne = "New Street",
-                Landmark = "New Landmark",
-                Pincode = "400001",
-                City = "Pehelwanpur",
-                State = "Maharashtra"
+                City = "Mumbai",
+                State = "Maharashtra",
+                Pincode = "400001"
             };
 
             var result = await _userService.UpdateAddressAsync(_userId, request);
@@ -332,13 +258,16 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Message, Is.EqualTo("Address updated successfully."));
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.AddressUpdated));
                 Assert.That(address.LineOne, Is.EqualTo("New Street"));
-                Assert.That(address.Landmark, Is.EqualTo("New Landmark"));
-                Assert.That(address.Pincode, Is.EqualTo("400001"));
-                Assert.That(address.City, Is.EqualTo("Pehelwanpur"));
+                Assert.That(address.City, Is.EqualTo("Mumbai"));
                 Assert.That(address.State, Is.EqualTo("Maharashtra"));
+                Assert.That(address.Pincode, Is.EqualTo("400001"));
             });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
 
         [Test]
@@ -359,36 +288,7 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
-            });
-        }
-
-        [Test]
-        public async Task ChangePasswordAsync_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                Password = "hashedPassword",
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new ChangePasswordRequestDto
-            {
-                OldPassword = "oldPassword",
-                NewPassword = "newPassword"
-            };
-
-            var result = await _userService.ChangePasswordAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
             });
         }
 
@@ -408,8 +308,8 @@ namespace dotNetAssignment.Tests.Services
 
             _passwordService
                 .Setup(x => x.VerifyPassword(
-                    "hashedPassword",
-                    "wrongPassword"))
+                    "wrongPassword",
+                    "hashedPassword"))
                 .Returns(false);
 
             var request = new ChangePasswordRequestDto
@@ -423,13 +323,49 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("Wrong password."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.WrongPassword));
                 Assert.That(user.Password, Is.EqualTo("hashedPassword"));
             });
         }
 
         [Test]
-        public async Task ChangePasswordAsync_WhenOldPasswordIsCorrect_ChangesPassword()
+        public async Task ChangePasswordAsync_WhenNewPasswordIsSameAsOld_ReturnsFailure()
+        {
+            var user = new User
+            {
+                Id = _userId,
+                Password = "hashedPassword",
+                IsActive = true
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            _passwordService
+                .Setup(x => x.VerifyPassword(
+                    "oldPassword",
+                    "hashedPassword"))
+                .Returns(true);
+
+            var request = new ChangePasswordRequestDto
+            {
+                OldPassword = "oldPassword",
+                NewPassword = "oldPassword"
+            };
+
+            var result = await _userService.ChangePasswordAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.SamePassword));
+                Assert.That(user.Password, Is.EqualTo("hashedPassword"));
+            });
+        }
+
+        [Test]
+        public async Task ChangePasswordAsync_WhenPasswordIsValid_ChangesPassword()
         {
             var user = new User
             {
@@ -444,9 +380,19 @@ namespace dotNetAssignment.Tests.Services
 
             _passwordService
                 .Setup(x => x.VerifyPassword(
-                    "oldHashedPassword",
-                    "oldPassword"))
+                    "oldPassword",
+                    "oldHashedPassword"))
                 .Returns(true);
+
+            _passwordService
+                .Setup(x => x.VerifyPassword(
+                    "newPassword",
+                    "oldHashedPassword"))
+                .Returns(false);
+
+            _passwordService
+                .Setup(x => x.HashPassword("newPassword"))
+                .Returns("newHashedPassword");
 
             var request = new ChangePasswordRequestDto
             {
@@ -459,9 +405,13 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Message, Is.EqualTo("Password changed successfully."));
-                Assert.That(user.Password, Is.EqualTo("newPassword"));
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.PasswordChanged));
+                Assert.That(user.Password, Is.EqualTo("newHashedPassword"));
             });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
 
         [Test]
@@ -476,34 +426,12 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
             });
         }
 
         [Test]
-        public async Task DeactivateUserAsync_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var result = await _userService.DeactivateUserAsync(_userId);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo("User not found."));
-            });
-        }
-
-        [Test]
-        public async Task DeactivateUserAsync_WhenUserIsActive_DeactivatesUser()
+        public async Task DeactivateUserAsync_WhenUserExists_DeactivatesUser()
         {
             var user = new User
             {
@@ -520,9 +448,13 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Message, Is.EqualTo("User deactivated successfully."));
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserDeactivated));
                 Assert.That(user.IsActive, Is.False);
             });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
     }
 }

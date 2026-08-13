@@ -14,7 +14,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(Regex.validPincodeRegex)]
+        [RegularExpression(Regex.validPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
         public string Pincode { get; set; }
 
         [Required]

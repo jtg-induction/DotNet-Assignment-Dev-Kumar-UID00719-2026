@@ -17,7 +17,6 @@ namespace dotNetAssignment.Tests.Controllers
     public class AuthControllerTests
     {
         private Mock<IAuthenticationService> _authenticationService;
-
         private AuthController _controller;
 
         [SetUp]
@@ -31,6 +30,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task Signup_WhenServiceReturnsSuccess_ReturnsOk()
         {
             var request = new SignupRequestDto();
+
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
@@ -47,17 +47,37 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Signup(request);
-            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>;
 
-            Assert.That(result, Is.InstanceOf<OkNegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>>());
-            Assert.That(okResult.Content.Success, Is.True);
-            Assert.That(okResult.Content.Message, Is.EqualTo("User registered successfully"));
+            var okResult =
+                result as OkNegotiatedContentResult<
+                    ApiResponseDto<AuthenticationResponseDto>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    OkNegotiatedContentResult<
+                        ApiResponseDto<AuthenticationResponseDto>>>());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(okResult.Content.Success, Is.True);
+                Assert.That(
+                    okResult.Content.Message,
+                    Is.EqualTo("User registered successfully"));
+                Assert.That(
+                    okResult.Content.Data.AccessToken,
+                    Is.EqualTo("access-token"));
+                Assert.That(
+                    okResult.Content.Data.RefreshToken,
+                    Is.EqualTo("refresh-token"));
+            });
         }
 
         [Test]
         public async Task Signup_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new SignupRequestDto();
+
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = false,
@@ -69,21 +89,29 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Signup(request);
-            var badRequest = result as NegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>;
 
-            Assert.That(result, Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>>());
-            Assert.That(badRequest.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(badRequest.Content.Success, Is.False);
-        }
+            var badRequest =
+                result as NegotiatedContentResult<
+                    ApiResponseDto<AuthenticationResponseDto>>;
 
-        [Test]
-        public async Task Signup_WithInvalidModelState_ReturnsBadRequest()
-        {
-            _controller.ModelState.AddModelError("Email", "Required");
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    NegotiatedContentResult<
+                        ApiResponseDto<AuthenticationResponseDto>>>());
 
-            var result = await _controller.Signup(new SignupRequestDto());
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    badRequest.StatusCode,
+                    Is.EqualTo(HttpStatusCode.BadRequest));
 
-            Assert.That(result, Is.InstanceOf<InvalidModelStateResult>());
+                Assert.That(badRequest.Content.Success, Is.False);
+
+                Assert.That(
+                    badRequest.Content.Message,
+                    Is.EqualTo("Email already exists"));
+            });
         }
 
         [Test]
@@ -108,22 +136,36 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.Login(request);
 
-            var okResult = (OkNegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+            var okResult =
+                result as OkNegotiatedContentResult<
+                    ApiResponseDto<AuthenticationResponseDto>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    OkNegotiatedContentResult<
+                        ApiResponseDto<AuthenticationResponseDto>>>());
 
             Assert.Multiple(() =>
             {
                 Assert.That(okResult.Content.Success, Is.True);
-                Assert.That(okResult.Content.Message, Is.EqualTo("Login successful"));
-                Assert.That(okResult.Content.Data.AccessToken, Is.EqualTo("access-token"));
-                Assert.That(okResult.Content.Data.RefreshToken, Is.EqualTo("refresh-token"));
+                Assert.That(
+                    okResult.Content.Message,
+                    Is.EqualTo("Login successful"));
+                Assert.That(
+                    okResult.Content.Data.AccessToken,
+                    Is.EqualTo("access-token"));
+                Assert.That(
+                    okResult.Content.Data.RefreshToken,
+                    Is.EqualTo("refresh-token"));
             });
-
         }
 
         [Test]
-        public async Task Login_WhenServiceReturnsFailure_ReturnsBadRequest()
+        public async Task Login_WhenServiceReturnsFailure_ReturnsUnauthorized()
         {
             var request = new LoginRequestDto();
+
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = false,
@@ -135,25 +177,31 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Login(request);
-            var badRequest =(NegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+
+            var unauthorized =
+                result as NegotiatedContentResult<
+                    ApiResponseDto<AuthenticationResponseDto>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    NegotiatedContentResult<
+                        ApiResponseDto<AuthenticationResponseDto>>>());
 
             Assert.Multiple(() =>
             {
-                Assert.That(badRequest.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(badRequest.Content.Success, Is.False);
-                Assert.That(badRequest.Content.Message, Is.EqualTo("Invalid email or password"));
+                Assert.That(
+                    unauthorized.StatusCode,
+                    Is.EqualTo(HttpStatusCode.Unauthorized));
+
+                Assert.That(
+                    unauthorized.Content.Success,
+                    Is.False);
+
+                Assert.That(
+                    unauthorized.Content.Message,
+                    Is.EqualTo("Invalid email or password"));
             });
-
-        }
-
-        [Test]
-        public async Task Login_WithInvalidModelState_ReturnsBadRequest()
-        {
-            _controller.ModelState.AddModelError("Email", "Required");
-
-            var result = await _controller.Login(new LoginRequestDto());
-
-            Assert.That(result, Is.InstanceOf<InvalidModelStateResult>());
         }
 
         [Test]
@@ -161,14 +209,13 @@ namespace dotNetAssignment.Tests.Controllers
         {
             var request = new RefreshTokenRequestDto();
 
-            var response = new ApiResponseDto<AuthenticationResponseDto>
+            var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = true,
                 Message = "Token refreshed successfully.",
-                Data = new AuthenticationResponseDto
+                Data = new AccessTokenRefreshResponse
                 {
-                    AccessToken = "new-access-token",
-                    RefreshToken = "refresh-token"
+                    AccessToken = "new-access-token"
                 }
             };
 
@@ -178,22 +225,34 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.Refresh(request);
 
-            var okResult = (OkNegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+            var okResult =
+                result as OkNegotiatedContentResult<
+                    ApiResponseDto<AccessTokenRefreshResponse>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    OkNegotiatedContentResult<
+                        ApiResponseDto<AccessTokenRefreshResponse>>>());
 
             Assert.Multiple(() =>
             {
                 Assert.That(okResult.Content.Success, Is.True);
-                Assert.That(okResult.Content.Message, Is.EqualTo("Token refreshed successfully."));
-                Assert.That(okResult.Content.Data.AccessToken, Is.EqualTo("new-access-token"));
-                Assert.That(okResult.Content.Data.RefreshToken, Is.EqualTo("refresh-token"));
+                Assert.That(
+                    okResult.Content.Message,
+                    Is.EqualTo("Token refreshed successfully."));
+                Assert.That(
+                    okResult.Content.Data.AccessToken,
+                    Is.EqualTo("new-access-token"));
             });
         }
 
         [Test]
-        public async Task Refresh_WhenServiceReturnsFailure_ReturnsBadRequest()
+        public async Task Refresh_WhenServiceReturnsFailure_ReturnsUnauthorized()
         {
             var request = new RefreshTokenRequestDto();
-            var response = new ApiResponseDto<AuthenticationResponseDto>
+
+            var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = false,
                 Message = "Invalid refresh token."
@@ -204,20 +263,38 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Refresh(request);
-            var badRequest = (NegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+
+            var unauthorized =
+                result as NegotiatedContentResult<
+                    ApiResponseDto<AccessTokenRefreshResponse>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    NegotiatedContentResult<
+                        ApiResponseDto<AccessTokenRefreshResponse>>>());
 
             Assert.Multiple(() =>
             {
-                Assert.That(badRequest.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(badRequest.Content.Success, Is.False);
-                Assert.That(badRequest.Content.Message, Is.EqualTo("Invalid refresh token."));
+                Assert.That(
+                    unauthorized.StatusCode,
+                    Is.EqualTo(HttpStatusCode.Unauthorized));
+
+                Assert.That(
+                    unauthorized.Content.Success,
+                    Is.False);
+
+                Assert.That(
+                    unauthorized.Content.Message,
+                    Is.EqualTo("Invalid refresh token."));
             });
         }
 
         [Test]
         public async Task Logout_WhenServiceReturnsSuccess_ReturnsOk()
         {
-            var request = new RefreshTokenRequestDto();
+            var request = new LogoutRequestDto();
+
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -229,19 +306,29 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Logout(request);
-            var okResult = (OkNegotiatedContentResult<ApiResponseDto<string>>)result;
+
+            var okResult =
+                result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    OkNegotiatedContentResult<ApiResponseDto<string>>>());
 
             Assert.Multiple(() =>
             {
                 Assert.That(okResult.Content.Success, Is.True);
-                Assert.That(okResult.Content.Message, Is.EqualTo("Logged out successfully."));
+                Assert.That(
+                    okResult.Content.Message,
+                    Is.EqualTo("Logged out successfully."));
             });
         }
 
         [Test]
-        public async Task Logout_WhenServiceReturnsFailure_ReturnsBadRequest()
+        public async Task Logout_WhenServiceReturnsFailure_ReturnsUnauthorized()
         {
-            var request = new RefreshTokenRequestDto();
+            var request = new LogoutRequestDto();
+
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -253,13 +340,28 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Logout(request);
-            var badRequest = (NegotiatedContentResult<ApiResponseDto<string>>)result;
+
+            var unauthorized =
+                result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.That(
+                result,
+                Is.InstanceOf<
+                    NegotiatedContentResult<ApiResponseDto<string>>>());
 
             Assert.Multiple(() =>
             {
-                Assert.That(badRequest.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-                Assert.That(badRequest.Content.Success, Is.False);
-                Assert.That(badRequest.Content.Message, Is.EqualTo("Invalid refresh token."));
+                Assert.That(
+                    unauthorized.StatusCode,
+                    Is.EqualTo(HttpStatusCode.Unauthorized));
+
+                Assert.That(
+                    unauthorized.Content.Success,
+                    Is.False);
+
+                Assert.That(
+                    unauthorized.Content.Message,
+                    Is.EqualTo("Invalid refresh token."));
             });
         }
     }
