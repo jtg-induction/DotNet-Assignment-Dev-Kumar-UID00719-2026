@@ -23,7 +23,7 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<bool> EmailExistsAsync(string email)
         {
-            return await _context.Users.AnyAsync(x => x.Email == email);
+            return await _context.Users.AnyAsync(x => x.Email == email.ToLowerInvariant());
         }
 
         /// <summary>
@@ -51,17 +51,17 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email.ToLowerInvariant());
         }
 
         /// <summary>
         /// Retrieves a user from the database by their unique identifier (UserId).
         /// </summary>
-        /// <param name="UserId">The unique id of the user to retrieve.</param>
+        /// <param name="userId">The unique id of the user to retrieve.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<User> GetUserByIdAsync(Guid UserId)
+        public async Task<User> GetUserByIdAsync(Guid userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
         }
 
         /// <summary>

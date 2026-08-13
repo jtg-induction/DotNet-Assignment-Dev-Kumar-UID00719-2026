@@ -27,12 +27,13 @@ namespace dotNetAssignment.App_Start
 
                     TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
 
                         ValidIssuer = ConfigurationManager.AppSettings["JwtIssuer"],
+                        ValidAudience = ConfigurationManager.AppSettings["JwtAudience"],
 
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(
