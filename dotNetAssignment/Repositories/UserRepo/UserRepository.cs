@@ -23,7 +23,17 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<bool> EmailExistsAsync(string email)
         {
-            return await _context.Users.AnyAsync(x => x.Email == email.ToLowerInvariant());
+            return await _context.Users.AnyAsync(x => x.Email == email.ToLower());
+        }
+
+        /// <summary>
+        /// Checks if a user with the specified phone number exists in the database.
+        /// </summary>
+        /// <param name="phoneNumber">The phone number to check.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
+        {
+            return await _context.Users.AnyAsync(x => x.PhoneNumber == phoneNumber);
         }
 
         /// <summary>
@@ -51,7 +61,7 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email.ToLowerInvariant());
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email.ToLower());
         }
 
         /// <summary>

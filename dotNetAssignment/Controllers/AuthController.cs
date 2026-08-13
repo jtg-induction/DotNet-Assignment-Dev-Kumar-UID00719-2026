@@ -29,11 +29,6 @@ namespace dotNetAssignment.Controllers
         [Route("signup")]
         public async Task<IHttpActionResult> Signup(SignupRequestDto signupRequestDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.SignupAsync(signupRequestDto);
 
             if (!response.Success)
@@ -56,11 +51,6 @@ namespace dotNetAssignment.Controllers
         [Route("login")]
         public async Task<IHttpActionResult> Login(LoginRequestDto loginRequestDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.LoginAsync(loginRequestDto);
 
             if (!response.Success)
@@ -83,11 +73,6 @@ namespace dotNetAssignment.Controllers
         [Route("refresh")]
         public async Task<IHttpActionResult> Refresh(RefreshTokenRequestDto refreshTokenDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.TokenRefreshAsync(refreshTokenDto);
 
             if (!response.Success)
@@ -108,14 +93,9 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [HttpPost]
         [Route("logout")]
-        public async Task<IHttpActionResult> Logout(RefreshTokenRequestDto refreshTokenDto) 
+        public async Task<IHttpActionResult> Logout(LogoutRequestDto request) 
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _authenticationService.LogoutAsync(refreshTokenDto);
+            var response = await _authenticationService.LogoutAsync(request);
 
             if (!response.Success)
             {

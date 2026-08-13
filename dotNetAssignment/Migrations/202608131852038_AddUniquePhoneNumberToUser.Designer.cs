@@ -7,13 +7,13 @@ namespace dotNetAssignment.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.2")]
-    public sealed partial class AddRefreshTokens : IMigrationMetadata
+    public sealed partial class AddUniquePhoneNumberToUser : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddRefreshTokens));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddUniquePhoneNumberToUser));
         
         string IMigrationMetadata.Id
         {
-            get { return "202608071031091_AddRefreshTokens"; }
+            get { return "202608131852038_AddUniquePhoneNumberToUser"; }
         }
         
         string IMigrationMetadata.Source

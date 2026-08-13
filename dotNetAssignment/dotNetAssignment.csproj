@@ -212,6 +212,7 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
+    <Compile Include="Filters\ModelStateHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -219,6 +220,10 @@
     <Compile Include="Migrations\202608101452204_InitialCreate.cs" />
     <Compile Include="Migrations\202608101452204_InitialCreate.Designer.cs">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.cs" />
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.Designer.cs">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
@@ -261,7 +266,9 @@
   <ItemGroup>
     <Content Include="ConnectionStrings.config" />
     <None Include="packages.config" />
-    <Content Include="Secrets.config" />
+    <Content Include="Secrets.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -275,6 +282,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202608101452204_InitialCreate.resx">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.resx">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

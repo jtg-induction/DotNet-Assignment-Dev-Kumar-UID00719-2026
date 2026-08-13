@@ -35,7 +35,7 @@ namespace dotNetAssignment.Handlers
                 Data = null
             };
 
-            context.Result = new ResponseMessageResult(context.Request.CreateResponse(HttpStatusCode.BadRequest, response));
+            context.Result = new ResponseMessageResult(context.Request.CreateResponse(HttpStatusCode.InternalServerError, response));
             return Task.CompletedTask;
         }
     }

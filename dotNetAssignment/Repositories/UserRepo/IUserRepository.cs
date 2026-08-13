@@ -9,6 +9,8 @@ namespace dotNetAssignment.Repositories.UserRepo
     {
         Task<bool> EmailExistsAsync(string email);
 
+        Task<bool> PhoneNumberExistsAsync(string phoneNumber);
+
         void AddUser(User user);
 
         void AddAddress(UserAddress address);

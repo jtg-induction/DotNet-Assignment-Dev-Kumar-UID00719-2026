@@ -53,16 +53,16 @@ namespace dotNetAssignment
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<IPasswordService, PasswordService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IJwtService, JwtService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IUserService, UserService>(
                 new HierarchicalLifetimeManager());
 
             container.RegisterType<IJwtRepository, JwtRepository>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IUserRepository, UserRepository>(
                 new HierarchicalLifetimeManager());

@@ -1,4 +1,5 @@
-﻿using dotNetAssignment.Models.DTO;
+﻿using dotNetAssignment.Constants;
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
@@ -25,17 +26,12 @@ namespace dotNetAssignment.Controllers
         [Route("")]
         public async Task<IHttpActionResult> UpdateUser(UpdateUserRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.UpdateUserAsync(userId, request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);
@@ -46,17 +42,12 @@ namespace dotNetAssignment.Controllers
         [Route("address")]
         public async Task<IHttpActionResult> AddAddress(AddAddressRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.AddAddressAsync(userId, request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);
@@ -67,17 +58,12 @@ namespace dotNetAssignment.Controllers
         [Route("address")]
         public async Task<IHttpActionResult> UpdateAddress(UpdateAddressRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.UpdateAddressAsync(userId, request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);
@@ -88,17 +74,20 @@ namespace dotNetAssignment.Controllers
         [Route("password")]
         public async Task<IHttpActionResult> ChangePassword(ChangePasswordRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.ChangePasswordAsync(userId, request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                if (response.Message == ExceptionMessages.UserNotFound)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
+
+                if (response.Message == ExceptionMessages.WrongPassword)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
@@ -110,12 +99,12 @@ namespace dotNetAssignment.Controllers
         [Route("deactivate")]
         public async Task<IHttpActionResult> DeactivateUSer()
         {
-            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst("userid").Value);
+            var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.DeactivateUserAsync(userId);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);
