@@ -13,9 +13,9 @@ namespace dotNetAssignment.Repositories.UserRepo
 
         void AddAddress(UserAddress address);
 
-        Task<User> GetUserByEmailAsync(String email);
+        Task<User> GetUserByEmailAsync(string email);
 
-        Task<User> GetUserByIdAsync(Guid UserId);
+        Task<User> GetUserByIdAsync(Guid userId);
 
         Task SaveChangesAsync();
     }

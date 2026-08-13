@@ -65,7 +65,7 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.Unauthorized, response);
             }
 
             return Ok(response);
@@ -83,11 +83,16 @@ namespace dotNetAssignment.Controllers
         [Route("refresh")]
         public async Task<IHttpActionResult> Refresh(RefreshTokenRequestDto refreshTokenDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var response = await _authenticationService.TokenRefreshAsync(refreshTokenDto);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.Unauthorized, response);
             }
 
             return Ok(response);
@@ -100,15 +105,21 @@ namespace dotNetAssignment.Controllers
         /// <returns>
         /// An API response indicating the success or failure of the logout operation.
         /// </returns>
+        [Authorize]
         [HttpPost]
         [Route("logout")]
         public async Task<IHttpActionResult> Logout(RefreshTokenRequestDto refreshTokenDto) 
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var response = await _authenticationService.LogoutAsync(refreshTokenDto);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.Unauthorized, response);
             }
 
             return Ok(response);

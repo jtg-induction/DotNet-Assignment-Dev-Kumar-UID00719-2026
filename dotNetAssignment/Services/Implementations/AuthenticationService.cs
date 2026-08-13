@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
+﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
-using dotNetAssignment.Constants;
-using dotNetAssignment.Models.Enums;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -58,7 +59,7 @@ namespace dotNetAssignment.Services.Implementations
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Role = UserRole.Customer,
-                Email = request.Email,
+                Email = request.Email.ToLowerInvariant(),
                 Password = _passwordService.HashPassword(request.Password),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
@@ -134,30 +135,13 @@ namespace dotNetAssignment.Services.Implementations
         /// </returns>
         public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto request)
         {
+            ClaimsPrincipal principal;
+
             try
             {
-                var principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
-                var jwtId = _jwtService.GetJwtId(principal);
-
-                if (!await _jwtRepository.JwtIdExistsAsync(jwtId))
-                {
-                    return new ApiResponseDto<string>
-                    {
-                        Success = false,
-                        Message = ExceptionMessages.InvalidRefreshToken
-                    };
-                }
-
-                await _jwtRepository.RemoveJwtIdAsync(jwtId);
-                await _jwtRepository.SaveChangesAsync();
-
-                return new ApiResponseDto<string>
-                {
-                    Success = true,
-                    Message = SuccessMessages.UserLoggedOut
-                };
+                principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
             }
-            catch
+            catch (SecurityTokenException)
             {
                 return new ApiResponseDto<string>
                 {
@@ -165,6 +149,26 @@ namespace dotNetAssignment.Services.Implementations
                     Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
+
+            var jwtId = _jwtService.GetJwtId(principal);
+
+            if (!await _jwtRepository.JwtIdExistsAsync(jwtId))
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.InvalidRefreshToken
+                };
+            }
+
+            await _jwtRepository.RemoveJwtIdAsync(jwtId);
+            await _jwtRepository.SaveChangesAsync();
+
+            return new ApiResponseDto<string>
+            {
+                Success = true,
+                Message = SuccessMessages.UserLoggedOut
+            };
         }
 
         /// <summary>
@@ -175,58 +179,60 @@ namespace dotNetAssignment.Services.Implementations
         /// An API response containing the refreshed authentication tokens on success
         /// or an error message when token refresh fails
         /// </returns>
-        public async Task<ApiResponseDto<AuthenticationResponseDto>> TokenRefreshAsync(RefreshTokenRequestDto request)
+        public async Task<ApiResponseDto<AccessTokenRefreshResponse>> TokenRefreshAsync(RefreshTokenRequestDto request)
         {
+            ClaimsPrincipal principal;
             try
             {
-                var principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
-                var jwtId = _jwtService.GetJwtId(principal);
-
-                if (!await _jwtRepository.JwtIdExistsAsync(jwtId))
-                {
-                    return new ApiResponseDto<AuthenticationResponseDto>
-                    {
-                        Success = false,
-                        Message = ExceptionMessages.InvalidRefreshToken
-                    };
-                }
-
-                var userId = _jwtService.GetUserId(principal);
-                var user = await _userRepository.GetUserByIdAsync(userId);
-
-                if (user == null || !user.IsActive)
-                {
-                    await _jwtRepository.RemoveJwtIdAsync(jwtId);
-                    await _jwtRepository.SaveChangesAsync();
-
-                    return new ApiResponseDto<AuthenticationResponseDto>
-                    {
-                        Success = false,
-                        Message = ExceptionMessages.UserNotFound
-                    };
-                }
-
-                var accessToken = _jwtService.GenerateAccessToken(user.Id,user.Email,user.Role);
-                
-                return new ApiResponseDto<AuthenticationResponseDto>
-                {
-                    Success = true,
-                    Message = SuccessMessages.TokenRefreshed,
-                    Data = new AuthenticationResponseDto
-                    {
-                        AccessToken = accessToken,
-                        RefreshToken = request.RefreshToken
-                    }
-                };
+                principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
             }
-            catch
+            catch (SecurityTokenException)
             {
-                return new ApiResponseDto<AuthenticationResponseDto>
+                return new ApiResponseDto<AccessTokenRefreshResponse>
                 {
                     Success = false,
                     Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
+
+            var jwtId = _jwtService.GetJwtId(principal);
+
+            if (!await _jwtRepository.JwtIdExistsAsync(jwtId))
+            {
+                return new ApiResponseDto<AccessTokenRefreshResponse>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.InvalidRefreshToken
+                };
+            }
+
+            var userId = _jwtService.GetUserId(principal);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+            {
+                await _jwtRepository.RemoveJwtIdAsync(jwtId);
+                await _jwtRepository.SaveChangesAsync();
+
+                return new ApiResponseDto<AccessTokenRefreshResponse>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
+
+            var accessToken = _jwtService.GenerateAccessToken(user.Id,user.Email,user.Role);
+                
+            return new ApiResponseDto<AccessTokenRefreshResponse>
+            {
+                Success = true,
+                Message = SuccessMessages.TokenRefreshed,
+                Data = new AccessTokenRefreshResponse
+                {
+                    AccessToken = accessToken
+                }
+            };
+            
         }
     }
 }

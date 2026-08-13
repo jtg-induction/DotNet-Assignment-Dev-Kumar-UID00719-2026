@@ -28,20 +28,21 @@ namespace dotNetAssignment.Services.Implementations
         {
             var key = ConfigurationManager.AppSettings["JwtKey"];
             var issuer = ConfigurationManager.AppSettings["JwtIssuer"];
+            var audience = ConfigurationManager.AppSettings["JwtAudience"];
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
-                new Claim("userid", userId.ToString()),
-                new Claim("email", email),
-                new Claim("role", role.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, role.ToString())
             };
 
             var token = new JwtSecurityToken(
                 issuer,
-                issuer,
+                audience,
                 claims,
                 expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: credentials
@@ -61,6 +62,7 @@ namespace dotNetAssignment.Services.Implementations
         {
             var key = ConfigurationManager.AppSettings["JwtKey"];
             var issuer = ConfigurationManager.AppSettings["JwtIssuer"];
+            var audience = ConfigurationManager.AppSettings["JwtAudience"];
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
@@ -76,7 +78,7 @@ namespace dotNetAssignment.Services.Implementations
 
             var token = new JwtSecurityToken(
                 issuer,
-                issuer,
+                audience,
                 claims,
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: credentials);
@@ -99,6 +101,7 @@ namespace dotNetAssignment.Services.Implementations
         {
             var key = ConfigurationManager.AppSettings["JwtKey"];
             var issuer = ConfigurationManager.AppSettings["JwtIssuer"];
+            var audience = ConfigurationManager.AppSettings["JwtAudience"];
 
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -108,7 +111,7 @@ namespace dotNetAssignment.Services.Implementations
                 ValidateIssuerSigningKey = true,
 
                 ValidIssuer = issuer,
-                ValidAudience = issuer,
+                ValidAudience = audience,
 
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(key)),

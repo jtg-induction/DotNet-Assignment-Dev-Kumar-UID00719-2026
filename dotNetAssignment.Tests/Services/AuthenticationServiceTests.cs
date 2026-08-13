@@ -464,7 +464,6 @@ namespace dotNetAssignment.Tests.Services
             Assert.That(result.Success, Is.True);
             Assert.That(result.Message, Is.EqualTo(SuccessMessages.TokenRefreshed));
             Assert.That(result.Data.AccessToken, Is.EqualTo("new-access-token"));
-            Assert.That(result.Data.RefreshToken, Is.EqualTo(request.RefreshToken));
         }
 
         [Test]

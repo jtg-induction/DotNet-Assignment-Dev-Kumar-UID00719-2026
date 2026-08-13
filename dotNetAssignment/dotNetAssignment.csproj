@@ -220,6 +220,7 @@
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\DTO\AddressRequestDto.cs" />

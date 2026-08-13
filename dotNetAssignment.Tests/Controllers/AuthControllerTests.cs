@@ -159,14 +159,13 @@ namespace dotNetAssignment.Tests.Controllers
         {
             var request = new RefreshTokenRequestDto();
 
-            var response = new ApiResponseDto<AuthenticationResponseDto>
+            var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = true,
                 Message = "Token refreshed successfully.",
-                Data = new AuthenticationResponseDto
+                Data = new AccessTokenRefreshResponse
                 {
-                    AccessToken = "new-access-token",
-                    RefreshToken = "refresh-token"
+                    AccessToken = "new-access-token"
                 }
             };
 
@@ -176,14 +175,13 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.Refresh(request);
 
-            var okResult = (OkNegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+            var okResult = (OkNegotiatedContentResult<ApiResponseDto<AccessTokenRefreshResponse>>)result;
 
             Assert.Multiple(() =>
             {
                 Assert.That(okResult.Content.Success, Is.True);
                 Assert.That(okResult.Content.Message, Is.EqualTo("Token refreshed successfully."));
                 Assert.That(okResult.Content.Data.AccessToken, Is.EqualTo("new-access-token"));
-                Assert.That(okResult.Content.Data.RefreshToken, Is.EqualTo("refresh-token"));
             });
         }
 
@@ -191,7 +189,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task Refresh_WhenServiceReturnsFailure_ReturnsBadRequest()
         {
             var request = new RefreshTokenRequestDto();
-            var response = new ApiResponseDto<AuthenticationResponseDto>
+            var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = false,
                 Message = "Invalid refresh token."
@@ -202,7 +200,7 @@ namespace dotNetAssignment.Tests.Controllers
                 .ReturnsAsync(response);
 
             var result = await _controller.Refresh(request);
-            var badRequest = (NegotiatedContentResult<ApiResponseDto<AuthenticationResponseDto>>)result;
+            var badRequest = (NegotiatedContentResult<ApiResponseDto<AccessTokenRefreshResponse>>)result;
 
             Assert.Multiple(() =>
             {

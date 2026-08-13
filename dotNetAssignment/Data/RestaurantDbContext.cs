@@ -18,15 +18,15 @@ namespace dotNetAssignment.Data
 
         public virtual DbSet<UserAddress> UserAddresses { get; set; }
 
-        public DbSet<Restaurant> Restaurants { get; set; }
+        public virtual DbSet<Restaurant> Restaurants { get; set; }
 
-        public DbSet<RestaurantOwner> RestaurantOwners { get; set; }
+        public virtual DbSet<RestaurantOwner> RestaurantOwners { get; set; }
 
-        public DbSet<Menu> Menus { get; set; }
+        public virtual DbSet<Menu> Menus { get; set; }
 
-        public DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
 
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public virtual DbSet<OrderItem> OrderItems { get; set; }
 
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
