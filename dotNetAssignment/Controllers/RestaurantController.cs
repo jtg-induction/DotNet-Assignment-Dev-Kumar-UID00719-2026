@@ -23,37 +23,44 @@ namespace dotNetAssignment.Controllers
             _restaurantService = restaurantService;
         }
 
+        /// <summary>
+        /// Fetches a list of all restaurants available
+        /// </summary>
+        /// <param name="request">Request contains page number and number of items per page</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> GetAllRestaurants ()
+        public async Task<IHttpActionResult> GetAllRestaurants (PaginationRequestDto request)
         { 
-            var response = await _restaurantService.GetAllRestaurantsListAsync();
+            var response = await _restaurantService.GetAllRestaurantsListAsync(request.Page, request.PageSize);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);
         }
 
-
+        /// <summary>
+        /// Fetches all menu items for a specific restaurant
+        /// </summary>
+        /// <param name="request">
+        /// Request contains the restaurant id of the restaurant of which to fetch the menu items
+        /// Request contains page number and number of items per page
+        /// </param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpGet]
         [Route("menu")]
         public async Task<IHttpActionResult> GetMenuItems(MenuRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _restaurantService.GetMenuListAsync(request.RestaurantId);
+            var response = await _restaurantService.GetMenuListAsync(request.RestaurantId, request.Page, request.PageSize);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                return Content(HttpStatusCode.NotFound, response);
             }
 
             return Ok(response);

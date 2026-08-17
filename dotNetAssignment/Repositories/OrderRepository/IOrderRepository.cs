@@ -1,9 +1,10 @@
-﻿using System;
+﻿using dotNetAssignment.Models.Entities;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using dotNetAssignment.Models.Entities;
 
 namespace dotNetAssignment.Repositories.OrderRepository
 {
@@ -12,6 +13,12 @@ namespace dotNetAssignment.Repositories.OrderRepository
         Task<bool> MenuItemExistsAsync(Guid MenuId);
 
         Task<Menu> GetMenuItemByIdAsync(Guid MenuId);
+
+        Task<Order> GetOrderByIdAsync(Guid OrderId);
+
+        Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid OrderId);
+
+        DbContextTransaction BeginTransaction();
 
         void AddOrder(Order order);
 

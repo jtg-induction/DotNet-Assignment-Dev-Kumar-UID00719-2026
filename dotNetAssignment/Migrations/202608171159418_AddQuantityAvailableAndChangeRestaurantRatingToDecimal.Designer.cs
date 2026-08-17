@@ -7,13 +7,13 @@ namespace dotNetAssignment.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.2")]
-    public sealed partial class AddQuantityAvailableInMenu : IMigrationMetadata
+    public sealed partial class AddQuantityAvailableAndChangeRestaurantRatingToDecimal : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddQuantityAvailableInMenu));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddQuantityAvailableAndChangeRestaurantRatingToDecimal));
         
         string IMigrationMetadata.Id
         {
-            get { return "202608121210477_AddQuantityAvailableInMenu"; }
+            get { return "202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal"; }
         }
         
         string IMigrationMetadata.Source

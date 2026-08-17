@@ -21,7 +21,7 @@ namespace dotNetAssignment.Models.DTO
         public string AddressLineOne { get; set; }
 
         [Range(0, 5)]
-        public int Rating { get; set; }
+        public decimal Rating { get; set; }
 
         [Required]
         [RegularExpression(Regex.validPincodeRegex)]

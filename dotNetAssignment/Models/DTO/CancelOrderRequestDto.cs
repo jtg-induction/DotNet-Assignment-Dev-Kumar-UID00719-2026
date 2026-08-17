@@ -6,13 +6,9 @@ using System.Web;
 
 namespace dotNetAssignment.Models.DTO
 {
-    public class OrderItemsRequestDto
+    public class CancelOrderRequestDto
     {
         [Required]
-        public Guid Id { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
+        public Guid? OrderId { get; set; }
     }
 }

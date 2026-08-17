@@ -21,6 +21,11 @@ namespace dotNetAssignment.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Updates the details of a user
+        /// </summary>
+        /// <param name="request">Request cntains information to be updated</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpPatch]
         [Route("")]
@@ -37,6 +42,11 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Adds a new address for a user
+        /// </summary>
+        /// <param name="request">Request contains all the details of the Address</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpPost]
         [Route("address")]
@@ -53,6 +63,11 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Updates an existing address of the user
+        /// </summary>
+        /// <param name="request">Request contains updated details fo the address</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpPatch]
         [Route("address")]
@@ -69,6 +84,11 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Changes password of a user
+        /// </summary>
+        /// <param name="request">Request contains old and new password</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpPatch]
         [Route("password")]
@@ -93,7 +113,10 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
-
+        /// <summary>
+        /// Deactivates an existing user
+        /// </summary>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpPatch]
         [Route("deactivate")]

@@ -17,5 +17,7 @@ namespace dotNetAssignment.Constants
         public const string AddressUpdated = "Address updated successfully";
         public const string PasswordChanged = "Password changed successfully";
         public const string UserDeactivated = "User deactivated successfully";
+        public const string OrderDetailsFetched = "Order details fetched successfully";
+        public const string OrderCancelled = "Order cancelled";
     }
 }

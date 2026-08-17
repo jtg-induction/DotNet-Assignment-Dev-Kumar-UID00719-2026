@@ -10,12 +10,18 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
 {
     public interface IRestaurantRepository
     {
-        Task<List<Restaurant>> GetAllRestaurantsAsync();
 
         Task<bool> RestaurantExistsAsync(Guid RestaurantId);
 
         Task<Restaurant> GetRestaurantByIdAsync(Guid RestaurantId);
 
-        Task<List<Menu>> GetRestaurantMenuAsync(Guid RestaurantId);
+        Task<List<Restaurant>> GetAllRestaurantsAsync(int page, int pageSize);
+
+        Task<int> GetRestaurantCountAsync();
+
+        Task<List<Menu>> GetRestaurantMenuAsync(Guid restaurantId, int page, int pageSize);
+
+        Task<int> GetRestaurantMenuCountAsync( Guid restaurantId);
+
     }
 }

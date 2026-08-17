@@ -9,6 +9,10 @@ namespace dotNetAssignment.Services.Interfaces
 {
     public interface IOrderService
     {
-        Task<ApiResponseDto<string>> PlaceOrder(OrderRequestDto request, Guid userId);
+        Task<ApiResponseDto<PlaceOrderResponseDto>> PlaceOrder(OrderRequestDto request, Guid userId);
+
+        Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(OrderDetailsRequestDto request, Guid userId);
+
+        Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId);
     }
 }

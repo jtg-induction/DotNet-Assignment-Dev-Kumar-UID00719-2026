@@ -1,17 +1,16 @@
-﻿using dotNetAssignment.Constants;
+﻿using System;
+using System.Threading.Tasks;
+
+using dotNetAssignment.Constants;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.OrderRepository;
 using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
-using dotNetAssignment.Models.Enums;
-using dotNetAssignment.Constants;
-using System;
+using dotNetAssignment.Models.DTO.Address;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -30,81 +29,266 @@ namespace dotNetAssignment.Services.Implementations
             _orderRepository = orderRepository;
             _userRepository = userRepository;
         }
-        public async Task<ApiResponseDto<string>> PlaceOrder(OrderRequestDto request, Guid userId)
+
+        /// <summary>
+        /// Places an order for a user at a specific restaurant with the provided order details.
+        /// </summary>
+        /// <param name="request">The order request details.</param>
+        /// <param name="userId">The ID of the user placing the order.</param>
+        /// <returns>The result of the order placement operation.</returns>
+        public async Task<ApiResponseDto<PlaceOrderResponseDto>> PlaceOrder(OrderRequestDto request, Guid userId)
         {
-            var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
-            if (restaurant == null)
+            using (var transaction = _orderRepository.BeginTransaction())
             {
-                return new ApiResponseDto<string>
+                try
+                {
+                    var user = await _userRepository.GetUserByIdAsync(userId);
+                    if (user == null || !user.IsActive)
+                    {
+                        return new ApiResponseDto<PlaceOrderResponseDto>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.UserNotFound
+                        };
+                    }
+
+                    var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
+                    if (restaurant == null)
+                    {
+                        return new ApiResponseDto<PlaceOrderResponseDto>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.RestaurantDoesntExists
+                        };
+                    }
+
+                    var address = await _userRepository.GetAddressByIdAsync(request.AddressId);
+                    if (address == null || address.UserId != userId)
+                    {
+                        return new ApiResponseDto<PlaceOrderResponseDto>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.AddressNotFound
+                        };
+                    }
+
+                    var order = new Order
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        RestaurantId = request.RestaurantId,
+                        Status = OrderStatus.Placed,
+                        PlacedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        AddressLineOne = address.LineOne,
+                        Landmark = address.Landmark,
+                        Pincode = address.Pincode,
+                        City = address.City,
+                        State = address.State,
+                    };
+
+                    foreach (OrderItemsRequestDto item in request.orderItems)
+                    {
+                        var menuitem = await _orderRepository.GetMenuItemByIdAsync(item.Id);
+                        if (menuitem == null || menuitem.RestaurantId != request.RestaurantId)
+                        {
+                            return new ApiResponseDto<PlaceOrderResponseDto>
+                            {
+                                Success = false,
+                                Message = ExceptionMessages.MenuItemDoesntExists
+                            };
+                        }
+
+
+                        if (item.Quantity > menuitem.QuantityAvailable)
+                        {
+                            return new ApiResponseDto<PlaceOrderResponseDto>
+                            {
+                                Success = false,
+                                Message = ExceptionMessages.InsufficientStock
+                            };
+                        }
+
+                        var price = menuitem.Price * item.Quantity;
+
+                        if (user.Balance < price)
+                        {
+                            return new ApiResponseDto<PlaceOrderResponseDto>
+                            {
+                                Success = false,
+                                Message = ExceptionMessages.InsufficientBalance
+                            };
+                        }
+
+                        var OrderItem = new OrderItem
+                        {
+                            Id = Guid.NewGuid(),
+                            OrderId = order.Id,
+                            MenuId = menuitem.Id,
+                            Quantity = item.Quantity,
+                            Price = menuitem.Price
+                        };
+
+                        user.Balance -= price;
+                        menuitem.QuantityAvailable -= item.Quantity;
+                        _orderRepository.AddOrderItem(OrderItem);
+                    }
+
+                    _orderRepository.AddOrder(order);
+                    await _orderRepository.SaveChangesAsync();
+
+
+                    transaction.Commit();
+
+                    return new ApiResponseDto<PlaceOrderResponseDto>
+                    {
+                        Success = true,
+                        Message = SuccessMessages.OrderPlaced,
+                        Data = new PlaceOrderResponseDto
+                        {
+                            OrderId = order.Id
+                        }
+                    };
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }                                        
+        }
+
+        /// <summary>
+        /// Retrieves the details of a specific order for a user.
+        /// </summary>
+        /// <param name="request">The request containing the order ID.</param>
+        /// <param name="userId">The ID of the user requesting the order details.</param>
+        /// <returns>The result of the order details retrieval operation.</returns>
+        public async Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(OrderDetailsRequestDto request, Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null || !user.IsActive)
+            {
+                return new ApiResponseDto<OrderDetailsResponseDto>
                 {
                     Success = false,
-                    Message = ExceptionMessages.RestaurantDoesntExists
+                    Message = ExceptionMessages.UserNotFound
                 };
             }
 
-            var user = await _userRepository.GetUserByIdAsync(userId);
-
-            var order = new Order
+            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId.Value);
+            if (order == null || order.UserId != userId)
             {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RestaurantId = request.RestaurantId,
-                Status = OrderStatus.Placed,
-                PlacedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                AddressLineOne = restaurant.AddressLineOne,
-                Landmark = restaurant.Landmark,
-                Pincode = restaurant.Pincode,
-                City = restaurant.City,
-                State = restaurant.State,
+                return new ApiResponseDto<OrderDetailsResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.OrderDoesntExists
+                };
+            }
+
+            var orderItems = await _orderRepository.GetOrderItemsByOrderIdAsync(order.Id);
+            var response = new OrderDetailsResponseDto
+            {
+                OrderStatus = order.Status.ToString(),
+                RestaurantName = order.Restaurant.Name,
+                DeliveryAddress = new OrderAddressResponseDto
+                {
+                    AddressLineOne = order.AddressLineOne,
+                    Landmark = order.Landmark,
+                    Pincode = order.Pincode,
+                    City = order.City,
+                    State = order.State
+                },
+                OrderItems = new List<OrderItemDetailsDto>(),
+                TotalAmount = 0
             };
 
-            foreach (OrderItemsRequestDto item in request.orderItems)
+            foreach (var item in orderItems)
             {
-                var menuitem = await _orderRepository.GetMenuItemByIdAsync(item.Id);
-                if(menuitem == null)
+                response.OrderItems.Add(new OrderItemDetailsDto
                 {
-                    return new ApiResponseDto<string>
-                    {
-                        Success = false,
-                        Message = ExceptionMessages.MenuItemDoesntExists
-                    };
-                }
-
-                var price = menuitem.Price * item.Quantity;
-
-                if(user.Balance < price)
-                {
-                    return new ApiResponseDto<string>
-                    {
-                        Success = false,
-                        Message = ExceptionMessages.InsufficientBalance
-                    };
-                }
-
-                var OrderItem = new OrderItem
-                {
-                    Id = Guid.NewGuid(),
-                    OrderId = order.Id,
-                    MenuId = menuitem.Id,
+                    DishName = item.Menu.DishName,
                     Quantity = item.Quantity,
-                    Price = menuitem.Price
-                };
-
-                user.Balance -= price;
-
-                _orderRepository.AddOrderItem(OrderItem);
+                    Price = item.Price
+                });
+                response.TotalAmount += item.Price * item.Quantity;
             }
 
-            _orderRepository.AddOrder(order);
-            await _orderRepository.SaveChangesAsync();
-
-            return new ApiResponseDto<string>
+            return new ApiResponseDto<OrderDetailsResponseDto>
             {
                 Success = true,
-                Message = SuccessMessages.OrderPlaced
+                Message = SuccessMessages.OrderDetailsFetched,
+                Data = response
             };
+        }
 
+        /// <summary>
+        /// Cancels a specific order for a user, updating the order status and refunding the user's balance if applicable.
+        /// </summary>
+        /// <param name="request">The request containing the order ID.</param>
+        /// <param name="userId">The ID of the user requesting to cancel the order.</param>
+        /// <returns>The result of the order cancellation operation.</returns>
+        public async Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId)
+        {
+            using (var transaction = _orderRepository.BeginTransaction())
+            {
+                try
+                {
+                    var user = await _userRepository.GetUserByIdAsync(userId);
+                    if (user == null || !user.IsActive)
+                    {
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.UserNotFound
+                        };
+                    }
+
+                    var order = await _orderRepository.GetOrderByIdAsync(request.OrderId.Value);
+                    if (order == null || order.UserId != userId)
+                    {
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderDoesntExists
+                        };
+                    }
+
+                    if (order.Status != OrderStatus.Placed)
+                    {
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderCannotBeCancelled
+                        };
+                    }
+
+                    order.Status = OrderStatus.Cancelled;
+                    order.UpdatedAt = DateTime.UtcNow;
+                    var orderItems = await _orderRepository.GetOrderItemsByOrderIdAsync(order.Id);
+
+                    foreach (var item in orderItems)
+                    {
+                        var menuitem = await _orderRepository.GetMenuItemByIdAsync(item.MenuId);
+                        menuitem.QuantityAvailable += item.Quantity;
+                        user.Balance += item.Price * item.Quantity;
+                    }
+
+                    await _orderRepository.SaveChangesAsync();
+                    transaction.Commit();
+
+                    return new ApiResponseDto<string>
+                    {
+                        Success = true,
+                        Message = SuccessMessages.OrderCancelled
+                    };
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }

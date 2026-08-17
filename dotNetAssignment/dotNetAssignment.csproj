@@ -223,16 +223,23 @@
     <Compile Include="Migrations\202608101452204_InitialCreate.Designer.cs">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202608121210477_AddQuantityAvailableInMenu.cs" />
-    <Compile Include="Migrations\202608121210477_AddQuantityAvailableInMenu.Designer.cs">
-      <DependentUpon>202608121210477_AddQuantityAvailableInMenu.cs</DependentUpon>
+    <Compile Include="Migrations\202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.cs" />
+    <Compile Include="Migrations\202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.Designer.cs">
+      <DependentUpon>202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\DTO\CancelOrderRequestDto.cs" />
     <Compile Include="Models\DTO\MenuListResponseDto.cs" />
     <Compile Include="Models\DTO\MenuRequestDto.cs" />
     <Compile Include="Models\DTO\MenuResponseDto.cs" />
+    <Compile Include="Models\DTO\OrderAddressResponseDto.cs" />
+    <Compile Include="Models\DTO\OrderDetailsRequestDto.cs" />
+    <Compile Include="Models\DTO\OrderDetailsResponseDto.cs" />
+    <Compile Include="Models\DTO\OrderItemDetailsDto.cs" />
     <Compile Include="Models\DTO\OrderItemsRequestDto.cs" />
     <Compile Include="Models\DTO\OrderRequestDto.cs" />
+    <Compile Include="Models\DTO\PaginationRequestDto.cs" />
+    <Compile Include="Models\DTO\PlaceOrderResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantListResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantResponseDto.cs" />
     <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.cs" />
@@ -304,10 +311,11 @@
     <EmbeddedResource Include="Migrations\202608101452204_InitialCreate.resx">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202608121210477_AddQuantityAvailableInMenu.resx">
-      <DependentUpon>202608121210477_AddQuantityAvailableInMenu.cs</DependentUpon>
     <EmbeddedResource Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.resx">
       <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.resx">
+      <DependentUpon>202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

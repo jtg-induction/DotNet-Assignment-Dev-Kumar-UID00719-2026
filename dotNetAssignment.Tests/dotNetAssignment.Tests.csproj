@@ -190,16 +190,22 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="Controllers\AuthControllerTests.cs" />
+    <Compile Include="Controllers\OrderControllerTests.cs" />
+    <Compile Include="Controllers\RestaurantControllerTests.cs" />
     <Compile Include="Helpers\TestDbAsyncQueryProvider.cs" />
     <Compile Include="Helpers\TestDbAsyncEnumerable.cs" />
     <Compile Include="Helpers\TestDbAsyncEnumerator.cs" />
     <Compile Include="Controllers\UserControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\JwtRepositoryTests.cs" />
+    <Compile Include="Repositories\OrderRepositoryTests.cs" />
+    <Compile Include="Repositories\RestaurantRepositoryTests.cs" />
     <Compile Include="Repositories\UserRepositoryTests.cs" />
     <Compile Include="Services\AuthenticationServiceTests.cs" />
     <Compile Include="Services\JwtServiceTests.cs" />
+    <Compile Include="Services\OrderServiceTests.cs" />
     <Compile Include="Services\PasswordServiceTests.cs" />
+    <Compile Include="Services\RestaurantServiceTests.cs" />
     <Compile Include="Services\UserServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -97,7 +97,7 @@ namespace dotNetAssignment.Controllers
         {
             var response = await _authenticationService.LogoutAsync(request);
 
-            if (!response.Success)
+            if (!response.Success) 
             {
                 return Content(HttpStatusCode.Unauthorized, response);
             }

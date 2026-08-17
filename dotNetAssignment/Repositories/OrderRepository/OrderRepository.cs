@@ -25,7 +25,22 @@ namespace dotNetAssignment.Repositories.OrderRepository
 
         public async Task<Menu> GetMenuItemByIdAsync(Guid MenuId)
         {
-            return await _context.Menus.FirstOrDefaultAsync(x => x.Id == MenuId);
+            return await _context.Menus.SqlQuery(@"SELECT * FROM Menus With (UPDLOCK, ROWLOCK) WHERE Id = @p0", MenuId).FirstOrDefaultAsync();
+        }
+
+        public async Task<Order> GetOrderByIdAsync(Guid OrderId)
+        {
+            return await _context.Orders.FirstOrDefaultAsync(x => x.Id == OrderId);
+        }
+
+        public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid OrderId)
+        {
+            return await _context.OrderItems.AsNoTracking().Include(oi=> oi.Menu).Where(x => x.OrderId == OrderId).ToListAsync();
+        }
+
+        public DbContextTransaction BeginTransaction()
+        {
+            return _context.Database.BeginTransaction();
         }
 
         public void AddOrder(Order order)

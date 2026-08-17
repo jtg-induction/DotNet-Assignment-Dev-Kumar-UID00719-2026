@@ -21,9 +21,27 @@ namespace dotNetAssignment.Services.Implementations
         {
             _restaurantRepository = restaurantRepository;
         }
-        public async Task<ApiResponseDto<RestaurantListResponseDto>> GetAllRestaurantsListAsync()
+
+        /// <summary>
+        /// Get all restaurants with pagination
+        /// </summary>
+        /// <param name="page">The page number to retrieve.</param>
+        /// <param name="pageSize">The number of restaurants to retrieve per page.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<ApiResponseDto<RestaurantListResponseDto>> GetAllRestaurantsListAsync(int page, int pageSize)
         {
-            var restaurants = await _restaurantRepository.GetAllRestaurantsAsync();
+            var restaurants = await _restaurantRepository.GetAllRestaurantsAsync(page, pageSize);
+            var totalCount = await _restaurantRepository.GetRestaurantCountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            if (page > totalPages)
+            {
+                return new ApiResponseDto<RestaurantListResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.PageNotFound
+                };
+            }
 
             var response = new RestaurantListResponseDto
             {
@@ -38,7 +56,11 @@ namespace dotNetAssignment.Services.Implementations
                         State = x.State,
                         Pincode = x.Pincode,
                         Rating = x.Rating,
-                    }).ToList()
+                    }).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
             };
 
             return new ApiResponseDto<RestaurantListResponseDto>
@@ -48,7 +70,14 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
-        public async Task<ApiResponseDto<MenuListResponseDto>> GetMenuListAsync(Guid RestaurantId)
+        /// <summary>
+        /// Get the menu list of a specific restaurant
+        /// </summary>
+        /// <param name="RestaurantId">The ID of the restaurant for which to retrieve the menu.</param>
+        /// <param name="page">The page number to retrieve.</param>
+        /// <param name="pageSize">The number of menu items to retrieve per page.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<ApiResponseDto<MenuListResponseDto>> GetMenuListAsync(Guid RestaurantId, int page, int pageSize)
         {
             var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(RestaurantId);
 
@@ -61,7 +90,18 @@ namespace dotNetAssignment.Services.Implementations
                 };
             }
 
-            var menuItems = await _restaurantRepository.GetRestaurantMenuAsync(RestaurantId);
+            var menuItems = await _restaurantRepository.GetRestaurantMenuAsync(RestaurantId, page, pageSize);
+            var totalCount = await _restaurantRepository.GetRestaurantMenuCountAsync(RestaurantId);
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            if (page > totalPages)
+            {
+                return new ApiResponseDto<MenuListResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.PageNotFound
+                };
+            }
 
             var response = new MenuListResponseDto
             {
@@ -72,7 +112,11 @@ namespace dotNetAssignment.Services.Implementations
                         DishName = x.DishName,
                         Price = x.Price,
                         Rating = x.Rating
-                    }).ToList()
+                    }).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
             };
 
             return new ApiResponseDto<MenuListResponseDto>

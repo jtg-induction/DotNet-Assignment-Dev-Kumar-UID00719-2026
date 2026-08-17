@@ -12,6 +12,9 @@ namespace dotNetAssignment.Models.DTO
         public Guid RestaurantId { get; set; }
 
         [Required]
+        public Guid AddressId { get; set; }
+
+        [Required]
         public List<OrderItemsRequestDto> orderItems { get; set; }
     }
 }
