@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Models.DTO.Address
 {
@@ -16,7 +17,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(@"^[1-9][0-9]{5}$")]
+        [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

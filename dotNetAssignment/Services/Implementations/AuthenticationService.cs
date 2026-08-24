@@ -63,7 +63,7 @@ namespace dotNetAssignment.Services.Implementations
                 Password = _passwordService.HashPassword(request.Password),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
-                Balance = 1000m,
+                Balance = Constants.Constants.DefaultUserBalance,
                 PhoneNumber = request.PhoneNumber,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -75,6 +75,7 @@ namespace dotNetAssignment.Services.Implementations
             _jwtRepository.AddJwtId(refreshToken.JwtId);
 
             await _jwtRepository.SaveChangesAsync();
+            await _userRepository.SaveChangesAsync();
 
             return new ApiResponseDto<AuthenticationResponseDto>
             {
@@ -185,6 +186,20 @@ namespace dotNetAssignment.Services.Implementations
             try
             {
                 principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                var ExpiredjwtId = _jwtService.GetJwtIdFromExpiredToken(request.RefreshToken);
+                if(ExpiredjwtId != null)
+                {
+                    await _jwtRepository.RemoveJwtIdAsync(ExpiredjwtId.Value);
+                    await _jwtRepository.SaveChangesAsync();
+                }
+                return new ApiResponseDto<AccessTokenRefreshResponse>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.InvalidRefreshToken
+                };
             }
             catch (SecurityTokenException)
             {

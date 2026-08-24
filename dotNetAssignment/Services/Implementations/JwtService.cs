@@ -1,15 +1,14 @@
-﻿using System;
+﻿using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.Enums;
+using dotNetAssignment.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-
-using Microsoft.IdentityModel.Tokens;
-
-using dotNetAssignment.Models.DTO;
-using dotNetAssignment.Models.Enums;
-using dotNetAssignment.Services.Interfaces;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -139,6 +138,37 @@ namespace dotNetAssignment.Services.Implementations
         {
             return Guid.Parse(
                 principal.FindFirst(JwtRegisteredClaimNames.Jti).Value);
+        }
+
+        /// <summary>
+        /// Extracts the JWT ID (Jti) from an expired token without validating its lifetime.
+        /// </summary>
+        /// <param name="token">The expired JWT token.</param>
+        /// <returns>The JWT ID (Jti) if found, otherwise null.</returns>
+        public Guid? GetJwtIdFromExpiredToken(string token)
+        {
+            var key = ConfigurationManager.AppSettings["JwtKey"];
+            var issuer = ConfigurationManager.AppSettings["JwtIssuer"];
+            var audience = ConfigurationManager.AppSettings["JwtAudience"];
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = issuer,
+                ValidAudience = audience,
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken validatedToken;
+
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+            var jwtId = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+            if(jwtId == null) return null;
+            return Guid.Parse(jwtId);
         }
 
         /// <summary>

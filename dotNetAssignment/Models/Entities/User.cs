@@ -23,7 +23,7 @@ namespace dotNetAssignment.Models.Entities
         [EmailAddress]
         [Index("IX_Email", IsUnique = true)]
         [StringLength(255)]
-        [RegularExpression(Regex.validEmailRegex)]
+        [RegularExpression(Regex.ValidEmailRegex)]
         public string Email { get; set; }
 
         [Required]
@@ -37,7 +37,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [Phone]
-        [RegularExpression(Regex.validPhoneNumberRegex)]
+        [RegularExpression(Regex.ValidPhoneNumberRegex)]
         public string PhoneNumber { get; set; }
 
         public DateTime CreatedAt { get; set; }

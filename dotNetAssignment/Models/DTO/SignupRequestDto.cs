@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
+﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
 
 namespace dotNetAssignment.Models.DTO.SignUp
 {
@@ -16,7 +17,7 @@ namespace dotNetAssignment.Models.DTO.SignUp
 
         [Required]
         [StringLength(255)]
-        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
+        [RegularExpression(Regex.ValidEmailRegex)]
         public string Email { get; set; }
 
         [Required]
@@ -25,7 +26,7 @@ namespace dotNetAssignment.Models.DTO.SignUp
 
         [Required]
         [Phone]
-        [RegularExpression(@"^[0-9]{10}$")]
+        [RegularExpression(Regex.ValidPhoneNumberRegex)]
         public string PhoneNumber { get; set; }
     }
 }
