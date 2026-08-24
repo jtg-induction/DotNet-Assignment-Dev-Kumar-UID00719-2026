@@ -11,6 +11,6 @@ namespace dotNetAssignment.Services.Interfaces
     {
         Task<ApiResponseDto<RestaurantListResponseDto>> GetAllRestaurantsListAsync(int page, int pageSize);
         Task<ApiResponseDto<MenuListResponseDto>> GetMenuListAsync(Guid RestaurantId, int page, int pageSize);
-
+        Task<ApiResponseDto<CreateRestaurantResponseDto>> CreateRestaurantAsync(CreateRestaurantRequestDto request);
     }
 }

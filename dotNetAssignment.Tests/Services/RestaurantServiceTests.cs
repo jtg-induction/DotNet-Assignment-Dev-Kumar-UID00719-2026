@@ -1,6 +1,7 @@
 ﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.RestaurantRepo;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 
 using Moq;
@@ -16,15 +17,18 @@ namespace dotNetAssignment.Tests.Services
     public class RestaurantServiceTests
     {
         private Mock<IRestaurantRepository> _restaurantRepository;
+        private Mock<IUserRepository> _userRepository;
         private RestaurantService _restaurantService;
 
         [SetUp]
         public void Setup()
         {
             _restaurantRepository = new Mock<IRestaurantRepository>();
+            _userRepository = new Mock<IUserRepository>();
 
             _restaurantService = new RestaurantService(
-                _restaurantRepository.Object);
+                _restaurantRepository.Object,
+                _userRepository.Object);
         }
 
 

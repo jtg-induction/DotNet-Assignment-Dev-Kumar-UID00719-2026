@@ -86,9 +86,26 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
         /// </summary>
         /// <param name="RestaurantId">The ID of the restaurant to retrieve.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<Restaurant> GetRestaurantByIdAsync(Guid RestaurantId) 
+        public async Task<Restaurant> GetRestaurantByIdAsync(Guid RestaurantId)
         {
             return await _context.Restaurants.FirstOrDefaultAsync(x => x.Id == RestaurantId);
+        }
+
+        public async Task AddRestaurantAsync(Restaurant restaurant)
+        {
+            _context.Restaurants.Add(restaurant);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddRestaurantOwnerAsync(RestaurantOwner restaurantOwner)
+        {
+            _context.RestaurantOwners.Add(restaurantOwner);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

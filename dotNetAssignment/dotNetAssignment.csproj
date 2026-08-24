@@ -229,6 +229,8 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\CancelOrderRequestDto.cs" />
+    <Compile Include="Models\DTO\CreateRestaurantRequestDto.cs" />
+    <Compile Include="Models\DTO\CreateRestaurantResponseDto.cs" />
     <Compile Include="Models\DTO\MenuListResponseDto.cs" />
     <Compile Include="Models\DTO\MenuRequestDto.cs" />
     <Compile Include="Models\DTO\MenuResponseDto.cs" />

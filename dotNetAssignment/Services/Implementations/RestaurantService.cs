@@ -1,6 +1,7 @@
 ﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
@@ -15,11 +16,14 @@ namespace dotNetAssignment.Services.Implementations
     public class RestaurantService : IRestaurantService
     {
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IUserRepository _userRepository;
 
         public RestaurantService(
-            IRestaurantRepository restaurantRepository)
+            IRestaurantRepository restaurantRepository,
+            IUserRepository userRepository)
         {
             _restaurantRepository = restaurantRepository;
+            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -123,6 +127,61 @@ namespace dotNetAssignment.Services.Implementations
             {
                 Success = true,
                 Data = response
+            };
+        }
+
+        public async Task<ApiResponseDto<CreateRestaurantResponseDto>> CreateRestaurantAsync(CreateRestaurantRequestDto request)
+        {
+            var user = await _userRepository.GetUserByIdAsync(request.OwnerId);
+
+            if (user == null || !user.IsActive)
+            {
+                return new ApiResponseDto<CreateRestaurantResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
+
+            if(user.Role == UserRole.Customer)
+            {
+                user.Role = UserRole.Owner;
+            }
+
+            var restaurant = new Restaurant
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                AddressLineOne = request.AddressLineOne,
+                Landmark = request.Landmark,
+                City = request.City,
+                State = request.State,
+                Pincode = request.Pincode,
+                Rating = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var restaurantOwner = new RestaurantOwner
+            {
+                UserId = user.Id,
+                RestaurantId = restaurant.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _restaurantRepository.AddRestaurantAsync(restaurant);
+            await _restaurantRepository.AddRestaurantOwnerAsync(restaurantOwner);
+
+            await _restaurantRepository.SaveChangesAsync();
+
+            // Implementation for creating restaurant
+            return new ApiResponseDto<CreateRestaurantResponseDto>
+            {
+                Success = true,
+                Data = new CreateRestaurantResponseDto()
+                {
+                    RestaurantId = restaurant.Id
+                }
             };
         }
 

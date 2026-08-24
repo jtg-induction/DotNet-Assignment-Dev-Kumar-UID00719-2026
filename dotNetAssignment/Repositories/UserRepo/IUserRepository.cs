@@ -11,6 +11,8 @@ namespace dotNetAssignment.Repositories.UserRepo
 
         Task<bool> PhoneNumberExistsAsync(string phoneNumber);
 
+        Task<bool> UserExistsAsync(Guid userId);
+
         void AddUser(User user);
 
         void AddAddress(UserAddress address);

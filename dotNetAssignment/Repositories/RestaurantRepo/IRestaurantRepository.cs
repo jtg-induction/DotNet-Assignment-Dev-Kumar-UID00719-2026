@@ -23,5 +23,11 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
 
         Task<int> GetRestaurantMenuCountAsync( Guid restaurantId);
 
+        Task AddRestaurantOwnerAsync(RestaurantOwner restaurantOwner);
+
+        Task AddRestaurantAsync(Restaurant restaurant);
+
+        Task SaveChangesAsync();
+
     }
 }

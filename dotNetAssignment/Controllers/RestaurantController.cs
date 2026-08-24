@@ -1,4 +1,5 @@
 ﻿using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace dotNetAssignment.Controllers
     public class RestaurantController : ApiController
     {
         private readonly IRestaurantService _restaurantService;
-
+        private const string Admin = "Admin";
         public RestaurantController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
@@ -57,6 +58,21 @@ namespace dotNetAssignment.Controllers
         public async Task<IHttpActionResult> GetMenuItems(MenuRequestDto request)
         {
             var response = await _restaurantService.GetMenuListAsync(request.RestaurantId, request.Page, request.PageSize);
+
+            if (!response.Success)
+            {
+                return Content(HttpStatusCode.NotFound, response);
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize(Roles = Admin)]
+        [HttpPost]
+        [Route("create")]
+        public async Task<IHttpActionResult> CreateRestaurant(CreateRestaurantRequestDto request)
+        {
+            var response = await _restaurantService.CreateRestaurantAsync(request);
 
             if (!response.Success)
             {
