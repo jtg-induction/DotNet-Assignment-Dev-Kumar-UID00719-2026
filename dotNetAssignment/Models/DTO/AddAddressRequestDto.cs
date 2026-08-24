@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 using dotNetAssignment.Constants;
 
@@ -14,7 +14,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(Regex.validPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
+        [RegularExpression(Regex.ValidPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
         public string Pincode { get; set; }
 
         [Required]

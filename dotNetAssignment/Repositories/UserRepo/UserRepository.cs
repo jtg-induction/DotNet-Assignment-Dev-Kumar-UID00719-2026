@@ -34,6 +34,11 @@ namespace dotNetAssignment.Repositories.UserRepo
         public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
         {
             return await _context.Users.AnyAsync(x => x.PhoneNumber == phoneNumber);
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+            return await _context.Users.AnyAsync(x => x.Email == email.ToLowerInvariant());
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dotNetAssignment.Constants;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace dotNetAssignment.Models.DTO.Login
     {
         [Required]
         [StringLength(255)]
-        [RegularExpression(Regex.validEmailRegex, ErrorMessage = ExceptionMessages.InvalidEmail)]
+        [RegularExpression(Regex.ValidEmailRegex, ErrorMessage = ExceptionMessages.InvalidEmail)]
         public string Email { get; set; }
 
         [Required]

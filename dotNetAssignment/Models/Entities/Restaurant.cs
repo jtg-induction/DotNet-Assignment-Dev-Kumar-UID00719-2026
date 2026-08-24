@@ -22,7 +22,7 @@ namespace dotNetAssignment.Models.Entities
         public int Rating { get; set; }
 
         [Required]
-        [RegularExpression(Regex.validPincodeRegex)]
+        [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

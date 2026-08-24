@@ -21,7 +21,7 @@ namespace dotNetAssignment.Models.Entities
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(Regex.validPincodeRegex)]
+        [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
         
         [Required]

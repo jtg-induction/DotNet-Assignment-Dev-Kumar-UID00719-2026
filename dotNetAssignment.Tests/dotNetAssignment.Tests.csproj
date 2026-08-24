@@ -211,11 +211,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dotNetAssignment\dotNetAssignment.csproj">
-      <Project>{6672F8FD-9C18-4B95-A142-262CEBA52703}</Project>
+      <Project>{6672f8fd-9c18-4b95-a142-262ceba52703}</Project>
       <Name>dotNetAssignment</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
