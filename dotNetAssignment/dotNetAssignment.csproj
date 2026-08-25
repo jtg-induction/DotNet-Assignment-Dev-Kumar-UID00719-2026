@@ -211,7 +211,10 @@
     <Compile Include="Constants\Regex.cs" />
     <Compile Include="Constants\SuccessMessages.cs" />
     <Compile Include="Controllers\AuthController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
+    <Compile Include="Filters\ActiveUserFilter.cs" />
+    <Compile Include="Filters\ModelStateHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -220,12 +223,19 @@
     <Compile Include="Migrations\202608101452204_InitialCreate.Designer.cs">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.cs" />
+    <Compile Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.Designer.cs">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
+    <Compile Include="Models\DTO\DeactivateAccountRequestDto.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
-    <Compile Include="Models\DTO\AddressRequestDto.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />
+    <Compile Include="Models\DTO\AddAddressRequestDto.cs" />
+    <Compile Include="Models\DTO\ChangePasswordRequestDto.cs" />
+    <Compile Include="Models\DTO\UpdateAddressRequestDto.cs" />
     <Compile Include="Models\DTO\ApiResponseDto.cs" />
     <Compile Include="Models\DTO\AuthenticationResponseDto.cs" />
     <Compile Include="Models\DTO\LoginRequestDto.cs" />
@@ -233,6 +243,7 @@
     <Compile Include="Models\DTO\RefreshTokenRequestDto.cs" />
     <Compile Include="Models\DTO\RefreshTokenResponseDto.cs" />
     <Compile Include="Models\DTO\SignupRequestDto.cs" />
+    <Compile Include="Models\DTO\UpdateUserRequestDto.cs" />
     <Compile Include="Models\Entities\RefreshToken.cs" />
     <Compile Include="Models\Entities\Menu.cs" />
     <Compile Include="Models\Entities\OrderItem.cs" />
@@ -249,9 +260,11 @@
     <Compile Include="Services\Implementations\AuthenticationService.cs" />
     <Compile Include="Services\Implementations\JwtService.cs" />
     <Compile Include="Services\Implementations\PasswordService.cs" />
+    <Compile Include="Services\Implementations\UserService.cs" />
     <Compile Include="Services\Interfaces\IAuthenticationService.cs" />
     <Compile Include="Services\Interfaces\IJwtService.cs" />
     <Compile Include="Services\Interfaces\IPasswordService.cs" />
+    <Compile Include="Services\Interfaces\IUserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ConnectionStrings.config" />
@@ -274,6 +287,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202608101452204_InitialCreate.resx">
       <DependentUpon>202608101452204_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202608131852038_AddUniquePhoneNumberToUser.resx">
+      <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

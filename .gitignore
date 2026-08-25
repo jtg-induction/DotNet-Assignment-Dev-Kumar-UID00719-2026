@@ -12,8 +12,9 @@ packages/
 *.userosscache
 *.sln.docstates
 
-.coveragegit
+.coverage
 .log
+.htm
 
 ConnectionStrings.config
 Secrets.config

@@ -75,10 +75,14 @@ Update-Database
 | Method | Endpoint                  | Description										 |
 |--------|---------------------------|---------------------------------------------------|
 | POST   | /api/auth/signup          | Registers a new user								 |
-| POST   | /api/auth/login           | Login a user										 |
-| POST   | /api/auth/logout          | Logout a user								     |
+| POST   | /api/auth/login           | Logs in an user								     |
+| POST   | /api/auth/logout          | Logs out an user								     |
 | POST   | /api/auth/refresh         | Refreshes access token for an authenticated user  |
-
+| POST   | /api/user/address         | Adds a new address for an user                    |
+| PATCH  | /api/user/address         | Updates an existing address of an user            |
+| PATCH  | /api/user                 | Updates the details of an existing user           |
+| PATCH  | /api/user/deactivate      | Deactivates an existing user                      |
+| PATCH  | /api/user/password        | Changes password for an existing user             |
 
 ## Author
 

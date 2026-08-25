@@ -50,13 +50,16 @@ namespace dotNetAssignment
             // container.RegisterType<IProductRepository, ProductRepository>();
 
             container.RegisterType<IAuthenticationService, AuthenticationService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IPasswordService, PasswordService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IJwtService, JwtService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
+
+            container.RegisterType<IUserService, UserService>(
+                new TransientLifetimeManager());
 
             container.RegisterType<IJwtRepository, JwtRepository>(
                 new HierarchicalLifetimeManager());

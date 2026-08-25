@@ -9,6 +9,8 @@ namespace dotNetAssignment.Repositories.UserRepo
     {
         Task<bool> EmailExistsAsync(string email);
 
+        Task<bool> PhoneNumberExistsAsync(string phoneNumber);
+
         void AddUser(User user);
 
         void AddAddress(UserAddress address);
@@ -16,6 +18,8 @@ namespace dotNetAssignment.Repositories.UserRepo
         Task<User> GetUserByEmailAsync(string email);
 
         Task<User> GetUserByIdAsync(Guid userId);
+
+        Task<UserAddress> GetAddressByIdAsync(Guid UserId);
 
         Task SaveChangesAsync();
     }

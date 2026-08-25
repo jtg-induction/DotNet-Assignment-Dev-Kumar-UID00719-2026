@@ -1,4 +1,12 @@
-﻿using dotNetAssignment.Models.DTO;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+using Microsoft.IdentityModel.Tokens;
+using Moq;
+using NUnit.Framework;
+
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
@@ -8,12 +16,6 @@ using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Constants;
-using Microsoft.IdentityModel.Tokens;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace dotNetAssignment.Tests.Services
 {
@@ -57,10 +59,41 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.EmailExistsAsync(request.Email))
                 .ReturnsAsync(true);
 
+            _userRepository
+                .Setup(x => x.PhoneNumberExistsAsync(request.PhoneNumber))
+                .ReturnsAsync(true);
+
             var result = await _authenticationService.SignupAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.EmailAlreadyExists));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserAlreadyExists));
+        }
+
+        [Test]
+        public async Task SignupAsync_PhoneNumberAlreadyExists_ReturnsFailure()
+        {
+            var request = new SignupRequestDto
+            {
+                Name = "Dev",
+                Email = "dev@test.com",
+                Password = "Password123",
+                PhoneNumber = "9999999999",
+            };
+
+            _userRepository
+                .Setup(x => x.EmailExistsAsync(request.Email))
+                .ReturnsAsync(false);
+
+            _userRepository
+                .Setup(x => x.PhoneNumberExistsAsync(request.PhoneNumber))
+                .ReturnsAsync(true);
+
+            var result = await _authenticationService.SignupAsync(request);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(
+                result.Message,
+                Is.EqualTo(ExceptionMessages.UserAlreadyExists));
         }
 
         [Test]
@@ -84,6 +117,10 @@ namespace dotNetAssignment.Tests.Services
 
             _userRepository
                 .Setup(x => x.EmailExistsAsync(request.Email))
+                .ReturnsAsync(false);
+
+            _userRepository
+                .Setup(x => x.PhoneNumberExistsAsync(request.PhoneNumber))
                 .ReturnsAsync(false);
 
             _passwordService
@@ -178,6 +215,36 @@ namespace dotNetAssignment.Tests.Services
         }
 
         [Test]
+        public async Task LoginAsync_UserIsInactive_ReturnsFailure()
+        {
+            var request = new LoginRequestDto
+            {
+                Email = "test@test.com",
+                Password = "Password123"
+            };
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = request.Email,
+                Password = "hashed-password",
+                Role = UserRole.Customer,
+                IsActive = false
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByEmailAsync(request.Email))
+                .ReturnsAsync(user);
+
+            var result = await _authenticationService.LoginAsync(request);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(
+                result.Message,
+                Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
+        }
+
+        [Test]
         public async Task LoginAsync_InvalidPassword_ReturnsFailure()
         {
             var request = new LoginRequestDto
@@ -191,7 +258,8 @@ namespace dotNetAssignment.Tests.Services
                 Id = Guid.NewGuid(),
                 Email = request.Email,
                 Password = "hashed-password",
-                Role = UserRole.Customer
+                Role = UserRole.Customer,
+                IsActive = true
             };
 
             _userRepository
@@ -222,7 +290,8 @@ namespace dotNetAssignment.Tests.Services
                 Id = Guid.NewGuid(),
                 Email = request.Email,
                 Password = "hashed-password",
-                Role = UserRole.Customer
+                Role = UserRole.Customer,
+                IsActive = true
             };
 
             var refreshResponse = new RefreshTokenResponseDto
@@ -258,7 +327,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_InvalidRefreshToken_ReturnsFailure()
         {
-            var request = new RefreshTokenRequestDto
+            var request = new LogoutRequestDto
             {
                 RefreshToken = "invalid-token"
             };
@@ -276,7 +345,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_JwtIdDoesNotExist_ReturnsFailure()
         {
-            var request = new RefreshTokenRequestDto
+            var request = new LogoutRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -305,7 +374,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task LogoutAsync_ValidRefreshToken_RemovesJwtId()
         {
-            var request = new RefreshTokenRequestDto
+            var request = new LogoutRequestDto
             {
                 RefreshToken = "refresh-token"
             };
@@ -329,6 +398,14 @@ namespace dotNetAssignment.Tests.Services
 
             Assert.That(result.Success, Is.True);
             Assert.That(result.Message, Is.EqualTo(SuccessMessages.UserLoggedOut));
+
+            _jwtRepository.Verify(
+                x => x.RemoveJwtIdAsync(jwtId),
+                Times.Once);
+
+            _jwtRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
 
         [Test]

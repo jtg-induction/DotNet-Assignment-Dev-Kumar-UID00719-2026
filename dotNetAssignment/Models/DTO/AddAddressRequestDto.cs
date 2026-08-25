@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+
 using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Models.DTO.Address
 {
-    public class AddressRequestDto
+    public class AddAddressRequestDto
     {
         [Required]
         [StringLength(255)]
@@ -17,7 +14,7 @@ namespace dotNetAssignment.Models.DTO.Address
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(Regex.ValidPincodeRegex)]
+        [RegularExpression(Regex.ValidPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
         public string Pincode { get; set; }
 
         [Required]

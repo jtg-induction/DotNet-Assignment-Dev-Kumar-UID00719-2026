@@ -13,7 +13,7 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto LoginRequestDto);
 
-        Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto refreshTokenDto);
+        Task<ApiResponseDto<string>> LogoutAsync(LogoutRequestDto LogoutRequestDto);
 
         Task<ApiResponseDto<AccessTokenRefreshResponse>> TokenRefreshAsync(RefreshTokenRequestDto refreshTokenDto);
 

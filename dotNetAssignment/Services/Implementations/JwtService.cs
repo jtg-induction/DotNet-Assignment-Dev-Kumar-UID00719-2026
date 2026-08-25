@@ -71,7 +71,7 @@ namespace dotNetAssignment.Services.Implementations
 
             var claims = new List<Claim>
             {
-                new Claim("userid", userId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jwtId.ToString())
             };
 
@@ -180,7 +180,7 @@ namespace dotNetAssignment.Services.Implementations
         /// </returns>
         public Guid GetUserId(ClaimsPrincipal principal)
         {
-            return Guid.Parse(principal.FindFirst("userid").Value);
+            return Guid.Parse(principal.FindFirst(ClaimTypes.NameIdentifier).Value);
         }
     }
 }

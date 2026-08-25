@@ -10,9 +10,8 @@ namespace dotNetAssignment.Models.DTO.Login
     public class LoginRequestDto
     {
         [Required]
-        [EmailAddress]
         [StringLength(255)]
-        [RegularExpression(Regex.ValidEmailRegex)]
+        [RegularExpression(Regex.ValidEmailRegex, ErrorMessage = ExceptionMessages.InvalidEmail)]
         public string Email { get; set; }
 
         [Required]

@@ -45,12 +45,13 @@ namespace dotNetAssignment.Services.Implementations
         /// </returns>
         public async Task<ApiResponseDto<AuthenticationResponseDto>> SignupAsync(SignupRequestDto request)
         {
-            if (await _userRepository.EmailExistsAsync(request.Email))
+            if (await _userRepository.EmailExistsAsync(request.Email) 
+                || await _userRepository.PhoneNumberExistsAsync(request.PhoneNumber))
             {
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = ExceptionMessages.EmailAlreadyExists
+                    Message = ExceptionMessages.EmailOrPhoneNumberAlreadyExists
                 };
             }
 
@@ -73,7 +74,6 @@ namespace dotNetAssignment.Services.Implementations
             var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
             _jwtRepository.AddJwtId(refreshToken.JwtId);
-
             await _jwtRepository.SaveChangesAsync();
             await _userRepository.SaveChangesAsync();
 
@@ -101,7 +101,7 @@ namespace dotNetAssignment.Services.Implementations
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
 
-            if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
+            if (!_passwordService.VerifyPassword(request.Password, user.Password))
             {
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
@@ -134,7 +134,7 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>
         /// An API response indicating the success or failure of the logout operation
         /// </returns>
-        public async Task<ApiResponseDto<string>> LogoutAsync(RefreshTokenRequestDto request)
+        public async Task<ApiResponseDto<string>> LogoutAsync(LogoutRequestDto request)
         {
             ClaimsPrincipal principal;
 

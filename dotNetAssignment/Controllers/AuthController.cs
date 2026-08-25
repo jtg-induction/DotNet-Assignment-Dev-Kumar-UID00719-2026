@@ -5,6 +5,8 @@ using dotNetAssignment.Models.DTO;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Net;
+using dotNetAssignment.Constants;
+using dotNetAssignment.Filters;
 
 namespace dotNetAssignment.Controllers
 {
@@ -29,16 +31,14 @@ namespace dotNetAssignment.Controllers
         [Route("signup")]
         public async Task<IHttpActionResult> Signup(SignupRequestDto signupRequestDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.SignupAsync(signupRequestDto);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                if(response.Message == ExceptionMessages.EmailOrPhoneNumberAlreadyExists)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
             }
 
             return Ok(response);
@@ -52,20 +52,19 @@ namespace dotNetAssignment.Controllers
         /// An API response containing the authentication tokens on success
         /// or an error message when login fails
         /// </returns>
+        [ActiveUserFilter]
         [HttpPost]
         [Route("login")]
         public async Task<IHttpActionResult> Login(LoginRequestDto loginRequestDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.LoginAsync(loginRequestDto);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidEmailOrPassword)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
@@ -83,16 +82,14 @@ namespace dotNetAssignment.Controllers
         [Route("refresh")]
         public async Task<IHttpActionResult> Refresh(RefreshTokenRequestDto refreshTokenDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var response = await _authenticationService.TokenRefreshAsync(refreshTokenDto);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidRefreshToken)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
@@ -106,20 +103,19 @@ namespace dotNetAssignment.Controllers
         /// An API response indicating the success or failure of the logout operation.
         /// </returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPost]
         [Route("logout")]
-        public async Task<IHttpActionResult> Logout(RefreshTokenRequestDto refreshTokenDto) 
+        public async Task<IHttpActionResult> Logout(LogoutRequestDto request) 
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _authenticationService.LogoutAsync(refreshTokenDto);
+            var response = await _authenticationService.LogoutAsync(request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidRefreshToken)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);

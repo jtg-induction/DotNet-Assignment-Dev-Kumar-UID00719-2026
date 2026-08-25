@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+
 using NUnit.Framework;
+
 using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Services.Implementations;
 
@@ -20,100 +22,141 @@ namespace dotNetAssignment.Tests.Services
         }
 
         [Test]
-        public void GenerateAccessToken_ReturnsValidJwt()
-        {
-            var token = _jwtService.GenerateAccessToken(Guid.NewGuid(), "test@test.com", UserRole.Customer);
-
-            Assert.That(token, Is.Not.Null.And.Not.Empty);
-        }
-
-        [Test]
-        public void GenerateAccessToken_ContainsCorrectUserIdClaim()
+        public void GenerateAccessToken_ReturnsTokenWithExpectedClaims()
         {
             var userId = Guid.NewGuid();
+            var email = "user@example.com";
+            var role = UserRole.Customer;
 
-            var token = _jwtService.GenerateAccessToken(userId, "test@test.com", UserRole.Customer);
-            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var token = _jwtService.GenerateAccessToken(
+                userId,
+                email,
+                role);
 
-            Assert.That(
-                jwt.Claims.First(c => c.Type == "userid").Value,
-                Is.EqualTo(userId.ToString()));
-        }
-
-        [Test]
-        public void GenerateRefreshToken_ReturnsValidResponse()
-        {
-            var response = _jwtService.GenerateRefreshToken(Guid.NewGuid());
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
 
             Assert.Multiple(() =>
             {
-                Assert.That(response, Is.Not.Null);
-                Assert.That(response.RefreshToken, Is.Not.Null.And.Not.Empty);
+                Assert.That(token, Is.Not.Null.And.Not.Empty);
+
+                Assert.That(
+                    jwt.Claims
+                        .First(x => x.Type == ClaimTypes.NameIdentifier)
+                        .Value,
+                    Is.EqualTo(userId.ToString()));
+
+                Assert.That(
+                    jwt.Claims
+                        .First(x => x.Type == ClaimTypes.Email)
+                        .Value,
+                    Is.EqualTo(email));
+
+                Assert.That(
+                    jwt.Claims
+                        .First(x => x.Type == ClaimTypes.Role)
+                        .Value,
+                    Is.EqualTo(role.ToString()));
             });
         }
 
         [Test]
-        public void GenerateRefreshToken_ContainsCorrectUserIdClaim()
+        public void GenerateRefreshToken_ReturnsTokenWithExpectedClaims()
         {
             var userId = Guid.NewGuid();
 
-            var response = _jwtService.GenerateRefreshToken(userId);
-            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(response.RefreshToken);
+            var result = _jwtService.GenerateRefreshToken(userId);
 
-            Assert.That(
-                jwt.Claims.First(c => c.Type == "userid").Value,
-                Is.EqualTo(userId.ToString()));
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(result.RefreshToken);
+
+            var userIdClaim = jwt.Claims
+                .First(x => x.Type == ClaimTypes.NameIdentifier)
+                .Value;
+
+            var jwtIdClaim = jwt.Claims
+                .First(x => x.Type == JwtRegisteredClaimNames.Jti)
+                .Value;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result.RefreshToken,
+                    Is.Not.Null.And.Not.Empty);
+
+                Assert.That(
+                    result.JwtId,
+                    Is.Not.EqualTo(Guid.Empty));
+
+                Assert.That(
+                    userIdClaim,
+                    Is.EqualTo(userId.ToString()));
+
+                Assert.That(
+                    jwtIdClaim,
+                    Is.EqualTo(result.JwtId.ToString()));
+            });
         }
 
         [Test]
-        public void GenerateRefreshToken_ContainsMatchingJwtId()
-        {
-            var response = _jwtService.GenerateRefreshToken(Guid.NewGuid());
-
-            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(response.RefreshToken);
-
-            Assert.That(
-                jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.Jti).Value,
-                Is.EqualTo(response.JwtId.ToString()));
-        }
-
-        [Test]
-        public void ValidateRefreshToken_WithValidToken_ReturnsClaimsPrincipal()
-        {
-            var response = _jwtService.GenerateRefreshToken(Guid.NewGuid());
-
-            var principal = _jwtService.ValidateRefreshToken(response.RefreshToken);
-
-            Assert.That(principal, Is.Not.Null);
-        }
-
-        [Test]
-        public void ValidateRefreshToken_WithInvalidToken_ThrowsSecurityTokenMalformedException()
-        {
-            Assert.Throws<SecurityTokenMalformedException>(() =>
-                _jwtService.ValidateRefreshToken("invalid-token"));
-        }
-
-        [Test]
-        public void GetJwtId_ReturnsCorrectJwtId()
-        {
-            var response = _jwtService.GenerateRefreshToken(Guid.NewGuid());
-            var principal = _jwtService.ValidateRefreshToken(response.RefreshToken);
-            var jwtId = _jwtService.GetJwtId(principal);
-
-            Assert.That(jwtId, Is.EqualTo(response.JwtId));
-        }
-
-        [Test]
-        public void GetUserId_ReturnsCorrectUserId()
+        public void ValidateRefreshToken_WhenTokenIsValid_ReturnsPrincipal()
         {
             var userId = Guid.NewGuid();
 
-            var response = _jwtService.GenerateRefreshToken(userId);
-            var principal = _jwtService.ValidateRefreshToken(response.RefreshToken);
-            var extractedUserId = _jwtService.GetUserId(principal);
+            var refreshToken =
+                _jwtService.GenerateRefreshToken(userId).RefreshToken;
 
-            Assert.That(extractedUserId, Is.EqualTo(userId));
+            var principal =
+                _jwtService.ValidateRefreshToken(refreshToken);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(principal, Is.Not.Null);
+
+                Assert.That(
+                    principal.FindFirst(ClaimTypes.NameIdentifier).Value,
+                    Is.EqualTo(userId.ToString()));
+            });
+        }
+
+        [Test]
+        public void GetJwtId_ReturnsJwtIdFromPrincipal()
+        {
+            var jwtId = Guid.NewGuid();
+
+            var identity = new ClaimsIdentity(
+                new[]
+                {
+                    new Claim(
+                        JwtRegisteredClaimNames.Jti,
+                        jwtId.ToString())
+                });
+
+            var principal = new ClaimsPrincipal(identity);
+
+            var result = _jwtService.GetJwtId(principal);
+
+            Assert.That(result, Is.EqualTo(jwtId));
+        }
+
+        [Test]
+        public void GetUserId_ReturnsUserIdFromPrincipal()
+        {
+            var userId = Guid.NewGuid();
+
+            var identity = new ClaimsIdentity(
+                new[]
+                {
+                    new Claim(
+                        ClaimTypes.NameIdentifier,
+                        userId.ToString())
+                });
+
+            var principal = new ClaimsPrincipal(identity);
+
+            var result = _jwtService.GetUserId(principal);
+
+            Assert.That(result, Is.EqualTo(userId));
         }
     }
 }

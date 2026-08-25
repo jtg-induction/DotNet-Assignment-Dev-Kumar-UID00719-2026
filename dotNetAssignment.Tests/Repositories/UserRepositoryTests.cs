@@ -130,6 +130,56 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
         }
 
         [Test]
+        public async Task PhoneNumberExistsAsync_WhenPhoneNumberDoesNotExist_ReturnsFalse()
+        {
+            var data = new List<User>
+            {
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    PhoneNumber = "9876543210"
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.PhoneNumberExistsAsync("9999999999");
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public async Task PhoneNumberExistsAsync_WhenPhoneNumberExists_ReturnsTrue()
+        {
+            var phoneNumber = "9876543210";
+
+            var data = new List<User>
+            {
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    PhoneNumber = phoneNumber
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.Users)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.PhoneNumberExistsAsync(phoneNumber);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
         public void AddUser_AddsUser()
         {
             var user = new User
@@ -155,59 +205,6 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
             _userAddresses.Verify(
                 x => x.Add(address),
                 Times.Once);
-        }
-
-        [Test]
-        public async Task GetUserByEmailAsync_WhenUserExists_ReturnsUser()
-        {
-            var email = "user@example.com";
-
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = email
-            };
-
-            var data = new List<User>
-            {
-                user
-            }.AsQueryable();
-
-            var mockSet = CreateAsyncDbSet(data);
-
-            _context
-                .Setup(x => x.Users)
-                .Returns(mockSet.Object);
-
-            var result =
-                await _repository.GetUserByEmailAsync(email);
-
-            Assert.That(result, Is.EqualTo(user));
-        }
-
-        [Test]
-        public async Task GetUserByEmailAsync_WhenUserDoesNotExist_ReturnsNull()
-        {
-            var data = new List<User>
-            {
-                new User
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "existing@example.com"
-                }
-            }.AsQueryable();
-
-            var mockSet = CreateAsyncDbSet(data);
-
-            _context
-                .Setup(x => x.Users)
-                .Returns(mockSet.Object);
-
-            var result =
-                await _repository.GetUserByEmailAsync(
-                    "user@example.com");
-
-            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -261,6 +258,59 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
 
             var result =
                 await _repository.GetUserByIdAsync(searchedUserId);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task GetAddressByIdAsync_WhenAddressExists_ReturnsAddress()
+        {
+            var addressId = Guid.NewGuid();
+
+            var address = new UserAddress
+            {
+                Id = addressId
+            };
+
+            var data = new List<UserAddress>
+            {
+                address
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.UserAddresses)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.GetAddressByIdAsync(addressId);
+
+            Assert.That(result, Is.EqualTo(address));
+        }
+
+        [Test]
+        public async Task GetAddressByIdAsync_WhenAddressDoesNotExist_ReturnsNull()
+        {
+            var searchedAddressId = Guid.NewGuid();
+
+            var data = new List<UserAddress>
+            {
+                new UserAddress
+                {
+                    Id = Guid.NewGuid()
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.UserAddresses)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.GetAddressByIdAsync(
+                    searchedAddressId);
 
             Assert.That(result, Is.Null);
         }
