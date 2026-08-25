@@ -13,7 +13,7 @@ namespace dotNetAssignment.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202608101120159_InitialCreate"; }
+            get { return "202608101452204_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source

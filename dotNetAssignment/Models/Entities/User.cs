@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 using dotNetAssignment.Models.Enums;
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Models.Entities
 {
@@ -24,7 +23,7 @@ namespace dotNetAssignment.Models.Entities
         [EmailAddress]
         [Index("IX_Email", IsUnique = true)]
         [StringLength(255)]
-        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")]
+        [RegularExpression(Regex.ValidEmailRegex)]
         public string Email { get; set; }
 
         [Required]
@@ -38,7 +37,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [Phone]
-        [RegularExpression(@"^[0-9]{10}$")]
+        [RegularExpression(Regex.ValidPhoneNumberRegex)]
         public string PhoneNumber { get; set; }
 
         public DateTime CreatedAt { get; set; }

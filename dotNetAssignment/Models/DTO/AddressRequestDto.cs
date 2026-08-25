@@ -1,18 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Linq;
+using System.Web;
 using dotNetAssignment.Constants;
 
-namespace dotNetAssignment.Models.Entities
+namespace dotNetAssignment.Models.DTO.Address
 {
-    public class UserAddress
+    public class AddressRequestDto
     {
-        public Guid Id { get; set; }
-
-        public Guid UserId { get; set; }
-        public virtual User User { get; set; }
-
         [Required]
         [StringLength(255)]
         public string LineOne { get; set; }
@@ -23,18 +19,13 @@ namespace dotNetAssignment.Models.Entities
         [Required]
         [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
-        
+
         [Required]
         [StringLength(100)]
         public string City { get; set; }
-        
+
         [Required]
         [StringLength(100)]
         public string State { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime UpdatedAt { get; set; }
-
     }
 }

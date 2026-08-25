@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
+
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Models.Entities
 {
@@ -32,7 +32,7 @@ namespace dotNetAssignment.Models.Entities
         public string Landmark { get; set; }
 
         [Required]
-        [RegularExpression(@"^[1-9][0-9]{5}$")]
+        [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]

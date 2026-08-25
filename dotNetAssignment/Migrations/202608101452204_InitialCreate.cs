@@ -128,6 +128,15 @@
                 .ForeignKey("dbo.Users", t => t.UserId, cascadeDelete: true)
                 .Index(t => t.UserId);
             
+            CreateTable(
+                "dbo.RefreshTokens",
+                c => new
+                    {
+                        JwtId = c.Guid(nullable: false),
+                        CreatedAt = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.JwtId);
+            
         }
         
         public override void Down()
@@ -149,6 +158,7 @@
             DropIndex("dbo.OrderItems", new[] { "MenuId" });
             DropIndex("dbo.OrderItems", new[] { "OrderId" });
             DropIndex("dbo.Menus", new[] { "RestaurantId" });
+            DropTable("dbo.RefreshTokens");
             DropTable("dbo.UserAddresses");
             DropTable("dbo.Users");
             DropTable("dbo.RestaurantOwners");

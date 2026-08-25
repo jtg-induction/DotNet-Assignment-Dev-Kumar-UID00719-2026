@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
-using System.Web.UI.WebControls;
+
+using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Models.Entities
 {
@@ -23,7 +22,7 @@ namespace dotNetAssignment.Models.Entities
         public int Rating { get; set; }
 
         [Required]
-        [RegularExpression(@"^[1-9][0-9]{5}$")]
+        [RegularExpression(Regex.ValidPincodeRegex)]
         public string Pincode { get; set; }
 
         [Required]
