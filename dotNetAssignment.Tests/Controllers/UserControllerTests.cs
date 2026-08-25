@@ -335,6 +335,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task DeactivateUser_WhenServiceReturnsSuccess_ReturnsOk()
         {
+            var request = new DeactivateAccountRequestDto();
             var response = new ApiResponseDto<string>
             {
                 Success = true,
@@ -342,10 +343,10 @@ namespace dotNetAssignment.Tests.Controllers
             };
 
             _userService
-                .Setup(x => x.DeactivateUserAsync(_userId))
+                .Setup(x => x.DeactivateUserAsync(_userId, request))
                 .ReturnsAsync(response);
 
-            var result = await _controller.DeactivateUSer();
+            var result = await _controller.DeactivateUser(request);
 
             var okResult =
                 result as OkNegotiatedContentResult<ApiResponseDto<string>>;
@@ -363,6 +364,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task DeactivateUser_WhenServiceReturnsFailure_ReturnsNotFound()
         {
+            var request = new DeactivateAccountRequestDto();
             var response = new ApiResponseDto<string>
             {
                 Success = false,
@@ -370,10 +372,10 @@ namespace dotNetAssignment.Tests.Controllers
             };
 
             _userService
-                .Setup(x => x.DeactivateUserAsync(_userId))
+                .Setup(x => x.DeactivateUserAsync(_userId, request))
                 .ReturnsAsync(response);
 
-            var result = await _controller.DeactivateUSer();
+            var result = await _controller.DeactivateUser(request);
 
             var notFound =
                 result as NegotiatedContentResult<ApiResponseDto<string>>;

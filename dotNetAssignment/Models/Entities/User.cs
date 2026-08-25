@@ -14,7 +14,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [StringLength(100), MinLength(2)]
-        [RegularExpression(Regex.validNameRegex)]
+        [RegularExpression(Regex.ValidNameRegex)]
         public string Name { get; set; }
 
         [Required]
@@ -23,12 +23,12 @@ namespace dotNetAssignment.Models.Entities
         [Required]
         [Index("IX_Email", IsUnique = true)]
         [StringLength(255)]
-        [RegularExpression(Regex.validEmailRegex)]
+        [RegularExpression(Regex.ValidEmailRegex)]
         public string Email { get; set; }
 
         [Required]
         [StringLength(100), MinLength(8)]
-        [RegularExpression(Regex.validPasswordRegex)]
+        [RegularExpression(Regex.ValidPasswordRegex)]
         public string Password { get; set; }
 
         public bool IsActive { get; set; }
@@ -38,7 +38,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [Index("IX_PhoneNumber", IsUnique = true)]
-        [RegularExpression(Regex.validPhoneNumberRegex)]
+        [RegularExpression(Regex.ValidPhoneNumberRegex)]
         [StringLength(10)]
         public string PhoneNumber { get; set; }
 

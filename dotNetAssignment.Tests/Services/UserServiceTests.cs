@@ -4,6 +4,7 @@ using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
 using dotNetAssignment.Repositories.UserRepo;
+using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
 using Moq;
@@ -18,6 +19,8 @@ namespace dotNetAssignment.Tests.Services
     {
         private Mock<IUserRepository> _userRepository;
         private Mock<IPasswordService> _passwordService;
+        private Mock<IJwtService> _jwtService;
+        private Mock<IJwtRepository> _jwtRepository;
         private UserService _userService;
         private Guid _userId;
 
@@ -26,10 +29,14 @@ namespace dotNetAssignment.Tests.Services
         {
             _userRepository = new Mock<IUserRepository>();
             _passwordService = new Mock<IPasswordService>();
+            _jwtService = new Mock<IJwtService>();
+            _jwtRepository = new Mock<IJwtRepository>();
 
             _userService = new UserService(
                 _userRepository.Object,
-                _passwordService.Object);
+                _passwordService.Object,
+                _jwtService.Object,
+                _jwtRepository.Object);
 
             _userId = Guid.NewGuid();
         }
@@ -417,11 +424,12 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task DeactivateUserAsync_WhenUserDoesNotExist_ReturnsFailure()
         {
+            var request = new DeactivateAccountRequestDto();
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
                 .ReturnsAsync((User)null);
 
-            var result = await _userService.DeactivateUserAsync(_userId);
+            var result = await _userService.DeactivateUserAsync(_userId, request);
 
             Assert.Multiple(() =>
             {
@@ -433,6 +441,7 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task DeactivateUserAsync_WhenUserExists_DeactivatesUser()
         {
+            var request = new DeactivateAccountRequestDto();
             var user = new User
             {
                 Id = _userId,
@@ -443,7 +452,7 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetUserByIdAsync(_userId))
                 .ReturnsAsync(user);
 
-            var result = await _userService.DeactivateUserAsync(_userId);
+            var result = await _userService.DeactivateUserAsync(_userId, request);
 
             Assert.Multiple(() =>
             {

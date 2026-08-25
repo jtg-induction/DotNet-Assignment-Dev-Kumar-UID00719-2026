@@ -6,6 +6,7 @@ namespace dotNetAssignment.Models.DTO.Address
 {
     public class UpdateAddressRequestDto
     {
+        [Required]
         public Guid AddressId { get; set; }
 
         [StringLength(255)]
@@ -14,7 +15,7 @@ namespace dotNetAssignment.Models.DTO.Address
         [StringLength(255)]
         public string Landmark { get; set; }
 
-        [RegularExpression(Regex.validPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
+        [RegularExpression(Regex.ValidPincodeRegex, ErrorMessage = ExceptionMessages.InvalidPincode)]
         public string Pincode { get; set; }
 
         [StringLength(100)]

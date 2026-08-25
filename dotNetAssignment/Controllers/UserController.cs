@@ -3,6 +3,7 @@ using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
+using dotNetAssignment.Filters;
 using System;
 using System.Net;
 using System.Security.Claims;
@@ -22,11 +23,12 @@ namespace dotNetAssignment.Controllers
         }
 
         /// <summary>
-        /// Updates the details of a user
+        /// Updates the user information for the authenticated user.
         /// </summary>
-        /// <param name="request">Request cntains information to be updated</param>
-        /// <returns>Returns failure or success response of the operation</returns>
+        /// <param name="request">Request contains the updated user information</param>
+        /// <returns>An API response indicating the success or failure of the operation.</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPatch]
         [Route("")]
         public async Task<IHttpActionResult> UpdateUser(UpdateUserRequestDto request)
@@ -36,18 +38,22 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.NotFound, response);
+                if(response.Message == ExceptionMessages.SamePhoneNumber || response.Message == ExceptionMessages.UserNotUpdated)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
             }
 
             return Ok(response);
         }
 
         /// <summary>
-        /// Adds a new address for a user
+        /// Adds a new address for the authenticated user.
         /// </summary>
-        /// <param name="request">Request contains all the details of the Address</param>
-        /// <returns>Returns failure or success response of the operation</returns>
+        /// <param name="request">Request contains the new address information</param>
+        /// <returns>An API response indicating the success or failure of the operation.</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPost]
         [Route("address")]
         public async Task<IHttpActionResult> AddAddress(AddAddressRequestDto request)
@@ -55,20 +61,16 @@ namespace dotNetAssignment.Controllers
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
             var response = await _userService.AddAddressAsync(userId, request);
 
-            if (!response.Success)
-            {
-                return Content(HttpStatusCode.NotFound, response);
-            }
-
             return Ok(response);
         }
 
         /// <summary>
-        /// Updates an existing address of the user
+        /// Updates an existing address for the authenticated user.
         /// </summary>
-        /// <param name="request">Request contains updated details fo the address</param>
-        /// <returns>Returns failure or success response of the operation</returns>
+        /// <param name="request">Request contains the updated address information</param>
+        /// <returns>An API response indicating the success or failure of the operation.</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPatch]
         [Route("address")]
         public async Task<IHttpActionResult> UpdateAddress(UpdateAddressRequestDto request)
@@ -78,18 +80,22 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.NotFound, response);
+                if(response.Message == ExceptionMessages.AddressNotFound)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
             }
 
             return Ok(response);
         }
 
         /// <summary>
-        /// Changes password of a user
+        /// Changes the password for the authenticated user.
         /// </summary>
-        /// <param name="request">Request contains old and new password</param>
-        /// <returns>Returns failure or success response of the operation</returns>
+        /// <param name="request">Request contains the new password information</param>
+        /// <returns>An API response indicating the success or failure of the operation.</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPatch]
         [Route("password")]
         public async Task<IHttpActionResult> ChangePassword(ChangePasswordRequestDto request)
@@ -99,14 +105,13 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                if (response.Message == ExceptionMessages.UserNotFound)
-                {
-                    return Content(HttpStatusCode.NotFound, response);
-                }
-
                 if (response.Message == ExceptionMessages.WrongPassword)
                 {
-                    return Content(HttpStatusCode.Unauthorized, response);
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
+                if (response.Message == ExceptionMessages.SamePassword)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
                 }
             }
 
@@ -114,20 +119,25 @@ namespace dotNetAssignment.Controllers
         }
 
         /// <summary>
-        /// Deactivates an existing user
+        /// Deactivates the account of the authenticated user.
         /// </summary>
-        /// <returns>Returns failure or success response of the operation</returns>
+        /// <param name="request">Request contains the deactivation information</param>
+        /// <returns>An API response indicating the success or failure of the operation.</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPatch]
         [Route("deactivate")]
-        public async Task<IHttpActionResult> DeactivateUSer()
+        public async Task<IHttpActionResult> DeactivateUser(DeactivateAccountRequestDto request)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
-            var response = await _userService.DeactivateUserAsync(userId);
+            var response = await _userService.DeactivateUserAsync(userId, request);
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.NotFound, response);
+                if(response.Message == ExceptionMessages.InvalidRefreshToken)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
