@@ -27,6 +27,7 @@ Main Entities:
 - UserAddress
 - Restaurant
 - RestaurantOwner
+- RefreshToken
 - Menu
 - Order
 - OrderItem
@@ -36,20 +37,24 @@ Main Entities:
 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/jtg-induction/DotNet-Assignment-Dev-Kumar-UID00719-2026
 ```
 
 2. Open the solution in Visual Studio 2022.
 
-3. Update the connection string in `Web.config`.
+3. Create `ConnectionStrings.config` file using `ConnectionStrings.template.config` and replace the placeholders with local values
 
-4. Run migrations:
+4. Create `Secrets.config` file using `Secrets.template.config` and replace the placeholders with local values
+
+5. Update the connection string in `Web.config`.
+
+6. Run migrations:
 
 ```powershell
 Update-Database
 ```
 
-5. Run the project.
+7. Run the project.
 
 ## Migrations
 
@@ -64,6 +69,16 @@ Apply migration:
 ```powershell
 Update-Database
 ```
+
+## Endpoints
+
+| Method | Endpoint                  | Description										 |
+|--------|---------------------------|---------------------------------------------------|
+| POST   | /api/auth/signup          | Registers a new user								 |
+| POST   | /api/auth/login           | Login a user										 |
+| POST   | /api/auth/logout          | Logout a user								     |
+| POST   | /api/auth/refresh         | Refreshes access token for an authenticated user  |
+
 
 ## Author
 
