@@ -51,7 +51,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = ExceptionMessages.UserAlreadyExists
+                    Message = ExceptionMessages.EmailOrPhoneNumberAlreadyExists
                 };
             }
 
@@ -101,7 +101,7 @@ namespace dotNetAssignment.Services.Implementations
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
 
-            if (user == null || !user.IsActive || !_passwordService.VerifyPassword(request.Password, user.Password))
+            if (!_passwordService.VerifyPassword(request.Password, user.Password))
             {
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {

@@ -14,7 +14,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [StringLength(100), MinLength(2)]
-        [RegularExpression(Regex.validNameRegex)]
+        [RegularExpression(Regex.ValidNameRegex)]
         public string Name { get; set; }
 
         [Required]
@@ -28,7 +28,7 @@ namespace dotNetAssignment.Models.Entities
 
         [Required]
         [StringLength(100), MinLength(8)]
-        [RegularExpression(Regex.validPasswordRegex)]
+        [RegularExpression(Regex.ValidPasswordRegex)]
         public string Password { get; set; }
 
         public bool IsActive { get; set; }

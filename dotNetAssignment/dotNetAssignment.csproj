@@ -213,6 +213,7 @@
     <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
+    <Compile Include="Filters\ActiveUserFilter.cs" />
     <Compile Include="Filters\ModelStateHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -228,6 +229,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
+    <Compile Include="Models\DTO\DeactivateAccountRequestDto.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />

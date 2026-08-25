@@ -7,14 +7,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-using dotNetAssignment.Constants;
-
 namespace dotNetAssignment.Models.DTO.SignUp
 {
     public class SignupRequestDto
     {
         [Required]
-        [RegularExpression(Regex.validNameRegex)]
+        [RegularExpression(Regex.ValidNameRegex, ErrorMessage = ExceptionMessages.InvalidName)]
         [StringLength(100, MinimumLength = 2)]
         public string Name { get; set; }
 
@@ -25,7 +23,7 @@ namespace dotNetAssignment.Models.DTO.SignUp
 
         [Required]
         [StringLength(100, MinimumLength = 8)]
-        [RegularExpression(Regex.validPasswordRegex)]
+        [RegularExpression(Regex.ValidPasswordRegex, ErrorMessage = ExceptionMessages.InvalidPassword)]
         public string Password { get; set; }
 
         [Required]

@@ -14,6 +14,7 @@ packages/
 
 .coverage
 .log
+.htm
 
 ConnectionStrings.config
 Secrets.config

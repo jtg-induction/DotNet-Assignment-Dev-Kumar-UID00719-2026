@@ -19,7 +19,7 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request);
 
-        Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId);
+        Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId, DeactivateAccountRequestDto request);
 
     }
 }
