@@ -231,8 +231,11 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DTO\CancelOrderRequestDto.cs" />
+    <Compile Include="Models\DTO\CreateRestaurantRequestDto.cs" />
+    <Compile Include="Models\DTO\CreateRestaurantResponseDto.cs" />
     <Compile Include="Models\DTO\MenuListResponseDto.cs" />
     <Compile Include="Models\DTO\MenuResponseDto.cs" />
+    <Compile Include="Models\DTO\OnboardNewRestaurantOwnerDto.cs" />
     <Compile Include="Models\DTO\OrderAddressResponseDto.cs" />
     <Compile Include="Models\DTO\OrderDetailsResponseDto.cs" />
     <Compile Include="Models\DTO\OrderItemDetailsDto.cs" />

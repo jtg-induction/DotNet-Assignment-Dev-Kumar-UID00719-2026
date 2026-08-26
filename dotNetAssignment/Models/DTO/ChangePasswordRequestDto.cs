@@ -12,7 +12,6 @@ namespace dotNetAssignment.Models.DTO
         /// <summary>
         /// The old password of the user.
         /// </summary>
-        [Key]
         [Required]
         [RegularExpression(Regex.ValidPasswordRegex, ErrorMessage = ExceptionMessages.InvalidPassword)]
 

@@ -166,5 +166,158 @@ namespace dotNetAssignment.Tests.Controllers
                     Is.EqualTo(ExceptionMessages.RestaurantDoesntExists));
             });
         }
+
+
+        [Test]
+        public async Task CreateRestaurant_WhenServiceReturnsSuccess_ReturnsOk()
+        {
+            var request = new CreateRestaurantRequestDto();
+            var restaurantId = Guid.NewGuid();
+            var response = new ApiResponseDto<CreateRestaurantResponseDto>
+            {
+                Success = true,
+                Message = SuccessMessages.RestaurantCreated,
+                Data = new CreateRestaurantResponseDto()
+                {
+                    RestaurantId = restaurantId
+                }
+            };
+
+            _restaurantService
+                .Setup(x => x.CreateRestaurantAsync(request))
+                .ReturnsAsync(response);
+
+            var result =
+                await _restaurantController.CreateRestaurant(request);
+
+            var okResult =
+                result as OkNegotiatedContentResult<ApiResponseDto<CreateRestaurantResponseDto>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(okResult, Is.Not.Null);
+                Assert.That(okResult.Content.Success, Is.True);
+                Assert.That(okResult.Content.Data.RestaurantId, Is.EqualTo(restaurantId));
+                Assert.That(okResult.Content.Message, Is.EqualTo(SuccessMessages.RestaurantCreated));
+            });
+        }
+
+
+        [Test]
+        public async Task CreateRestaurant_WhenUserNotFound_ReturnsNotFound()
+        {
+            var request = new CreateRestaurantRequestDto();
+
+            var response = new ApiResponseDto<CreateRestaurantResponseDto>
+            {
+                Success = false,
+                Message = ExceptionMessages.UserNotFound
+            };
+
+            _restaurantService
+                .Setup(x => x.CreateRestaurantAsync(request))
+                .ReturnsAsync(response);
+
+            var result =
+                await _restaurantController.CreateRestaurant(request);
+
+            var notFoundResult =
+                result as NegotiatedContentResult<ApiResponseDto<CreateRestaurantResponseDto>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(notFoundResult, Is.Not.Null);
+                Assert.That(notFoundResult.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+                Assert.That(notFoundResult.Content.Success, Is.False);
+                Assert.That(notFoundResult.Content.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwner_WhenServiceReturnsSuccess_ReturnsOk()
+        {
+            var request = new OnboardNewRestaurantOwnerDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = true,
+                Message = SuccessMessages.RestaurantOwnerOnboarded
+            };
+
+            _restaurantService
+                .Setup(x => x.OnboardNewRestaurantOwnerAsync(request))
+                .ReturnsAsync(response);
+
+            var result = await _restaurantController.OnboardNewRestaurantOwner(request);
+            var okResult = result as OkNegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(okResult, Is.Not.Null);
+                Assert.That(okResult.Content.Success, Is.True);
+                Assert.That(okResult.Content.Message, Is.EqualTo(SuccessMessages.RestaurantOwnerOnboarded));
+            });
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwner_WhenUserNotFound_ReturnsNotFound()
+        {
+            var request = new OnboardNewRestaurantOwnerDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = false,
+                Message = ExceptionMessages.UserNotFound
+            };
+
+            _restaurantService
+                .Setup(x => x.OnboardNewRestaurantOwnerAsync(request))
+                .ReturnsAsync(response);
+
+            var result = await _restaurantController.OnboardNewRestaurantOwner(request);
+            var notFoundResult = result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(notFoundResult, Is.Not.Null);
+                Assert.That(notFoundResult.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+                Assert.That(notFoundResult.Content.Success, Is.False);
+                Assert.That(notFoundResult.Content.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwner_WhenRestaurantDoesNotExist_ReturnsNotFound()
+        {
+            var request = new OnboardNewRestaurantOwnerDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = false,
+                Message = ExceptionMessages.RestaurantDoesntExists
+            };
+
+            _restaurantService
+                .Setup(x => x.OnboardNewRestaurantOwnerAsync(request))
+                .ReturnsAsync(response);
+
+            var result =
+                await _restaurantController.OnboardNewRestaurantOwner(request);
+
+            var notFoundResult =
+                result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(notFoundResult, Is.Not.Null);
+                Assert.That(notFoundResult.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+                Assert.That(notFoundResult.Content.Success, Is.False);
+                Assert.That(notFoundResult.Content.Message, Is.EqualTo(ExceptionMessages.RestaurantDoesntExists));
+            });
+        }
+
     }
 }

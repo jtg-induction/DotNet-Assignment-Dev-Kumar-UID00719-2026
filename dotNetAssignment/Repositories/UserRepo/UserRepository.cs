@@ -44,6 +44,11 @@ namespace dotNetAssignment.Repositories.UserRepo
             return await _context.Users.AnyAsync(x => x.PhoneNumber == phoneNumber);
         }
 
+        public async Task<bool> UserExistsAsync(Guid userId)
+        {
+            return await _context.Users.AnyAsync(x => x.Id == userId);
+        }
+
         /// <summary>
         /// Adds a new user to the database context.
         /// </summary>

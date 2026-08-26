@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dotNetAssignment.Constants;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace dotNetAssignment.Models.DTO
         /// <summary>
         /// The new email address of the user.
         /// </summary>
-        [Phone]
+        [RegularExpression(Regex.ValidPhoneNumberRegex, ErrorMessage = ExceptionMessages.InvalidPhoneNumber)]
         public string PhoneNumber { get; set; }
     }
 }

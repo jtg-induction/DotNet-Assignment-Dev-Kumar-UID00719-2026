@@ -1,6 +1,9 @@
 ﻿using dotNetAssignment.Constants;
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.RestaurantRepo;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 
 using Moq;
@@ -16,15 +19,18 @@ namespace dotNetAssignment.Tests.Services
     public class RestaurantServiceTests
     {
         private Mock<IRestaurantRepository> _restaurantRepository;
+        private Mock<IUserRepository> _userRepository;
         private RestaurantService _restaurantService;
 
         [SetUp]
         public void Setup()
         {
             _restaurantRepository = new Mock<IRestaurantRepository>();
+            _userRepository = new Mock<IUserRepository>();
 
             _restaurantService = new RestaurantService(
-                _restaurantRepository.Object);
+                _restaurantRepository.Object,
+                _userRepository.Object);
         }
 
 
@@ -223,6 +229,365 @@ namespace dotNetAssignment.Tests.Services
                 Assert.That(result.Data.TotalCount, Is.EqualTo(0));
                 Assert.That(result.Data.TotalPages, Is.EqualTo(0));
             });
+        }
+
+
+        [Test]
+        public async Task CreateRestaurantAsync_WhenActiveCustomerExists_CreatesRestaurantAndPromotesOwner()
+        {
+            var ownerId = Guid.NewGuid();
+
+            var owner = new User
+            {
+                Id = ownerId,
+                IsActive = true,
+                Role = UserRole.Customer
+            };
+
+            var request = new CreateRestaurantRequestDto
+            {
+                OwnerId = ownerId,
+                Name = "Burger Hub",
+                AddressLineOne = "24 MG Road",
+                Landmark = "Near Metro",
+                City = "Bengaluru",
+                State = "Karnataka",
+                Pincode = "560001"
+            };
+
+            Restaurant capturedRestaurant = null;
+            RestaurantOwner capturedRestaurantOwner = null;
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync(owner);
+
+            _restaurantRepository
+                .Setup(x => x.AddRestaurantAsync(It.IsAny<Restaurant>()))
+                .Callback<Restaurant>(restaurant =>
+                    capturedRestaurant = restaurant)
+                .Returns(Task.CompletedTask);
+
+            _restaurantRepository
+                .Setup(x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()))
+                .Callback<RestaurantOwner>(restaurantOwner =>
+                    capturedRestaurantOwner = restaurantOwner)
+                .Returns(Task.CompletedTask);
+
+            var result =
+                await _restaurantService.CreateRestaurantAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.RestaurantCreated));
+
+                Assert.That(result.Data, Is.Not.Null);
+                Assert.That(result.Data.RestaurantId, Is.EqualTo(capturedRestaurant.Id));
+
+                Assert.That(owner.Role, Is.EqualTo(UserRole.Owner));
+
+                Assert.That(capturedRestaurant, Is.Not.Null);
+                Assert.That(capturedRestaurant.Name, Is.EqualTo(request.Name));
+                Assert.That(capturedRestaurant.AddressLineOne, Is.EqualTo(request.AddressLineOne));
+                Assert.That(capturedRestaurant.City, Is.EqualTo(request.City));
+                Assert.That(capturedRestaurant.State, Is.EqualTo(request.State));
+                Assert.That(capturedRestaurant.Pincode,Is.EqualTo(request.Pincode));
+                Assert.That(capturedRestaurant.Rating, Is.EqualTo(0));
+
+                Assert.That(capturedRestaurantOwner, Is.Not.Null);
+                Assert.That(capturedRestaurantOwner.UserId,Is.EqualTo(ownerId));
+                Assert.That(capturedRestaurantOwner.RestaurantId,Is.EqualTo(capturedRestaurant.Id));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+        }
+
+
+        [Test]
+        public async Task CreateRestaurantAsync_WhenOwnerDoesNotExist_ReturnsUserNotFound()
+        {
+            var ownerId = Guid.NewGuid();
+
+            var request = new CreateRestaurantRequestDto
+            {
+                OwnerId = ownerId,
+                Name = "Burger Hub"
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync((User)null);
+
+            var result =
+                await _restaurantService.CreateRestaurantAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantAsync(It.IsAny<Restaurant>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task CreateRestaurantAsync_WhenOwnerIsInactive_ReturnsUserNotFound()
+        {
+            var ownerId = Guid.NewGuid();
+
+            var owner = new User
+            {
+                Id = ownerId,
+                IsActive = false,
+                Role = UserRole.Customer
+            };
+
+            var request = new CreateRestaurantRequestDto
+            {
+                OwnerId = ownerId,
+                Name = "Burger Hub"
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync(owner);
+
+            var result = await _restaurantService.CreateRestaurantAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message,Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantAsync(It.IsAny<Restaurant>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwnerAsync_WhenUserAndRestaurantExist_OnboardsOwner()
+        {
+            var ownerId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var owner = new User
+            {
+                Id = ownerId,
+                IsActive = true
+            };
+
+            var restaurant = new Restaurant
+            {
+                Id = restaurantId,
+                Name = "Burger Hub"
+            };
+
+            var request = new OnboardNewRestaurantOwnerDto
+            {
+                OwnerId = ownerId,
+                RestaurantId = restaurantId
+            };
+
+            RestaurantOwner capturedRestaurantOwner = null;
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync(owner);
+
+            _restaurantRepository
+                .Setup(x => x.GetRestaurantByIdAsync(restaurantId))
+                .ReturnsAsync(restaurant);
+
+            _restaurantRepository
+                .Setup(x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()))
+                .Callback<RestaurantOwner>(restaurantOwner =>
+                    capturedRestaurantOwner = restaurantOwner)
+                .Returns(Task.CompletedTask);
+
+            var result = await _restaurantService.OnboardNewRestaurantOwnerAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.RestaurantOwnerOnboarded));
+
+                Assert.That(capturedRestaurantOwner, Is.Not.Null);
+                Assert.That(capturedRestaurantOwner.UserId, Is.EqualTo(ownerId));
+                Assert.That(capturedRestaurantOwner.RestaurantId, Is.EqualTo(restaurantId));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwnerAsync_WhenUserDoesNotExist_ReturnsUserNotFound()
+        {
+            var ownerId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var request = new OnboardNewRestaurantOwnerDto
+            {
+                OwnerId = ownerId,
+                RestaurantId = restaurantId
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync((User)null);
+
+            var result =
+                await _restaurantService.OnboardNewRestaurantOwnerAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.GetRestaurantByIdAsync(It.IsAny<Guid>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwnerAsync_WhenUserIsInactive_ReturnsUserNotFound()
+        {
+            var ownerId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var owner = new User
+            {
+                Id = ownerId,
+                IsActive = false
+            };
+
+            var request = new OnboardNewRestaurantOwnerDto
+            {
+                OwnerId = ownerId,
+                RestaurantId = restaurantId
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync(owner);
+
+            var result =
+                await _restaurantService.OnboardNewRestaurantOwnerAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message,Is.EqualTo(ExceptionMessages.UserNotFound));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.GetRestaurantByIdAsync(It.IsAny<Guid>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task OnboardNewRestaurantOwnerAsync_WhenRestaurantDoesNotExist_ReturnsRestaurantNotFound()
+        {
+            var ownerId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var owner = new User
+            {
+                Id = ownerId,
+                IsActive = true
+            };
+
+            var request = new OnboardNewRestaurantOwnerDto
+            {
+                OwnerId = ownerId,
+                RestaurantId = restaurantId
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(ownerId))
+                .ReturnsAsync(owner);
+
+            _restaurantRepository
+                .Setup(x => x.GetRestaurantByIdAsync(restaurantId))
+                .ReturnsAsync((Restaurant)null);
+
+            var result =
+                await _restaurantService.OnboardNewRestaurantOwnerAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.RestaurantDoesntExists));
+            });
+
+            _restaurantRepository.Verify(
+                x => x.AddRestaurantOwnerAsync(It.IsAny<RestaurantOwner>()),
+                Times.Never);
+
+            _restaurantRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
         }
     }
 }

@@ -19,5 +19,7 @@ namespace dotNetAssignment.Constants
         public const string UserDeactivated = "User deactivated successfully";
         public const string OrderDetailsFetched = "Order details fetched successfully";
         public const string OrderCancelled = "Order cancelled";
+        public const string RestaurantOwnerOnboarded = "Restaurant owner onboarded successfully";
+        public const string RestaurantCreated = "Restaurant created successfully";
     }
 }

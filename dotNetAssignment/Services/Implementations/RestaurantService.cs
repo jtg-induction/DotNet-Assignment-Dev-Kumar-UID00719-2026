@@ -1,6 +1,7 @@
 ﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
@@ -15,11 +16,14 @@ namespace dotNetAssignment.Services.Implementations
     public class RestaurantService : IRestaurantService
     {
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IUserRepository _userRepository;
 
         public RestaurantService(
-            IRestaurantRepository restaurantRepository)
+            IRestaurantRepository restaurantRepository,
+            IUserRepository userRepository)
         {
             _restaurantRepository = restaurantRepository;
+            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -109,5 +113,111 @@ namespace dotNetAssignment.Services.Implementations
             };
         }
 
+        /// <summary>
+        /// Creates a new restaurant and associates it with the specified owner.
+        /// </summary>
+        /// <param name="request">The request containing the restaurant details and owner ID.</param>
+        /// <returns>A task representing the failure or success asynchronous operation.</returns>
+        public async Task<ApiResponseDto<CreateRestaurantResponseDto>> CreateRestaurantAsync(CreateRestaurantRequestDto request)
+        {
+            var owner = await _userRepository.GetUserByIdAsync(request.OwnerId);
+
+            if (owner == null || !owner.IsActive)
+            {
+                return new ApiResponseDto<CreateRestaurantResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
+
+            if(owner.Role == UserRole.Customer)
+            {
+                owner.Role = UserRole.Owner;
+            }
+
+            var restaurant = new Restaurant
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                AddressLineOne = request.AddressLineOne,
+                Landmark = request.Landmark,
+                City = request.City,
+                State = request.State,
+                Pincode = request.Pincode,
+                Rating = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var restaurantOwner = new RestaurantOwner
+            {
+                UserId = owner.Id,
+                RestaurantId = restaurant.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _restaurantRepository.AddRestaurantAsync(restaurant);
+            await _restaurantRepository.AddRestaurantOwnerAsync(restaurantOwner);
+
+            await _restaurantRepository.SaveChangesAsync();
+            await _userRepository.SaveChangesAsync();
+
+            return new ApiResponseDto<CreateRestaurantResponseDto>
+            {
+                Success = true,
+                Message = SuccessMessages.RestaurantCreated,
+                Data = new CreateRestaurantResponseDto()
+                {
+                    RestaurantId = restaurant.Id
+                }
+            };
+        }
+
+        /// <summary>
+        /// Onboards a new restaurant owner by associating them with an existing restaurant.
+        /// </summary>
+        /// <param name="request">The request containing the owner and restaurant IDs.</param>
+        /// <returns>A task representing the failure or success asynchronous operation.</returns>
+        public async Task<ApiResponseDto<string>> OnboardNewRestaurantOwnerAsync(OnboardNewRestaurantOwnerDto request)
+        {
+            var owner = await _userRepository.GetUserByIdAsync(request.OwnerId);
+
+            if (owner == null || !owner.IsActive)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
+
+            var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
+
+            if (restaurant == null)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.RestaurantDoesntExists
+                };
+            }
+
+            var restaurantOwner = new RestaurantOwner
+            {
+                UserId = owner.Id,
+                RestaurantId = restaurant.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _restaurantRepository.AddRestaurantOwnerAsync(restaurantOwner);
+            await _restaurantRepository.SaveChangesAsync();
+
+            return new ApiResponseDto<string>
+            {
+                Success = true,
+                Message = SuccessMessages.RestaurantOwnerOnboarded
+            };
+        }
     }
 }

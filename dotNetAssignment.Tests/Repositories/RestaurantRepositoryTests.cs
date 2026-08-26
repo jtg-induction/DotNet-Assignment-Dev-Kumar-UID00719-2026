@@ -20,6 +20,7 @@ namespace dotNetAssignment.Tests.Repositories.RestaurantRepo
     {
         private Mock<RestaurantDbContext> _context;
         private Mock<DbSet<Restaurant>> _restaurants;
+        private Mock<DbSet<RestaurantOwner>> _restaurantOwners;
         private Mock<DbSet<Menu>> _menus;
         private RestaurantRepository _repository;
 
@@ -28,11 +29,16 @@ namespace dotNetAssignment.Tests.Repositories.RestaurantRepo
         {
             _context = new Mock<RestaurantDbContext>();
             _restaurants = new Mock<DbSet<Restaurant>>();
+            _restaurantOwners = new Mock<DbSet<RestaurantOwner>>();
             _menus = new Mock<DbSet<Menu>>();
 
             _context
                 .Setup(x => x.Restaurants)
                 .Returns(_restaurants.Object);
+
+            _context
+                .Setup(x => x.RestaurantOwners)
+                .Returns(_restaurantOwners.Object);
 
             _context
                 .Setup(x => x.Menus)
@@ -497,6 +503,63 @@ namespace dotNetAssignment.Tests.Repositories.RestaurantRepo
             var result = await _repository.GetRestaurantByIdAsync(searchedRestaurantId);
 
             Assert.That(result, Is.Null);
+        }
+
+
+        [Test]
+        public async Task AddRestaurantAsync_AddsRestaurantAndSavesChanges()
+        {
+            var restaurant = new Restaurant
+            {
+                Id = Guid.NewGuid(),
+                Name = "Burger Hub"
+            };
+
+            await _repository.AddRestaurantAsync(restaurant);
+
+            _restaurants.Verify(
+                x => x.Add(restaurant),
+                Times.Once);
+
+            _context.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+        }
+
+
+        [Test]
+        public async Task AddRestaurantOwnerAsync_AddsRestaurantOwnerAndSavesChanges()
+        {
+            var restaurantOwner = new RestaurantOwner
+            {
+                UserId = Guid.NewGuid(),
+                RestaurantId = Guid.NewGuid()
+            };
+
+            await _repository.AddRestaurantOwnerAsync(restaurantOwner);
+
+            _restaurantOwners.Verify(
+                x => x.Add(restaurantOwner),
+                Times.Once);
+
+            _context.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+        }
+
+
+        [Test]
+        public async Task SaveChangesAsync_CallsContextSaveChanges()
+        {
+            _context
+                .Setup(x => x.SaveChangesAsync())
+                .ReturnsAsync(1);
+
+            await _repository.SaveChangesAsync();
+
+            _context.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
     }
 }

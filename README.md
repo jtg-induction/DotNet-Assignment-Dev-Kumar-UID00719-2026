@@ -88,6 +88,8 @@ Update-Database
 | POST   | /api/order/cancel/{orderId:guid}        | Cancels a specific order				           |
 | GET    | /api/restaurant/				           | Retrieves list of all available restaurants  	   |
 | GET    | /api/restaurant/menu/{restaurantId:guid}| Retrieves menu of a specific restaurant           |
+| POST   | /api/restaurant/create                  | Created a new restaurant                          |
+| POST   | /api/restaurant/onboard                 | Onboards a new restaurant owner to a restaurant   |
 
 
 ## Author
