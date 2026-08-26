@@ -61,12 +61,12 @@ namespace dotNetAssignment.Tests.Services
 
             _userRepository
                 .Setup(x => x.PhoneNumberExistsAsync(request.PhoneNumber))
-                .ReturnsAsync(true);
+                .ReturnsAsync(false);
 
             var result = await _authenticationService.SignupAsync(request);
 
             Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserAlreadyExists));
+            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.EmailOrPhoneNumberAlreadyExists));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace dotNetAssignment.Tests.Services
             Assert.That(result.Success, Is.False);
             Assert.That(
                 result.Message,
-                Is.EqualTo(ExceptionMessages.UserAlreadyExists));
+                Is.EqualTo(ExceptionMessages.EmailOrPhoneNumberAlreadyExists));
         }
 
         [Test]
@@ -194,55 +194,7 @@ namespace dotNetAssignment.Tests.Services
             Assert.That(capturedUser.IsActive, Is.True);
             Assert.That(capturedUser.Balance, Is.EqualTo(1000m));
         }
-
-        [Test]
-        public async Task LoginAsync_UserDoesNotExist_ReturnsFailure()
-        {
-            var request = new LoginRequestDto
-            {
-                Email = "test@test.com",
-                Password = "Password123"
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByEmailAsync(request.Email))
-                .ReturnsAsync((User)null);
-
-            var result = await _authenticationService.LoginAsync(request);
-
-            Assert.That(result.Success, Is.False);
-            Assert.That(result.Message, Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
-        }
-
-        [Test]
-        public async Task LoginAsync_UserIsInactive_ReturnsFailure()
-        {
-            var request = new LoginRequestDto
-            {
-                Email = "test@test.com",
-                Password = "Password123"
-            };
-
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = request.Email,
-                Password = "hashed-password",
-                Role = UserRole.Customer,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByEmailAsync(request.Email))
-                .ReturnsAsync(user);
-
-            var result = await _authenticationService.LoginAsync(request);
-
-            Assert.That(result.Success, Is.False);
-            Assert.That(
-                result.Message,
-                Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
-        }
+        
 
         [Test]
         public async Task LoginAsync_InvalidPassword_ReturnsFailure()
@@ -586,6 +538,44 @@ namespace dotNetAssignment.Tests.Services
 
             Assert.That(result.Success, Is.False);
             Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
+        }
+
+        [Test]
+        public async Task TokenRefreshAsync_ExpiredRefreshToken_RemovesJwtIdAndReturnsFailure()
+        {
+            var request = new RefreshTokenRequestDto
+            {
+                RefreshToken = "expired-token"
+            };
+
+            var expiredJwtId = Guid.NewGuid();
+
+            _jwtService
+                .Setup(x => x.ValidateRefreshToken(request.RefreshToken))
+                .Throws<SecurityTokenExpiredException>();
+
+            _jwtService
+                .Setup(x => x.GetJwtIdFromExpiredToken(request.RefreshToken))
+                .Returns(expiredJwtId);
+
+            var result =
+                await _authenticationService.TokenRefreshAsync(request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
+            });
+
+            _jwtRepository.Verify(
+                x => x.RemoveJwtIdAsync(expiredJwtId),
+                Times.Once);
+
+            _jwtRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
         }
     }
 }

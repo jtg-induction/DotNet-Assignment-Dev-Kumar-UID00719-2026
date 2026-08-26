@@ -64,6 +64,17 @@ namespace dotNetAssignment.Services.Implementations
                     };
                 }
 
+                var phoneNumberExists = await _userRepository.PhoneNumberExistsAsync(request.PhoneNumber);
+
+                if (phoneNumberExists)
+                {
+                    return new ApiResponseDto<string>
+                    {
+                        Success = false,
+                        Message = ExceptionMessages.PhoneNumberAlreadyExists
+                    };
+                }
+
                 user.PhoneNumber = request.PhoneNumber;
                 updated = true;
             }
@@ -175,13 +186,21 @@ namespace dotNetAssignment.Services.Implementations
             {
                 address.UpdatedAt = DateTime.UtcNow;
                 await _userRepository.SaveChangesAsync();
+                return new ApiResponseDto<string>
+                {
+                    Success = true,
+                    Message = SuccessMessages.AddressUpdated
+                };
+            }
+            else
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.AddressNotUpdated
+                };
             }
 
-            return new ApiResponseDto<string>
-            {
-                Success = true,
-                Message = SuccessMessages.AddressUpdated
-            };
         }
 
         /// <summary>

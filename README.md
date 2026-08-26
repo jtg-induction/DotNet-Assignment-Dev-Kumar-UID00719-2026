@@ -72,17 +72,23 @@ Update-Database
 
 ## Endpoints
 
-| Method | Endpoint                  | Description										 |
-|--------|---------------------------|---------------------------------------------------|
-| POST   | /api/auth/signup          | Registers a new user								 |
-| POST   | /api/auth/login           | Logs in an user								     |
-| POST   | /api/auth/logout          | Logs out an user								     |
-| POST   | /api/auth/refresh         | Refreshes access token for an authenticated user  |
-| POST   | /api/user/address         | Adds a new address for an user                    |
-| PATCH  | /api/user/address         | Updates an existing address of an user            |
-| PATCH  | /api/user                 | Updates the details of an existing user           |
-| PATCH  | /api/user/deactivate      | Deactivates an existing user                      |
-| PATCH  | /api/user/password        | Changes password for an existing user             |
+| Method | Endpoint								   | Description									   |
+|--------|-----------------------------------------|---------------------------------------------------|
+| POST   | /api/auth/signup						   | Registers a new user							   |
+| POST   | /api/auth/login						   | Logs in an user								   |
+| POST   | /api/auth/logout          			   | Logs out an user								   |
+| POST   | /api/auth/refresh        		       | Refreshes access token for an authenticated user  |
+| POST   | /api/user/address         			   | Adds a new address for an user                    |
+| PATCH  | /api/user/address         			   | Updates an existing address of an user            |
+| PATCH  | /api/user                 			   | Updates the details of an existing user           |
+| PATCH  | /api/user/deactivate      			   | Deactivates an existing user                      |
+| PATCH  | /api/user/password        			   | Changes password for an existing user             |
+| POST   | /api/order                			   | Place a new order								   |
+| GET    | /api/order/details/{orderId:guid}       | Retrieves details of a specific order             |
+| POST   | /api/order/cancel/{orderId:guid}        | Cancels a specific order				           |
+| GET    | /api/restaurant/				           | Retrieves list of all available restaurants  	   |
+| GET    | /api/restaurant/menu/{restaurantId:guid}| Retrieves menu of a specific restaurant           |
+
 
 ## Author
 

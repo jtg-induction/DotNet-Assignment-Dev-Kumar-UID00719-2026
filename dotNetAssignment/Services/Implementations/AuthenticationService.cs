@@ -9,7 +9,7 @@ using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -74,9 +74,10 @@ namespace dotNetAssignment.Services.Implementations
             var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
             _jwtRepository.AddJwtId(refreshToken.JwtId);
+            
             await _jwtRepository.SaveChangesAsync();
             await _userRepository.SaveChangesAsync();
-
+            
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
@@ -100,6 +101,13 @@ namespace dotNetAssignment.Services.Implementations
         public async Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
+            if(user == null || !user.IsActive) {
+                return new ApiResponseDto<AuthenticationResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
 
             if (!_passwordService.VerifyPassword(request.Password, user.Password))
             {

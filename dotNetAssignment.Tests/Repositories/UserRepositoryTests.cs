@@ -41,8 +41,7 @@ namespace dotNetAssignment.Tests.Repositories.UserRepo
             _repository = new UserRepository(_context.Object);
         }
 
-        private Mock<DbSet<T>> CreateAsyncDbSet<T>(
-            IQueryable<T> data) where T : class
+        private Mock<DbSet<T>> CreateAsyncDbSet<T>(IQueryable<T> data) where T : class
         {
             var mockSet = new Mock<DbSet<T>>();
 

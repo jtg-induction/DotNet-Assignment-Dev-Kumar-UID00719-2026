@@ -18,6 +18,10 @@ namespace dotNetAssignment.Models.Entities
         public decimal Price { get; set; }
 
         [Required]
+        [Range(0, int.MaxValue)]
+        public int QuantityAvailable { get; set; }
+
+        [Required]
         [Range(0,5)]
         public decimal Rating { get; set; }
 

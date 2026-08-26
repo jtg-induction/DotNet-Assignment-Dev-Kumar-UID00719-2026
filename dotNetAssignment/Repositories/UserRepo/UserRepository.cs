@@ -82,6 +82,11 @@ namespace dotNetAssignment.Repositories.UserRepo
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
         }
 
+        public async Task<User> GetUserForUpdateAsync(Guid userId)
+        {
+            return await _context.Users.SqlQuery("SELECT * FROM Users WITH (UPDLOCK, ROWLOCK) WHERE Id = @p0", userId).FirstOrDefaultAsync();
+        }
+
         /// <summary>
         /// Retrieves a user's Address from the database by addressId.
         /// </summary>
