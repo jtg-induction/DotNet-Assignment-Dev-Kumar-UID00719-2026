@@ -3,13 +3,15 @@ using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Models.Entities;
-using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Repositories.Jwt;
+using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace dotNetAssignment.Tests.Services
@@ -41,26 +43,6 @@ namespace dotNetAssignment.Tests.Services
             _userId = Guid.NewGuid();
         }
 
-        [Test]
-        public async Task UpdateUserAsync_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
-
-            var request = new UpdateUserRequestDto
-            {
-                Name = "Updated Name"
-            };
-
-            var result = await _userService.UpdateUserAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task UpdateUserAsync_WhenUserExists_UpdatesUser()
@@ -98,30 +80,77 @@ namespace dotNetAssignment.Tests.Services
                 Times.Once);
         }
 
-        [Test]
-        public async Task AddAddressAsync_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
 
-            var request = new AddAddressRequestDto
+        [Test]
+        public async Task UpdateUserAsync_WhenPhoneNumberIsSame_ReturnsFailure()
+        {
+            var user = new User
             {
-                LineOne = "123 Main Street",
-                Landmark = "Near Mall",
-                Pincode = "110001",
-                City = "Delhi",
-                State = "Delhi"
+                Id = _userId,
+                Name = "Dev",
+                PhoneNumber = "9999999999",
+                IsActive = true
             };
 
-            var result = await _userService.AddAddressAsync(_userId, request);
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            var request = new UpdateUserRequestDto
+            {
+                PhoneNumber = "9999999999"
+            };
+
+            var result =
+                await _userService.UpdateUserAsync(_userId, request);
 
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.SamePhoneNumber));
             });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
         }
+
+
+        [Test]
+        public async Task UpdateUserAsync_WhenNothingIsProvided_ReturnsFailure()
+        {
+            var user = new User
+            {
+                Id = _userId,
+                Name = "Dev",
+                PhoneNumber = "9999999999",
+                IsActive = true
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            var request = new UpdateUserRequestDto();
+
+            var result =
+                await _userService.UpdateUserAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.UserNotUpdated));
+            });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
 
         [Test]
         public async Task AddAddressAsync_WhenUserExists_AddsAddress()
@@ -131,10 +160,6 @@ namespace dotNetAssignment.Tests.Services
                 Id = _userId,
                 IsActive = true
             };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
 
             var request = new AddAddressRequestDto
             {
@@ -168,27 +193,7 @@ namespace dotNetAssignment.Tests.Services
                 Times.Once);
         }
 
-        [Test]
-        public async Task UpdateAddressAsync_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
 
-            var request = new UpdateAddressRequestDto
-            {
-                AddressId = Guid.NewGuid(),
-                City = "Mumbai"
-            };
-
-            var result = await _userService.UpdateAddressAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task UpdateAddressAsync_WhenAddressDoesNotExist_ReturnsFailure()
@@ -223,6 +228,81 @@ namespace dotNetAssignment.Tests.Services
                 Assert.That(result.Message, Is.EqualTo(ExceptionMessages.AddressNotFound));
             });
         }
+
+
+        [Test]
+        public async Task UpdateAddressAsync_WhenAddressBelongsToAnotherUser_ReturnsFailure()
+        {
+            var addressId = Guid.NewGuid();
+
+            var address = new UserAddress
+            {
+                Id = addressId,
+                UserId = Guid.NewGuid()
+            };
+
+            _userRepository
+                .Setup(x => x.GetAddressByIdAsync(addressId))
+                .ReturnsAsync(address);
+
+            var request = new UpdateAddressRequestDto
+            {
+                AddressId = addressId,
+                City = "Mumbai"
+            };
+
+            var result =
+                await _userService.UpdateAddressAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.AddressNotFound));
+            });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task UpdateAddressAsync_WhenNoFieldsAreProvided_ReturnsFailure()
+        {
+            var address = new UserAddress
+            {
+                Id = Guid.NewGuid(),
+                UserId = _userId,
+                City = "Delhi"
+            };
+
+            _userRepository
+                .Setup(x => x.GetAddressByIdAsync(address.Id))
+                .ReturnsAsync(address);
+
+            var request = new UpdateAddressRequestDto
+            {
+                AddressId = address.Id
+            };
+
+            var result =
+                await _userService.UpdateAddressAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.AddressNotUpdated));
+            });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
 
         [Test]
         public async Task UpdateAddressAsync_WhenAddressExists_UpdatesAddress()
@@ -277,27 +357,6 @@ namespace dotNetAssignment.Tests.Services
                 Times.Once);
         }
 
-        [Test]
-        public async Task ChangePasswordAsync_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
-
-            var request = new ChangePasswordRequestDto
-            {
-                OldPassword = "oldPassword",
-                NewPassword = "newPassword"
-            };
-
-            var result = await _userService.ChangePasswordAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task ChangePasswordAsync_WhenOldPasswordIsWrong_ReturnsFailure()
@@ -421,22 +480,6 @@ namespace dotNetAssignment.Tests.Services
                 Times.Once);
         }
 
-        [Test]
-        public async Task DeactivateUserAsync_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            var request = new DeactivateAccountRequestDto();
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
-
-            var result = await _userService.DeactivateUserAsync(_userId, request);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task DeactivateUserAsync_WhenUserExists_DeactivatesUser()
@@ -452,6 +495,21 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetUserByIdAsync(_userId))
                 .ReturnsAsync(user);
 
+            var principal = new ClaimsPrincipal();
+            var jwtId = Guid.NewGuid();
+
+            _jwtService
+                .Setup(x => x.ValidateRefreshToken(request.RefreshToken))
+                .Returns(principal);
+
+            _jwtService
+                .Setup(x => x.GetUserId(principal))
+                .Returns(_userId);
+
+            _jwtService
+                .Setup(x => x.GetJwtId(principal))
+                .Returns(jwtId);
+
             var result = await _userService.DeactivateUserAsync(_userId, request);
 
             Assert.Multiple(() =>
@@ -461,9 +519,112 @@ namespace dotNetAssignment.Tests.Services
                 Assert.That(user.IsActive, Is.False);
             });
 
+            _jwtRepository.Verify(
+                x => x.RemoveJwtIdAsync(jwtId),
+                Times.Once);
+
             _userRepository.Verify(
                 x => x.SaveChangesAsync(),
                 Times.Once);
+
+            _jwtRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task DeactivateUserAsync_WhenRefreshTokenIsInvalid_ReturnsFailure()
+        {
+            var request = new DeactivateAccountRequestDto
+            {
+                RefreshToken = "invalid-token"
+            };
+
+            var user = new User
+            {
+                Id = _userId,
+                IsActive = true
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            _jwtService
+                .Setup(x => x.ValidateRefreshToken(request.RefreshToken))
+                .Throws<SecurityTokenException>();
+
+            var result =
+                await _userService.DeactivateUserAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
+
+                Assert.That(user.IsActive, Is.True);
+            });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+
+            _jwtRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+        }
+
+
+        [Test]
+        public async Task DeactivateUserAsync_WhenTokenBelongsToAnotherUser_ReturnsFailure()
+        {
+            var request = new DeactivateAccountRequestDto
+            {
+                RefreshToken = "valid-token"
+            };
+
+            var user = new User
+            {
+                Id = _userId,
+                IsActive = true
+            };
+
+            var principal = new ClaimsPrincipal();
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            _jwtService
+                .Setup(x => x.ValidateRefreshToken(request.RefreshToken))
+                .Returns(principal);
+
+            _jwtService
+                .Setup(x => x.GetUserId(principal))
+                .Returns(Guid.NewGuid());
+
+            var result =
+                await _userService.DeactivateUserAsync(_userId, request);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
+
+                Assert.That(user.IsActive, Is.True);
+            });
+
+            _userRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
+
+            _jwtRepository.Verify(
+                x => x.SaveChangesAsync(),
+                Times.Never);
         }
     }
 }

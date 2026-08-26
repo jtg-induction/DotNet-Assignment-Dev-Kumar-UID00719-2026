@@ -17,7 +17,6 @@ namespace dotNetAssignment.Controllers
     public class RestaurantController : ApiController
     {
         private readonly IRestaurantService _restaurantService;
-
         public RestaurantController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
@@ -31,9 +30,9 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> GetAllRestaurants (PaginationRequestDto request)
-        { 
-            var response = await _restaurantService.GetAllRestaurantsListAsync(request.Page, request.PageSize);
+        public async Task<IHttpActionResult> GetAllRestaurants(int page = 1, int pageSize = 10)
+        {
+            var response = await _restaurantService.GetAllRestaurantsListAsync(page, pageSize);
 
             if (!response.Success)
             {
@@ -53,10 +52,10 @@ namespace dotNetAssignment.Controllers
         /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpGet]
-        [Route("menu")]
-        public async Task<IHttpActionResult> GetMenuItems(MenuRequestDto request)
+        [Route("menu/{restaurantId:guid}")]
+        public async Task<IHttpActionResult> GetMenuItems(Guid restaurantId, int page = 1, int pageSize = 10)
         {
-            var response = await _restaurantService.GetMenuListAsync(request.RestaurantId, request.Page, request.PageSize);
+            var response = await _restaurantService.GetMenuListAsync(restaurantId, page, pageSize);
 
             if (!response.Success)
             {

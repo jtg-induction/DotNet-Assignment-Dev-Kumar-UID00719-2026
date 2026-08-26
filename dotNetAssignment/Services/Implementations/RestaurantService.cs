@@ -34,15 +34,6 @@ namespace dotNetAssignment.Services.Implementations
             var totalCount = await _restaurantRepository.GetRestaurantCountAsync();
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            if (page > totalPages)
-            {
-                return new ApiResponseDto<RestaurantListResponseDto>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.PageNotFound
-                };
-            }
-
             var response = new RestaurantListResponseDto
             {
                 Restaurants = restaurants.Select(
@@ -94,18 +85,10 @@ namespace dotNetAssignment.Services.Implementations
             var totalCount = await _restaurantRepository.GetRestaurantMenuCountAsync(RestaurantId);
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            if (page > totalPages)
-            {
-                return new ApiResponseDto<MenuListResponseDto>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.PageNotFound
-                };
-            }
 
             var response = new MenuListResponseDto
             {
-                menu = menuItems.Select(
+                Menu = menuItems.Select(
                     x => new MenuResponseDto
                     {
                         Id = x.Id,

@@ -8,6 +8,9 @@ namespace dotNetAssignment.Models.DTO
 {
     public class CancelOrderRequestDto
     {
+        /// <summary>
+        /// The unique identifier of the order to be canceled.
+        /// </summary>
         [Required]
         public Guid? OrderId { get; set; }
     }

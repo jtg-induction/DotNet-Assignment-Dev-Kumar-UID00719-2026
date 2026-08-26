@@ -52,7 +52,6 @@ namespace dotNetAssignment.Controllers
         /// An API response containing the authentication tokens on success
         /// or an error message when login fails
         /// </returns>
-        [ActiveUserFilter]
         [HttpPost]
         [Route("login")]
         public async Task<IHttpActionResult> Login(LoginRequestDto loginRequestDto)
@@ -64,6 +63,10 @@ namespace dotNetAssignment.Controllers
                 if(response.Message == ExceptionMessages.InvalidEmailOrPassword)
                 {
                     return Content(HttpStatusCode.Unauthorized, response);
+                }
+                if(response.Message == ExceptionMessages.UserNotFound)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
                 }
             }
 

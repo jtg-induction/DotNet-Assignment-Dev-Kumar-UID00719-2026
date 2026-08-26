@@ -10,13 +10,15 @@ namespace dotNetAssignment.Repositories.OrderRepository
 {
     public interface IOrderRepository
     {
-        Task<bool> MenuItemExistsAsync(Guid MenuId);
+        Task<bool> MenuItemExistsAsync(Guid menuId);
 
-        Task<Menu> GetMenuItemByIdAsync(Guid MenuId);
+        Task<Menu> GetMenuItemByIdAsync(Guid menuId);
 
-        Task<Order> GetOrderByIdAsync(Guid OrderId);
+        Task<List<Menu>> GetAllMenuItemsByOrderIdAsync(List<Guid> menuItemIds);
 
-        Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid OrderId);
+        Task<Order> GetOrderByIdAsync(Guid orderId);
+
+        Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId);
 
         DbContextTransaction BeginTransaction();
 

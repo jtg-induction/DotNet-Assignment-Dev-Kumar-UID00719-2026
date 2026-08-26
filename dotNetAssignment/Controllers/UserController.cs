@@ -38,7 +38,7 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                if(response.Message == ExceptionMessages.SamePhoneNumber || response.Message == ExceptionMessages.UserNotUpdated)
+                if(response.Message == ExceptionMessages.SamePhoneNumber || response.Message == ExceptionMessages.UserNotUpdated || response.Message == ExceptionMessages.PhoneNumberAlreadyExists)
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -83,6 +83,10 @@ namespace dotNetAssignment.Controllers
                 if(response.Message == ExceptionMessages.AddressNotFound)
                 {
                     return Content(HttpStatusCode.NotFound, response);
+                }
+                if (response.Message == ExceptionMessages.AddressNotUpdated)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
                 }
             }
 

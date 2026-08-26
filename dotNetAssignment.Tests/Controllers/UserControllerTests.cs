@@ -1,18 +1,16 @@
-﻿using System;
+﻿using dotNetAssignment.Constants;
+using dotNetAssignment.Controllers;
+using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.DTO.Address;
+using dotNetAssignment.Services.Interfaces;
+using Moq;
+using NUnit.Framework;
+using System;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 
-using Moq;
-using NUnit.Framework;
-
-using dotNetAssignment.Constants;
-using dotNetAssignment.Controllers;
-using dotNetAssignment.Models.DTO;
-using dotNetAssignment.Models.DTO.Address;
-using dotNetAssignment.Models.DTO.SignUp;
-using dotNetAssignment.Services.Interfaces;
 
 namespace dotNetAssignment.Tests.Controllers
 {
@@ -73,14 +71,55 @@ namespace dotNetAssignment.Tests.Controllers
         }
 
         [Test]
-        public async Task UpdateUser_WhenServiceReturnsFailure_ReturnsNotFound()
+        public async Task UpdateAddress_WhenAddressIsNotUpdated_ReturnsBadRequest()
+        {
+            var request = new UpdateAddressRequestDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = false,
+                Message = ExceptionMessages.AddressNotUpdated
+            };
+
+            _userService
+                .Setup(x => x.UpdateAddressAsync(_userId, request))
+                .ReturnsAsync(response);
+
+            var result = await _controller.UpdateAddress(request);
+
+            var badRequest =
+                result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result,
+                    Is.InstanceOf<
+                        NegotiatedContentResult<ApiResponseDto<string>>>());
+
+                Assert.That(
+                    badRequest.StatusCode,
+                    Is.EqualTo(HttpStatusCode.BadRequest));
+
+                Assert.That(
+                    badRequest.Content.Success,
+                    Is.False);
+
+                Assert.That(
+                    badRequest.Content.Message,
+                    Is.EqualTo(ExceptionMessages.AddressNotUpdated));
+            });
+        }
+
+        [Test]
+        public async Task UpdateUser_WhenPhoneNumberIsSame_ReturnsBadRequest()
         {
             var request = new UpdateUserRequestDto();
 
             var response = new ApiResponseDto<string>
             {
                 Success = false,
-                Message = ExceptionMessages.UserNotFound
+                Message = ExceptionMessages.SamePhoneNumber
             };
 
             _userService
@@ -89,22 +128,67 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.UpdateUser(request);
 
-            var notFound =
+            var badRequest =
                 result as NegotiatedContentResult<ApiResponseDto<string>>;
 
-            Assert.That(
-                result,
-                Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<string>>>());
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result,
+                    Is.InstanceOf<
+                        NegotiatedContentResult<ApiResponseDto<string>>>());
 
-            Assert.That(
-                notFound.StatusCode,
-                Is.EqualTo(HttpStatusCode.NotFound));
+                Assert.That(
+                    badRequest.StatusCode,
+                    Is.EqualTo(HttpStatusCode.BadRequest));
 
-            Assert.That(notFound.Content.Success, Is.False);
-            Assert.That(
-                notFound.Content.Message,
-                Is.EqualTo(ExceptionMessages.UserNotFound));
+                Assert.That(badRequest.Content.Success, Is.False);
+
+                Assert.That(
+                    badRequest.Content.Message,
+                    Is.EqualTo(ExceptionMessages.SamePhoneNumber));
+            });
         }
+
+        [Test]
+        public async Task UpdateUser_WhenUserIsNotUpdated_ReturnsBadRequest()
+        {
+            var request = new UpdateUserRequestDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = false,
+                Message = ExceptionMessages.UserNotUpdated
+            };
+
+            _userService
+                .Setup(x => x.UpdateUserAsync(_userId, request))
+                .ReturnsAsync(response);
+
+            var result = await _controller.UpdateUser(request);
+
+            var badRequest =
+                result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result,
+                    Is.InstanceOf<
+                        NegotiatedContentResult<ApiResponseDto<string>>>());
+
+                Assert.That(
+                    badRequest.StatusCode,
+                    Is.EqualTo(HttpStatusCode.BadRequest));
+
+                Assert.That(badRequest.Content.Success, Is.False);
+
+                Assert.That(
+                    badRequest.Content.Message,
+                    Is.EqualTo(ExceptionMessages.UserNotUpdated));
+            });
+        }
+
 
         [Test]
         public async Task AddAddress_WhenServiceReturnsSuccess_ReturnsOk()
@@ -136,39 +220,6 @@ namespace dotNetAssignment.Tests.Controllers
                 Is.EqualTo(SuccessMessages.AddressAdded));
         }
 
-        [Test]
-        public async Task AddAddress_WhenServiceReturnsFailure_ReturnsNotFound()
-        {
-            var request = new AddAddressRequestDto();
-
-            var response = new ApiResponseDto<string>
-            {
-                Success = false,
-                Message = ExceptionMessages.UserNotFound
-            };
-
-            _userService
-                .Setup(x => x.AddAddressAsync(_userId, request))
-                .ReturnsAsync(response);
-
-            var result = await _controller.AddAddress(request);
-
-            var notFound =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
-
-            Assert.That(
-                result,
-                Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<string>>>());
-
-            Assert.That(
-                notFound.StatusCode,
-                Is.EqualTo(HttpStatusCode.NotFound));
-
-            Assert.That(notFound.Content.Success, Is.False);
-            Assert.That(
-                notFound.Content.Message,
-                Is.EqualTo(ExceptionMessages.UserNotFound));
-        }
 
         [Test]
         public async Task UpdateAddress_WhenServiceReturnsSuccess_ReturnsOk()
@@ -264,42 +315,10 @@ namespace dotNetAssignment.Tests.Controllers
                 Is.EqualTo(SuccessMessages.PasswordChanged));
         }
 
-        [Test]
-        public async Task ChangePassword_WhenUserDoesNotExist_ReturnsNotFound()
-        {
-            var request = new ChangePasswordRequestDto();
-
-            var response = new ApiResponseDto<string>
-            {
-                Success = false,
-                Message = ExceptionMessages.UserNotFound
-            };
-
-            _userService
-                .Setup(x => x.ChangePasswordAsync(_userId, request))
-                .ReturnsAsync(response);
-
-            var result = await _controller.ChangePassword(request);
-
-            var notFound =
-                result as NegotiatedContentResult<ApiResponseDto<string>>;
-
-            Assert.That(
-                result,
-                Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<string>>>());
-
-            Assert.That(
-                notFound.StatusCode,
-                Is.EqualTo(HttpStatusCode.NotFound));
-
-            Assert.That(notFound.Content.Success, Is.False);
-            Assert.That(
-                notFound.Content.Message,
-                Is.EqualTo(ExceptionMessages.UserNotFound));
-        }
+        
 
         [Test]
-        public async Task ChangePassword_WhenPasswordIsWrong_ReturnsUnauthorized()
+        public async Task ChangePassword_WhenPasswordIsWrong_ReturnsBadRequest()
         {
             var request = new ChangePasswordRequestDto();
 
@@ -315,7 +334,7 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.ChangePassword(request);
 
-            var unauthorized =
+            var badRequest =
                 result as NegotiatedContentResult<ApiResponseDto<string>>;
 
             Assert.That(
@@ -323,14 +342,55 @@ namespace dotNetAssignment.Tests.Controllers
                 Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<string>>>());
 
             Assert.That(
-                unauthorized.StatusCode,
-                Is.EqualTo(HttpStatusCode.Unauthorized));
+                badRequest.StatusCode,
+                Is.EqualTo(HttpStatusCode.BadRequest));
 
-            Assert.That(unauthorized.Content.Success, Is.False);
+            Assert.That(badRequest.Content.Success, Is.False);
             Assert.That(
-                unauthorized.Content.Message,
+                badRequest.Content.Message,
                 Is.EqualTo(ExceptionMessages.WrongPassword));
         }
+
+        [Test]
+        public async Task ChangePassword_WhenPasswordIsSame_ReturnsBadRequest()
+        {
+            var request = new ChangePasswordRequestDto();
+
+            var response = new ApiResponseDto<string>
+            {
+                Success = false,
+                Message = ExceptionMessages.SamePassword
+            };
+
+            _userService
+                .Setup(x => x.ChangePasswordAsync(_userId, request))
+                .ReturnsAsync(response);
+
+            var result = await _controller.ChangePassword(request);
+
+            var badRequest =
+                result as NegotiatedContentResult<ApiResponseDto<string>>;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result,
+                    Is.InstanceOf<
+                        NegotiatedContentResult<ApiResponseDto<string>>>());
+
+                Assert.That(
+                    badRequest.StatusCode,
+                    Is.EqualTo(HttpStatusCode.BadRequest));
+
+                Assert.That(badRequest.Content.Success, Is.False);
+
+                Assert.That(
+                    badRequest.Content.Message,
+                    Is.EqualTo(ExceptionMessages.SamePassword));
+            });
+        }
+
+
 
         [Test]
         public async Task DeactivateUser_WhenServiceReturnsSuccess_ReturnsOk()
@@ -361,14 +421,16 @@ namespace dotNetAssignment.Tests.Controllers
                 Is.EqualTo(SuccessMessages.UserDeactivated));
         }
 
+
         [Test]
-        public async Task DeactivateUser_WhenServiceReturnsFailure_ReturnsNotFound()
+        public async Task DeactivateUser_WhenRefreshTokenIsInvalid_ReturnsUnauthorized()
         {
             var request = new DeactivateAccountRequestDto();
+
             var response = new ApiResponseDto<string>
             {
                 Success = false,
-                Message = ExceptionMessages.UserNotFound
+                Message = ExceptionMessages.InvalidRefreshToken
             };
 
             _userService
@@ -377,21 +439,26 @@ namespace dotNetAssignment.Tests.Controllers
 
             var result = await _controller.DeactivateUser(request);
 
-            var notFound =
+            var unauthorized =
                 result as NegotiatedContentResult<ApiResponseDto<string>>;
 
-            Assert.That(
-                result,
-                Is.InstanceOf<NegotiatedContentResult<ApiResponseDto<string>>>());
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    result,
+                    Is.InstanceOf<
+                        NegotiatedContentResult<ApiResponseDto<string>>>());
 
-            Assert.That(
-                notFound.StatusCode,
-                Is.EqualTo(HttpStatusCode.NotFound));
+                Assert.That(
+                    unauthorized.StatusCode,
+                    Is.EqualTo(HttpStatusCode.Unauthorized));
 
-            Assert.That(notFound.Content.Success, Is.False);
-            Assert.That(
-                notFound.Content.Message,
-                Is.EqualTo(ExceptionMessages.UserNotFound));
+                Assert.That(unauthorized.Content.Success, Is.False);
+
+                Assert.That(
+                    unauthorized.Content.Message,
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
+            });
         }
     }
 }

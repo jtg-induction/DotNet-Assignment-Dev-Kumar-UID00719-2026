@@ -90,5 +90,14 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
         {
             return await _context.Restaurants.FirstOrDefaultAsync(x => x.Id == RestaurantId);
         }
+
+        /// <summary>
+        /// Saves all changes made in the context to the database asynchronously.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

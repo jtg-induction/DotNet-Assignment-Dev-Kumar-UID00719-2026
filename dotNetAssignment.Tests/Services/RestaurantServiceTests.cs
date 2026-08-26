@@ -93,30 +93,6 @@ namespace dotNetAssignment.Tests.Services
 
 
         [Test]
-        public async Task GetAllRestaurantsListAsync_WhenPageIsOutOfRange_ReturnsPageNotFound()
-        {
-            _restaurantRepository
-                .Setup(x => x.GetAllRestaurantsAsync(4, 2))
-                .ReturnsAsync(new List<Restaurant>());
-
-            _restaurantRepository
-                .Setup(x => x.GetRestaurantCountAsync())
-                .ReturnsAsync(5);
-
-            var result =
-                await _restaurantService.GetAllRestaurantsListAsync(4, 2);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.PageNotFound));
-            });
-        }
-
-
-        [Test]
         public async Task GetMenuListAsync_WhenRestaurantDoesNotExist_ReturnsFailure()
         {
             var restaurantId = Guid.NewGuid();
@@ -137,36 +113,6 @@ namespace dotNetAssignment.Tests.Services
                 Assert.That(result.Message, Is.EqualTo(ExceptionMessages.RestaurantDoesntExists));
             });
 
-        }
-
-
-        [Test]
-        public async Task GetMenuListAsync_WhenPageIsOutOfRange_ReturnsPageNotFound()
-        {
-            var restaurantId = Guid.NewGuid();
-
-            _restaurantRepository
-                .Setup(x => x.RestaurantExistsAsync(restaurantId))
-                .ReturnsAsync(true);
-
-            _restaurantRepository
-                .Setup(x => x.GetRestaurantMenuAsync(
-                    restaurantId, 4, 2))
-                .ReturnsAsync(new List<Menu>());
-
-            _restaurantRepository
-                .Setup(x => x.GetRestaurantMenuCountAsync(restaurantId))
-                .ReturnsAsync(5);
-
-            var result = await _restaurantService.GetMenuListAsync(restaurantId, 4, 2);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.PageNotFound));
-            });
         }
 
 
@@ -212,14 +158,70 @@ namespace dotNetAssignment.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.True);
-                Assert.That(result.Data.menu.Count, Is.EqualTo(2));
+                Assert.That(result.Data.Menu.Count, Is.EqualTo(2));
                 Assert.That(result.Data.Page, Is.EqualTo(1));
                 Assert.That(result.Data.PageSize, Is.EqualTo(2));
                 Assert.That(result.Data.TotalCount, Is.EqualTo(5));
                 Assert.That(result.Data.TotalPages, Is.EqualTo(3));
-                Assert.That(result.Data.menu[0].DishName, Is.EqualTo("Burger"));
-                Assert.That(result.Data.menu[0].Price, Is.EqualTo(150));
-                Assert.That(result.Data.menu[0].Rating, Is.EqualTo(4.5m));
+                Assert.That(result.Data.Menu[0].DishName, Is.EqualTo("Burger"));
+                Assert.That(result.Data.Menu[0].Price, Is.EqualTo(150));
+                Assert.That(result.Data.Menu[0].Rating, Is.EqualTo(4.5m));
+            });
+        }
+
+
+        [Test]
+        public async Task GetAllRestaurantsListAsync_WhenNoRestaurantsExist_ReturnsEmptyList()
+        {
+            _restaurantRepository
+                .Setup(x => x.GetAllRestaurantsAsync(1, 10))
+                .ReturnsAsync(new List<Restaurant>());
+
+            _restaurantRepository
+                .Setup(x => x.GetRestaurantCountAsync())
+                .ReturnsAsync(0);
+
+            var result =
+                await _restaurantService.GetAllRestaurantsListAsync(1, 10);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Data.Restaurants, Is.Empty);
+                Assert.That(result.Data.TotalCount, Is.EqualTo(0));
+                Assert.That(result.Data.TotalPages, Is.EqualTo(0));
+            });
+        }
+
+
+        [Test]
+        public async Task GetMenuListAsync_WhenRestaurantHasNoMenuItems_ReturnsEmptyList()
+        {
+            var restaurantId = Guid.NewGuid();
+
+            _restaurantRepository
+                .Setup(x => x.RestaurantExistsAsync(restaurantId))
+                .ReturnsAsync(true);
+
+            _restaurantRepository
+                .Setup(x => x.GetRestaurantMenuAsync(
+                    restaurantId, 1, 10))
+                .ReturnsAsync(new List<Menu>());
+
+            _restaurantRepository
+                .Setup(x => x.GetRestaurantMenuCountAsync(restaurantId))
+                .ReturnsAsync(0);
+
+            var result =
+                await _restaurantService.GetMenuListAsync(
+                    restaurantId, 1, 10);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Data.Menu, Is.Empty);
+                Assert.That(result.Data.TotalCount, Is.EqualTo(0));
+                Assert.That(result.Data.TotalPages, Is.EqualTo(0));
             });
         }
     }

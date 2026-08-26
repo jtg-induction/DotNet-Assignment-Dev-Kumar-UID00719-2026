@@ -34,11 +34,9 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task GetAllRestaurants_WhenServiceReturnsSuccess_ReturnsOk()
         {
-            var request = new PaginationRequestDto
-            {
-                Page = 1,
-                PageSize = 10
-            };
+
+            var page = 1;
+            var pageSize = 10;
 
             var response = new ApiResponseDto<RestaurantListResponseDto>
             {
@@ -48,11 +46,11 @@ namespace dotNetAssignment.Tests.Controllers
 
             _restaurantService
                 .Setup(x => x.GetAllRestaurantsListAsync(
-                    request.Page,
-                    request.PageSize))
+                    page,
+                    pageSize))
                 .ReturnsAsync(response);
 
-            var result = await _restaurantController.GetAllRestaurants(request);
+            var result = await _restaurantController.GetAllRestaurants(page, pageSize);
 
             Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<
                 ApiResponseDto<RestaurantListResponseDto>>>());
@@ -62,11 +60,8 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task GetAllRestaurants_WhenServiceReturnsFailure_ReturnsNotFound()
         {
-            var request = new PaginationRequestDto
-            {
-                Page = 5,
-                PageSize = 10
-            };
+            var page = 5;
+            var pageSize = 10;
 
             var response = new ApiResponseDto<RestaurantListResponseDto>
             {
@@ -76,11 +71,11 @@ namespace dotNetAssignment.Tests.Controllers
 
             _restaurantService
                 .Setup(x => x.GetAllRestaurantsListAsync(
-                    request.Page,
-                    request.PageSize))
+                    page,
+                    pageSize))
                 .ReturnsAsync(response);
 
-            var result = await _restaurantController.GetAllRestaurants(request);
+            var result = await _restaurantController.GetAllRestaurants(page, pageSize);
 
             var notFoundResult =
                 result as NegotiatedContentResult<
@@ -107,12 +102,8 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task GetMenuItems_WhenServiceReturnsSuccess_ReturnsOk()
         {
-            var request = new MenuRequestDto
-            {
-                RestaurantId = _restaurantId,
-                Page = 1,
-                PageSize = 10
-            };
+            var page = 5;
+            var pageSize = 10;
 
             var response = new ApiResponseDto<MenuListResponseDto>
             {
@@ -122,15 +113,14 @@ namespace dotNetAssignment.Tests.Controllers
 
             _restaurantService
                 .Setup(x => x.GetMenuListAsync(
-                    request.RestaurantId,
-                    request.Page,
-                    request.PageSize))
+                    _restaurantId,
+                    page,
+                    pageSize))
                 .ReturnsAsync(response);
 
-            var result = await _restaurantController.GetMenuItems(request);
+            var result = await _restaurantController.GetMenuItems(_restaurantId, page, pageSize);
 
-            Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<
-                ApiResponseDto<MenuListResponseDto>>>());
+            Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<ApiResponseDto<MenuListResponseDto>>>());
 
         }
 
@@ -138,12 +128,8 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task GetMenuItems_WhenServiceReturnsFailure_ReturnsNotFound()
         {
-            var request = new MenuRequestDto
-            {
-                RestaurantId = _restaurantId,
-                Page = 3,
-                PageSize = 10
-            };
+            var page = 3;
+            var pageSize = 10;
 
             var response = new ApiResponseDto<MenuListResponseDto>
             {
@@ -153,12 +139,12 @@ namespace dotNetAssignment.Tests.Controllers
 
             _restaurantService
                 .Setup(x => x.GetMenuListAsync(
-                    request.RestaurantId,
-                    request.Page,
-                    request.PageSize))
+                    _restaurantId,
+                    page,
+                    pageSize))
                 .ReturnsAsync(response);
 
-            var result = await _restaurantController.GetMenuItems(request);
+            var result = await _restaurantController.GetMenuItems(_restaurantId, page, pageSize);
 
             var notFoundResult =
                 result as NegotiatedContentResult<

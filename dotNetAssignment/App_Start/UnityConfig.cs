@@ -63,10 +63,10 @@ namespace dotNetAssignment
                 new TransientLifetimeManager());
 
             container.RegisterType<IRestaurantService, RestaurantService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IOrderService, OrderService>(
-                new HierarchicalLifetimeManager());
+                new TransientLifetimeManager());
 
             container.RegisterType<IJwtRepository, JwtRepository>(
                 new HierarchicalLifetimeManager());

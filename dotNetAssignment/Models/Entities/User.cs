@@ -27,8 +27,7 @@ namespace dotNetAssignment.Models.Entities
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100), MinLength(8)]
-        [RegularExpression(Regex.ValidPasswordRegex)]
+        [StringLength(100)]
         public string Password { get; set; }
 
         public bool IsActive { get; set; }

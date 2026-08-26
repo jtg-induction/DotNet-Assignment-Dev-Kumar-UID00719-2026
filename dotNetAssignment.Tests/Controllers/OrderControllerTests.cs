@@ -61,6 +61,8 @@ namespace dotNetAssignment.Tests.Controllers
             var result = await _orderController.PlaceOrder(request);
 
             Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<ApiResponseDto<PlaceOrderResponseDto>>>());
+            
+            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
         }
 
 
@@ -97,6 +99,8 @@ namespace dotNetAssignment.Tests.Controllers
                     Is.EqualTo(
                         ExceptionMessages.InsufficientBalance));
             });
+
+            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
         }
 
 
@@ -133,6 +137,8 @@ namespace dotNetAssignment.Tests.Controllers
                     Is.EqualTo(
                         ExceptionMessages.InsufficientStock));
             });
+
+            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
         }
 
 
@@ -168,13 +174,15 @@ namespace dotNetAssignment.Tests.Controllers
                     Is.EqualTo(
                         ExceptionMessages.RestaurantDoesntExists));
             });
+
+            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
         }
 
 
         [Test]
         public async Task GetOrderDetails_WhenSuccessful_ReturnsOk()
         {
-            var request = new OrderDetailsRequestDto();
+            var orderId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<OrderDetailsResponseDto>
                 {
@@ -182,15 +190,15 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.OrderDetails(request, _userId))
+                .Setup(x => x.OrderDetails(orderId, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.GetOrderDetails(request);
+            var result = await _orderController.GetOrderDetails(orderId);
 
             Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<ApiResponseDto<OrderDetailsResponseDto>>>());
 
             _orderService.Verify(
-                x => x.OrderDetails(request, _userId),
+                x => x.OrderDetails(orderId, _userId),
                 Times.Once);
         }
 
@@ -198,7 +206,7 @@ namespace dotNetAssignment.Tests.Controllers
         [Test]
         public async Task GetOrderDetails_WhenOrderDoesNotExist_ReturnsNotFound()
         {
-            var request = new OrderDetailsRequestDto();
+            var orderId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<OrderDetailsResponseDto>
                 {
@@ -207,10 +215,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.OrderDetails(request, _userId))
+                .Setup(x => x.OrderDetails(orderId, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.GetOrderDetails(request);
+            var result = await _orderController.GetOrderDetails(orderId);
             var notFound = result as NegotiatedContentResult<ApiResponseDto<OrderDetailsResponseDto>>;
 
             Assert.Multiple(() =>
@@ -219,13 +227,17 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(notFound.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
                 Assert.That(notFound.Content.Message, Is.EqualTo(ExceptionMessages.OrderDoesntExists));
             });
+
+            _orderService.Verify(
+                x => x.OrderDetails(orderId, _userId),
+                Times.Once);
         }
 
 
         [Test]
         public async Task CancelOrder_WhenSuccessful_ReturnsOk()
         {
-            var request = new CancelOrderRequestDto();
+            var orderId = Guid.NewGuid();
 
             var response =
                 new ApiResponseDto<string>
@@ -234,19 +246,23 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.CancelOrder(request, _userId))
+                .Setup(x => x.CancelOrder(orderId, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.CancelOrder(request);
+            var result = await _orderController.CancelOrder(orderId);
 
             Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<ApiResponseDto<string>>>());
+
+            _orderService.Verify(
+                x => x.CancelOrder(orderId, _userId),
+                Times.Once);
         }
 
 
         [Test]
         public async Task CancelOrder_WhenOrderCannotBeCancelled_ReturnsBadRequest()
         {
-            var request = new CancelOrderRequestDto();
+            var orderId = Guid.NewGuid();
 
             var response =
                 new ApiResponseDto<string>
@@ -256,10 +272,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.CancelOrder(request, _userId))
+                .Setup(x => x.CancelOrder(orderId, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.CancelOrder(request);
+            var result = await _orderController.CancelOrder(orderId);
 
             var badRequest = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
@@ -271,13 +287,17 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(badRequest.Content.Message, Is.EqualTo(
                     ExceptionMessages.OrderCannotBeCancelled));
             });
+
+            _orderService.Verify(
+                x => x.CancelOrder(orderId, _userId),
+                Times.Once);
         }
 
 
         [Test]
         public async Task CancelOrder_WhenOtherFailureOccurs_ReturnsNotFound()
         {
-            var request = new CancelOrderRequestDto();
+            var orderId = Guid.NewGuid();
 
             var response =
                 new ApiResponseDto<string>
@@ -287,10 +307,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.CancelOrder(request, _userId))
+                .Setup(x => x.CancelOrder(orderId, _userId))
                 .ReturnsAsync(response);
 
-            var result =await _orderController.CancelOrder(request);
+            var result =await _orderController.CancelOrder(orderId);
 
             var notFound = result as NegotiatedContentResult<ApiResponseDto<string>>;
 
@@ -300,6 +320,10 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(notFound.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
                 Assert.That(notFound.Content.Message, Is.EqualTo(ExceptionMessages.OrderDoesntExists));
             });
+
+            _orderService.Verify(
+                x => x.CancelOrder(orderId, _userId),
+                Times.Once);
         }
     }
 }
