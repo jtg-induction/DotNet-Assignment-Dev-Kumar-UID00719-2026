@@ -206,6 +206,7 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Constants\Constants.cs" />
     <Compile Include="Constants\ExceptionMessages.cs" />
     <Compile Include="Constants\Regex.cs" />
     <Compile Include="Constants\SuccessMessages.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="Controllers\RestaurantController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\RestaurantDbContext.cs" />
+    <Compile Include="Filters\ActiveUserFilter.cs" />
     <Compile Include="Filters\ModelStateHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -232,15 +234,13 @@
     <Compile Include="Models\DTO\CreateRestaurantRequestDto.cs" />
     <Compile Include="Models\DTO\CreateRestaurantResponseDto.cs" />
     <Compile Include="Models\DTO\MenuListResponseDto.cs" />
-    <Compile Include="Models\DTO\MenuRequestDto.cs" />
     <Compile Include="Models\DTO\MenuResponseDto.cs" />
+    <Compile Include="Models\DTO\OnboardNewRestaurantOwnerDto.cs" />
     <Compile Include="Models\DTO\OrderAddressResponseDto.cs" />
-    <Compile Include="Models\DTO\OrderDetailsRequestDto.cs" />
     <Compile Include="Models\DTO\OrderDetailsResponseDto.cs" />
     <Compile Include="Models\DTO\OrderItemDetailsDto.cs" />
     <Compile Include="Models\DTO\OrderItemsRequestDto.cs" />
     <Compile Include="Models\DTO\OrderRequestDto.cs" />
-    <Compile Include="Models\DTO\PaginationRequestDto.cs" />
     <Compile Include="Models\DTO\PlaceOrderResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantListResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantResponseDto.cs" />
@@ -249,6 +249,7 @@
       <DependentUpon>202608131852038_AddUniquePhoneNumberToUser.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
+    <Compile Include="Models\DTO\DeactivateAccountRequestDto.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />
@@ -299,6 +300,8 @@
     <Content Include="Secrets.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ConnectionStrings.template.config" />
+    <Content Include="Secrets.template.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,12 +1,16 @@
-﻿using dotNetAssignment.Models.DTO;
+﻿using dotNetAssignment.Constants;
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Repositories.Jwt;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
-using dotNetAssignment.Constants;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -16,14 +20,20 @@ namespace dotNetAssignment.Services.Implementations
     {
         public readonly IUserRepository _userRepository; 
         public readonly IPasswordService _passwordService;
+        public readonly IJwtService _jwtService;
+        public readonly IJwtRepository _jwtRepository;
 
         public UserService(
             IUserRepository userRepository,
-            IPasswordService passwordService
+            IPasswordService passwordService,
+            IJwtService jwtService,
+            IJwtRepository jwtRepository
             )
         {
             _userRepository = userRepository;
             _passwordService = passwordService;
+            _jwtService = jwtService;
+            _jwtRepository = jwtRepository;
         }
 
         /// <summary>
@@ -37,15 +47,6 @@ namespace dotNetAssignment.Services.Implementations
             var user = await _userRepository.GetUserByIdAsync(userId);
             var updated = false;
 
-            if(user == null || !user.IsActive)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
-                };
-            }
-
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
                 user.Name = request.Name;
@@ -54,6 +55,26 @@ namespace dotNetAssignment.Services.Implementations
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
+                if (user.PhoneNumber == request.PhoneNumber)
+                {
+                    return new ApiResponseDto<string>
+                    {
+                        Success = false,
+                        Message = ExceptionMessages.SamePhoneNumber
+                    };
+                }
+
+                var phoneNumberExists = await _userRepository.PhoneNumberExistsAsync(request.PhoneNumber);
+
+                if (phoneNumberExists)
+                {
+                    return new ApiResponseDto<string>
+                    {
+                        Success = false,
+                        Message = ExceptionMessages.PhoneNumberAlreadyExists
+                    };
+                }
+
                 user.PhoneNumber = request.PhoneNumber;
                 updated = true;
             }
@@ -62,13 +83,21 @@ namespace dotNetAssignment.Services.Implementations
             {
                 user.UpdatedAt = DateTime.UtcNow;
                 await _userRepository.SaveChangesAsync();
-            }
 
-            return new ApiResponseDto<string>
+                return new ApiResponseDto<string>
+                {
+                    Success = true,
+                    Message = SuccessMessages.UserUpdated
+                };
+            }
+            else
             {
-                Success = true,
-                Message = SuccessMessages.UserUpdated
-            };
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotUpdated
+                };
+            }
         }
 
         /// <summary>
@@ -79,17 +108,6 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>An ApiResponseDto indicating the success or failure of the operation.</returns>
         public async Task<ApiResponseDto<string>> AddAddressAsync(Guid userId, AddAddressRequestDto request)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId);
-
-            if (user == null || !user.IsActive)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
-                };
-            }
-
             var address = new UserAddress
             {
                 Id = Guid.NewGuid(),
@@ -121,21 +139,11 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>An ApiResponseDto indicating the success or failure of the operation.</returns>
         public async Task<ApiResponseDto<string>> UpdateAddressAsync(Guid userId, UpdateAddressRequestDto request)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId);
             var updated = false;
-
-            if (user == null || !user.IsActive)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
-                };
-            }
 
             var address = await _userRepository.GetAddressByIdAsync(request.AddressId);
 
-            if (address == null)
+            if (address == null || address.UserId != userId)
             {
                 return new ApiResponseDto<string>
                 {
@@ -178,13 +186,21 @@ namespace dotNetAssignment.Services.Implementations
             {
                 address.UpdatedAt = DateTime.UtcNow;
                 await _userRepository.SaveChangesAsync();
+                return new ApiResponseDto<string>
+                {
+                    Success = true,
+                    Message = SuccessMessages.AddressUpdated
+                };
+            }
+            else
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.AddressNotUpdated
+                };
             }
 
-            return new ApiResponseDto<string>
-            {
-                Success = true,
-                Message = SuccessMessages.AddressUpdated
-            };
         }
 
         /// <summary>
@@ -196,15 +212,6 @@ namespace dotNetAssignment.Services.Implementations
         public async Task<ApiResponseDto<string>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
-
-            if (user == null || !user.IsActive)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
-                };
-            }
 
             if(!_passwordService.VerifyPassword(request.OldPassword, user.Password))
             {
@@ -239,23 +246,45 @@ namespace dotNetAssignment.Services.Implementations
         /// Deactivates the specified user based on the provided user ID.
         /// </summary>
         /// <param name="userId">The ID of the user to deactivate.</param>
+        /// <param name="request">The request containing the refresh token.</param>
         /// <returns>An ApiResponseDto indicating the success or failure of the operation.</returns>
-        public async Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId)
+        public async Task<ApiResponseDto<string>> DeactivateUserAsync(Guid userId, DeactivateAccountRequestDto request)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
+            ClaimsPrincipal principal;
 
-            if (user == null || !user.IsActive)
+            try
+            {
+                principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
+            }
+            catch (SecurityTokenException)
             {
                 return new ApiResponseDto<string>
                 {
                     Success = false,
-                    Message = ExceptionMessages.UserNotFound
+                    Message = ExceptionMessages.InvalidRefreshToken
                 };
             }
 
+            var tokenUserId = _jwtService.GetUserId(principal);
+
+            if (tokenUserId != userId)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.InvalidRefreshToken
+                };
+            }
+
+            var jwtId = _jwtService.GetJwtId(principal);
+            await _jwtRepository.RemoveJwtIdAsync(jwtId);
+
             user.IsActive = false;
             user.UpdatedAt = DateTime.UtcNow;
+            
             await _userRepository.SaveChangesAsync();
+            await _jwtRepository.SaveChangesAsync();
 
             return new ApiResponseDto<string>
             {

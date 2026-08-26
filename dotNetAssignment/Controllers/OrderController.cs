@@ -1,4 +1,5 @@
 ﻿using dotNetAssignment.Constants;
+using dotNetAssignment.Filters;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Services.Implementations;
 using dotNetAssignment.Services.Interfaces;
@@ -32,6 +33,7 @@ namespace dotNetAssignment.Controllers
         /// <param name="request">The request containing the order details.</param>
         /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPost]
         [Route("")]
         public async Task<IHttpActionResult> PlaceOrder(OrderRequestDto request)
@@ -59,13 +61,14 @@ namespace dotNetAssignment.Controllers
         /// <param name="request">The request containing the order id</param>
         /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpGet]
-        [Route("details")]
-        public async Task<IHttpActionResult> GetOrderDetails(OrderDetailsRequestDto request)
+        [Route("details/{orderId:guid}")]
+        public async Task<IHttpActionResult> GetOrderDetails(Guid orderId)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var response = await _orderService.OrderDetails(request, userId);
+            var response = await _orderService.OrderDetails(orderId, userId);
             if (!response.Success)
             {
                 return Content(HttpStatusCode.NotFound, response);
@@ -79,13 +82,14 @@ namespace dotNetAssignment.Controllers
         /// <param name="request">The request containing order id of the order to be cancelled.</param>
         /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPost]
-        [Route("cancel")]
-        public async Task<IHttpActionResult> CancelOrder(CancelOrderRequestDto request)
+        [Route("cancel/{orderId:guid}")]
+        public async Task<IHttpActionResult> CancelOrder(Guid orderId)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var response = await _orderService.CancelOrder(request, userId);
+            var response = await _orderService.CancelOrder(orderId, userId);
             if (!response.Success)
             {
                 if(response.Message == ExceptionMessages.OrderCannotBeCancelled)

@@ -12,6 +12,7 @@ namespace dotNetAssignment.Services.Interfaces
         RefreshTokenResponseDto GenerateRefreshToken(Guid userId);
         ClaimsPrincipal ValidateRefreshToken(string refreshToken);
         Guid GetJwtId(ClaimsPrincipal principal);
+        Guid? GetJwtIdFromExpiredToken(string token);
         Guid GetUserId(ClaimsPrincipal principal);
     }
 }

@@ -23,6 +23,10 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<bool> EmailExistsAsync(string email)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
             return await _context.Users.AnyAsync(x => x.Email == email.ToLower());
         }
 
@@ -33,6 +37,10 @@ namespace dotNetAssignment.Repositories.UserRepo
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
         {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                return false;
+            }
             return await _context.Users.AnyAsync(x => x.PhoneNumber == phoneNumber);
         }
 
@@ -77,6 +85,11 @@ namespace dotNetAssignment.Repositories.UserRepo
         public async Task<User> GetUserByIdAsync(Guid userId)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        }
+
+        public async Task<User> GetUserForUpdateAsync(Guid userId)
+        {
+            return await _context.Users.SqlQuery("SELECT * FROM Users WITH (UPDLOCK, ROWLOCK) WHERE Id = @p0", userId).FirstOrDefaultAsync();
         }
 
         /// <summary>

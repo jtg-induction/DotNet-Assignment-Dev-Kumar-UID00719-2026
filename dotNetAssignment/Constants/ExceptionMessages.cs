@@ -8,14 +8,19 @@ namespace dotNetAssignment.Constants
     public class ExceptionMessages
     {
         public const string UserAlreadyExists = "User already exists";
+        public const string PhoneNumberAlreadyExists = "Phone number already exists";
+        public const string EmailOrPhoneNumberAlreadyExists = "Email or phone number already exists";
         public const string UserNotFound = "User not found";
+        public const string UserInactive = "User is inactive";
         public const string InvalidEmailOrPassword = "Invalid email or password";
+        public const string InvalidName = "Invalid name";
         public const string InvalidEmail = "Invalid email";
+        public const string InvalidPassword = "Invalid password";
         public const string InvalidRequest = "Invalid request";
         public const string InvalidPhoneNumber = "Invalid phone number";
         public const string InvalidPincode = "Invalid pincode";
         public const string InvalidRefreshToken = "Invalid refresh token";
-        public const string RestaurantDoesntExists = "Restaurant doesn't exists";
+        public const string RestaurantDoesntExists = "Restaurant doesn't exist";
         public const string OrderDoesntExists = "Order doesn't exist";
         public const string MenuItemDoesntExists = "Item doesn't exists";
         public const string InsufficientBalance = "Insufficient Balance";
@@ -25,5 +30,8 @@ namespace dotNetAssignment.Constants
         public const string SamePassword = "New password can not be same as old password";
         public const string OrderCannotBeCancelled = "Order cannot be cancelled";
         public const string PageNotFound = "Page not found";
+        public const string SamePhoneNumber = "New phone number can not be same as old phone number";
+        public const string UserNotUpdated = "User not updated";
+        public const string AddressNotUpdated = "Address not updated";
     }
 }

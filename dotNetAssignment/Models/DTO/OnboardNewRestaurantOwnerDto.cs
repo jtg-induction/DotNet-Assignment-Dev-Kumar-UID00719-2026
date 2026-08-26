@@ -6,19 +6,18 @@ using System.Web;
 
 namespace dotNetAssignment.Models.DTO
 {
-    public class OrderItemsRequestDto
+    public class OnboardNewRestaurantOwnerDto
     {
         /// <summary>
-        /// The unique identifier of the product to be ordered.
+        /// The ID of the restaurant to be onboarded.
         /// </summary>
         [Required]
-        public Guid Id { get; set; }
+        public Guid RestaurantId { get; set; }
 
         /// <summary>
-        /// The quantity of the product to be ordered.
+        /// The ID of the owner to be onboarded.
         /// </summary>
         [Required]
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
+        public Guid OwnerId { get; set; }
     }
 }

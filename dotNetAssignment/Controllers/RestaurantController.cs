@@ -1,6 +1,8 @@
-﻿using dotNetAssignment.Models.DTO;
+﻿using dotNetAssignment.Filters;
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Services.Interfaces;
+using dotNetAssignment.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,9 +34,9 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [HttpGet]
         [Route("")]
-        public async Task<IHttpActionResult> GetAllRestaurants (PaginationRequestDto request)
-        { 
-            var response = await _restaurantService.GetAllRestaurantsListAsync(request.Page, request.PageSize);
+        public async Task<IHttpActionResult> GetAllRestaurants(int page = 1, int pageSize = 10)
+        {
+            var response = await _restaurantService.GetAllRestaurantsListAsync(page, pageSize);
 
             if (!response.Success)
             {
@@ -54,10 +56,10 @@ namespace dotNetAssignment.Controllers
         /// <returns>Returns failure or success response of the operation</returns>
         [Authorize]
         [HttpGet]
-        [Route("menu")]
-        public async Task<IHttpActionResult> GetMenuItems(MenuRequestDto request)
+        [Route("menu/{restaurantId:guid}")]
+        public async Task<IHttpActionResult> GetMenuItems(Guid restaurantId, int page = 1, int pageSize = 10)
         {
-            var response = await _restaurantService.GetMenuListAsync(request.RestaurantId, request.Page, request.PageSize);
+            var response = await _restaurantService.GetMenuListAsync(restaurantId, page, pageSize);
 
             if (!response.Success)
             {
@@ -67,6 +69,13 @@ namespace dotNetAssignment.Controllers
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Creates a new restaurant. This endpoint is restricted to users with the "Admin" role.
+        /// </summary>
+        /// <param name="request">The request object containing the details of the restaurant to be created.</param>
+        /// <returns>Returns failure or success response of the operation</returns>
+        [ActiveUserFilter]
         [Authorize(Roles = Admin)]
         [HttpPost]
         [Route("create")]
@@ -76,7 +85,35 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.NotFound, response);
+                if(response.Message == ExceptionMessages.UserNotFound)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
+            }
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Onboards a new restaurant owner by associating them with an existing restaurant.
+        /// </summary>
+        /// <param name="request">The request object containing the details of the restaurant owner to be onboarded.</param>
+        /// <returns>Returns failure or success response of the operation</returns>
+        [ActiveUserFilter]
+        [Authorize(Roles = Admin)]
+        [HttpPost]
+        [Route("onboard")]
+        public async Task<IHttpActionResult> OnboardNewRestaurantOwner(OnboardNewRestaurantOwnerDto request)
+        {
+            var response = await _restaurantService.OnboardNewRestaurantOwnerAsync(request);
+
+            if (!response.Success)
+            {
+                if (response.Message == ExceptionMessages.UserNotFound || response.Message == ExceptionMessages.RestaurantDoesntExists)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
             }
 
             return Ok(response);

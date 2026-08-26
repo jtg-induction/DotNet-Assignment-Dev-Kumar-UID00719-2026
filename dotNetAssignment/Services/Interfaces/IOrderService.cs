@@ -11,8 +11,8 @@ namespace dotNetAssignment.Services.Interfaces
     {
         Task<ApiResponseDto<PlaceOrderResponseDto>> PlaceOrder(OrderRequestDto request, Guid userId);
 
-        Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(OrderDetailsRequestDto request, Guid userId);
+        Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(Guid orderId, Guid userId);
 
-        Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId);
+        Task<ApiResponseDto<string>> CancelOrder(Guid orderId, Guid userId);
     }
 }

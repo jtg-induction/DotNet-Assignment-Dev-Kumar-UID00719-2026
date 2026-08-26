@@ -7,11 +7,10 @@ namespace dotNetAssignment.Constants
 {
     public class Regex
     {
-        public const string validPincodeRegex = @"^[1-9][0-9]{5}$";
-        public const string validEmailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
-        public const string validPhoneNumberRegex = @"^[0-9]{10}$";
-        public const string validPasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$";
-        public const string validNameRegex = @"^[A-Za-z ]+$";
-
+        public const string ValidPincodeRegex = @"^[1-9][0-9]{5}$";
+        public const string ValidEmailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        public const string ValidPhoneNumberRegex = @"^[0-9]{10}$";
+        public const string ValidPasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+        public const string ValidNameRegex = @"^[A-Za-z ]+$";
     }
 }

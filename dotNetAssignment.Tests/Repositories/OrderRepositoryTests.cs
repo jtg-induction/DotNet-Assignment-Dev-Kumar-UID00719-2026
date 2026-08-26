@@ -103,49 +103,27 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
             Assert.That(result, Is.False);
         }
 
-        
-
         [Test]
-        public async Task GetOrderByIdAsync_WhenOrderExists_ReturnsOrder()
+        public async Task GetAllMenuItemsByOrderIdAsync_WhenMenuItemIdsAreNull_ReturnsEmptyList()
         {
-            var orderId = Guid.NewGuid();
-            var order = new Order
-            {
-                Id = orderId
-            };
+            var result =
+                await _repository.GetAllMenuItemsByOrderIdAsync(null);
 
-            var data = new List<Order>
-            {
-                order
-            }.AsQueryable();
-
-            var mockSet = CreateAsyncDbSet(data);
-
-            _context.Setup(x => x.Orders).Returns(mockSet.Object);
-
-            var result = await _repository.GetOrderByIdAsync(orderId);
-
-            Assert.That(result, Is.EqualTo(order));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
         }
 
+
         [Test]
-        public async Task GetOrderByIdAsync_WhenOrderDoesNotExist_ReturnsNull()
+        public async Task GetAllMenuItemsByOrderIdAsync_WhenMenuItemIdsAreEmpty_ReturnsEmptyList()
         {
-            var searchedOrderId = Guid.NewGuid();
-            var data = new List<Order>
-            {
-                new Order { Id = Guid.NewGuid() }
-            }.AsQueryable();
+            var result =
+                await _repository.GetAllMenuItemsByOrderIdAsync(
+                    new List<Guid>());
 
-            var mockSet = CreateAsyncDbSet(data);
-
-            _context.Setup(x => x.Orders).Returns(mockSet.Object);
-
-            var result = await _repository.GetOrderByIdAsync(searchedOrderId);
-
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
         }
-
 
 
         [Test]

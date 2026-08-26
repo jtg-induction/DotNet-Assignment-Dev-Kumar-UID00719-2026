@@ -44,61 +44,6 @@ namespace dotNetAssignment.Tests.Services
         }
 
 
-        [Test]
-        public async Task PlaceOrder_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
-
-            var request = new OrderRequestDto
-            {
-                RestaurantId = Guid.NewGuid(),
-                AddressId = Guid.NewGuid(),
-                orderItems = new List<OrderItemsRequestDto>()
-            };
-
-            var result = await _orderService.PlaceOrder(request, _userId);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
-
-        [Test]
-        public async Task PlaceOrder_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new OrderRequestDto
-            {
-                RestaurantId = Guid.NewGuid(),
-                AddressId = Guid.NewGuid(),
-                orderItems = new List<OrderItemsRequestDto>()
-            };
-
-            var result = await _orderService.PlaceOrder(request, _userId);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task PlaceOrder_WhenRestaurantDoesNotExist_ReturnsFailure()
@@ -112,7 +57,7 @@ namespace dotNetAssignment.Tests.Services
             var restaurantId = Guid.NewGuid();
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -123,7 +68,7 @@ namespace dotNetAssignment.Tests.Services
             {
                 RestaurantId = restaurantId,
                 AddressId = Guid.NewGuid(),
-                orderItems = new List<OrderItemsRequestDto>()
+                OrderItems = new List<OrderItemsRequestDto>()
             };
 
             var result = await _orderService.PlaceOrder(request, _userId);
@@ -150,7 +95,7 @@ namespace dotNetAssignment.Tests.Services
             var addressId = Guid.NewGuid();
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -168,7 +113,7 @@ namespace dotNetAssignment.Tests.Services
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>()
+                OrderItems = new List<OrderItemsRequestDto>()
             };
 
             var result = await _orderService.PlaceOrder(request, _userId);
@@ -201,7 +146,7 @@ namespace dotNetAssignment.Tests.Services
             };
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -219,7 +164,7 @@ namespace dotNetAssignment.Tests.Services
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>()
+                OrderItems = new List<OrderItemsRequestDto>()
             };
 
             var result = await _orderService.PlaceOrder(request, _userId);
@@ -259,7 +204,7 @@ namespace dotNetAssignment.Tests.Services
             };
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -274,14 +219,17 @@ namespace dotNetAssignment.Tests.Services
                 .ReturnsAsync(address);
 
             _orderRepository
-                .Setup(x => x.GetMenuItemByIdAsync(menuId))
-                .ReturnsAsync((Menu)null);
+                .Setup(x => x.GetAllMenuItemsByOrderIdAsync(
+                    It.Is<List<Guid>>(
+                        ids => ids.Count == 1 && ids[0] == menuId)
+                    )).ReturnsAsync(new List<Menu>());
+
 
             var request = new OrderRequestDto
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>
+                OrderItems = new List<OrderItemsRequestDto>
                 {
                     new OrderItemsRequestDto
                     {
@@ -337,7 +285,7 @@ namespace dotNetAssignment.Tests.Services
             };
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -352,14 +300,19 @@ namespace dotNetAssignment.Tests.Services
                 .ReturnsAsync(address);
 
             _orderRepository
-                .Setup(x => x.GetMenuItemByIdAsync(menuId))
-                .ReturnsAsync(menuItem);
+                .Setup(x => x.GetAllMenuItemsByOrderIdAsync(
+                    It.Is<List<Guid>>(
+                        ids => ids.Count == 1 && ids[0] == menuId)
+                    )).ReturnsAsync(new List<Menu>
+                    {
+                        menuItem
+                    });
 
             var request = new OrderRequestDto
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>
+                OrderItems = new List<OrderItemsRequestDto>
                 {
                     new OrderItemsRequestDto
                     {
@@ -409,7 +362,7 @@ namespace dotNetAssignment.Tests.Services
             };
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -424,14 +377,19 @@ namespace dotNetAssignment.Tests.Services
                 .ReturnsAsync(address);
 
             _orderRepository
-                .Setup(x => x.GetMenuItemByIdAsync(menuId))
-                .ReturnsAsync(menuItem);
+                .Setup(x => x.GetAllMenuItemsByOrderIdAsync(
+                    It.Is<List<Guid>>(
+                        ids => ids.Count == 1 && ids[0] == menuId)
+                    )).ReturnsAsync(new List<Menu>
+                    {
+                        menuItem
+                    });
 
             var request = new OrderRequestDto
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>
+                OrderItems = new List<OrderItemsRequestDto>
                 {
                     new OrderItemsRequestDto
                     {
@@ -481,7 +439,7 @@ namespace dotNetAssignment.Tests.Services
             };
 
             _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
+                .Setup(x => x.GetUserForUpdateAsync(_userId))
                 .ReturnsAsync(user);
 
             _restaurantRepository
@@ -496,14 +454,19 @@ namespace dotNetAssignment.Tests.Services
                 .ReturnsAsync(address);
 
             _orderRepository
-                .Setup(x => x.GetMenuItemByIdAsync(menuId))
-                .ReturnsAsync(menuItem);
+                .Setup(x => x.GetAllMenuItemsByOrderIdAsync(
+                    It.Is<List<Guid>>(
+                        ids => ids.Count == 1 && ids[0] == menuId)
+                    )).ReturnsAsync(new List<Menu>
+                    {
+                        menuItem
+                    });
 
             var request = new OrderRequestDto
             {
                 RestaurantId = restaurantId,
                 AddressId = addressId,
-                orderItems = new List<OrderItemsRequestDto>
+                OrderItems = new List<OrderItemsRequestDto>
                 {
                     new OrderItemsRequestDto
                     {
@@ -525,83 +488,17 @@ namespace dotNetAssignment.Tests.Services
         }
 
 
-        [Test]
-        public async Task OrderDetails_WhenUserDoesNotExist_ReturnsFailure()
-        {
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync((User)null);
-
-            var request = new OrderDetailsRequestDto
-            {
-                OrderId = Guid.NewGuid()
-            };
-
-            var result = await _orderService.OrderDetails(request, _userId);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
-
-        [Test]
-        public async Task OrderDetails_WhenUserIsInactive_ReturnsFailure()
-        {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = false
-            };
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
-
-            var request = new OrderDetailsRequestDto
-            {
-                OrderId = Guid.NewGuid()
-            };
-
-            var result = await _orderService.OrderDetails(request, _userId);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.UserNotFound));
-            });
-        }
 
         [Test]
         public async Task OrderDetails_WhenOrderDoesNotExist_ReturnsFailure()
         {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = true
-            };
-
             var orderId = Guid.NewGuid();
-
-            _userRepository
-                .Setup(x => x.GetUserByIdAsync(_userId))
-                .ReturnsAsync(user);
 
             _orderRepository
                 .Setup(x => x.GetOrderByIdAsync(orderId))
                 .ReturnsAsync((Order)null);
 
-            var request = new OrderDetailsRequestDto
-            {
-                OrderId = orderId
-            };
-
-            var result = await _orderService.OrderDetails(request, _userId);
+            var result = await _orderService.OrderDetails(orderId, _userId);
 
             Assert.Multiple(() =>
             {
@@ -615,11 +512,6 @@ namespace dotNetAssignment.Tests.Services
         [Test]
         public async Task OrderDetails_WhenOrderBelongsToAnotherUser_ReturnsFailure()
         {
-            var user = new User
-            {
-                Id = _userId,
-                IsActive = true
-            };
 
             var orderId = Guid.NewGuid();
 
@@ -627,6 +519,168 @@ namespace dotNetAssignment.Tests.Services
             {
                 Id = orderId,
                 UserId = Guid.NewGuid()
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            var result = await _orderService.OrderDetails(orderId, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.OrderDoesntExists));
+            });
+        }
+
+
+        [Test]
+        public async Task OrderDetails_WhenOrderExists_ReturnsOrderDetails()
+        {
+            var orderId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+            var menuId1 = Guid.NewGuid();
+            var menuId2 = Guid.NewGuid();
+
+            var order = new Order
+            {
+                Id = orderId,
+                UserId = _userId,
+                Status = OrderStatus.Placed,
+
+                Restaurant = new Restaurant
+                {
+                    Id = restaurantId,
+                    Name = "Burger Hub"
+                },
+
+                AddressLineOne = "24 MG Road",
+                Landmark = "Near Metro",
+                Pincode = "560001",
+                City = "Bengaluru",
+                State = "Karnataka"
+            };
+
+            var orderItems = new List<OrderItem>
+            {
+                new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = orderId,
+                    MenuId = menuId1,
+                    Quantity = 2,
+                    Price = 150m,
+
+                    Menu = new Menu
+                    {
+                        Id = menuId1,
+                        DishName = "Burger"
+                    }
+                },
+
+                new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = orderId,
+                    MenuId = menuId2,
+                    Quantity = 1,
+                    Price = 250m,
+
+                    Menu = new Menu
+                    {
+                        Id = menuId2,
+                        DishName = "Pizza"
+                    }
+                }
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            _orderRepository
+                .Setup(x => x.GetOrderItemsByOrderIdAsync(orderId))
+                .ReturnsAsync(orderItems);
+
+            var result = await _orderService.OrderDetails(orderId, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Message,Is.EqualTo(SuccessMessages.OrderDetailsFetched));
+
+                Assert.That(result.Data.OrderStatus,Is.EqualTo(OrderStatus.Placed.ToString()));
+                Assert.That(result.Data.RestaurantName,Is.EqualTo("Burger Hub"));
+
+                Assert.That(result.Data.DeliveryAddress.AddressLineOne,Is.EqualTo("24 MG Road"));
+                Assert.That(result.Data.DeliveryAddress.Landmark,Is.EqualTo("Near Metro"));
+                Assert.That(result.Data.DeliveryAddress.Pincode,Is.EqualTo("560001"));
+                Assert.That(result.Data.DeliveryAddress.City,Is.EqualTo("Bengaluru"));
+                Assert.That(result.Data.DeliveryAddress.State,Is.EqualTo("Karnataka"));
+
+                Assert.That(result.Data.OrderItems.Count,Is.EqualTo(2));
+                Assert.That(result.Data.OrderItems[0].DishName,Is.EqualTo("Burger"));
+                Assert.That(result.Data.OrderItems[0].Quantity,Is.EqualTo(2));
+                Assert.That(result.Data.OrderItems[0].Price,Is.EqualTo(150m));
+                Assert.That(result.Data.OrderItems[1].DishName,Is.EqualTo("Pizza"));
+                Assert.That(result.Data.OrderItems[1].Quantity,Is.EqualTo(1));
+                Assert.That(result.Data.OrderItems[1].Price,Is.EqualTo(250m));
+
+                Assert.That(result.Data.TotalAmount,Is.EqualTo(550m));
+            });
+        }
+
+
+        [Test]
+        public async Task CancelOrder_WhenOrderDoesNotExist_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(new User
+                {
+                    Id = _userId,
+                    Balance = 1000m,
+                    IsActive = true
+                });
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync((Order)null);
+
+            var result = await _orderService.CancelOrder(orderId, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.OrderDoesntExists));
+            });
+        }
+
+
+        [Test]
+        public async Task CancelOrder_WhenOrderBelongsToAnotherUser_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+
+            var user = new User
+            {
+                Id = _userId,
+                Balance = 1000m,
+                IsActive = true
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                UserId = Guid.NewGuid(),
+                Status = OrderStatus.Placed
             };
 
             _userRepository
@@ -637,12 +691,7 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetOrderByIdAsync(orderId))
                 .ReturnsAsync(order);
 
-            var request = new OrderDetailsRequestDto
-            {
-                OrderId = orderId
-            };
-
-            var result = await _orderService.OrderDetails(request, _userId);
+            var result = await _orderService.CancelOrder(orderId, _userId);
 
             Assert.Multiple(() =>
             {
@@ -652,5 +701,45 @@ namespace dotNetAssignment.Tests.Services
                     Is.EqualTo(ExceptionMessages.OrderDoesntExists));
             });
         }
+
+
+        [Test]
+        public async Task CancelOrder_WhenOrderIsNotPlaced_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+
+            var user = new User
+            {
+                Id = _userId,
+                Balance = 1000m,
+                IsActive = true
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                UserId = _userId,
+                Status = OrderStatus.Cancelled
+            };
+
+            _userRepository
+                .Setup(x => x.GetUserByIdAsync(_userId))
+                .ReturnsAsync(user);
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            var result = await _orderService.CancelOrder(orderId, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(
+                    result.Message,
+                    Is.EqualTo(ExceptionMessages.OrderCannotBeCancelled));
+            });
+        }
+
     }
 }

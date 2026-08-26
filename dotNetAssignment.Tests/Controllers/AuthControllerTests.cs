@@ -1,15 +1,14 @@
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http.Results;
-
-using Moq;
-using NUnit.Framework;
-
+using dotNetAssignment.Constants;
 using dotNetAssignment.Controllers;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.DTO.Login;
 using dotNetAssignment.Models.DTO.SignUp;
 using dotNetAssignment.Services.Interfaces;
+using Moq;
+using NUnit.Framework;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http.Results;
 
 namespace dotNetAssignment.Tests.Controllers
 {
@@ -71,6 +70,10 @@ namespace dotNetAssignment.Tests.Controllers
                     okResult.Content.Data.RefreshToken,
                     Is.EqualTo("refresh-token"));
             });
+
+            _authenticationService.Verify(
+            x => x.SignupAsync(request),
+            Times.Once);
         }
 
         [Test]
@@ -81,7 +84,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = false,
-                Message = "Email already exists"
+                Message = ExceptionMessages.EmailOrPhoneNumberAlreadyExists
             };
 
             _authenticationService
@@ -110,8 +113,12 @@ namespace dotNetAssignment.Tests.Controllers
 
                 Assert.That(
                     badRequest.Content.Message,
-                    Is.EqualTo("Email already exists"));
+                    Is.EqualTo(ExceptionMessages.EmailOrPhoneNumberAlreadyExists));
             });
+
+            _authenticationService.Verify(
+            x => x.SignupAsync(request),
+            Times.Once);
         }
 
         [Test]
@@ -122,7 +129,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
-                Message = "Login successful",
+                Message = SuccessMessages.UserLoggedIn,
                 Data = new AuthenticationResponseDto
                 {
                     AccessToken = "access-token",
@@ -151,7 +158,7 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(okResult.Content.Success, Is.True);
                 Assert.That(
                     okResult.Content.Message,
-                    Is.EqualTo("Login successful"));
+                    Is.EqualTo(SuccessMessages.UserLoggedIn));
                 Assert.That(
                     okResult.Content.Data.AccessToken,
                     Is.EqualTo("access-token"));
@@ -159,6 +166,10 @@ namespace dotNetAssignment.Tests.Controllers
                     okResult.Content.Data.RefreshToken,
                     Is.EqualTo("refresh-token"));
             });
+
+            _authenticationService.Verify(
+            x => x.LoginAsync(request),
+            Times.Once);
         }
 
         [Test]
@@ -169,7 +180,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = false,
-                Message = "Invalid email or password"
+                Message = ExceptionMessages.InvalidEmailOrPassword
             };
 
             _authenticationService
@@ -200,8 +211,12 @@ namespace dotNetAssignment.Tests.Controllers
 
                 Assert.That(
                     unauthorized.Content.Message,
-                    Is.EqualTo("Invalid email or password"));
+                    Is.EqualTo(ExceptionMessages.InvalidEmailOrPassword));
             });
+
+            _authenticationService.Verify(
+            x => x.LoginAsync(request),
+            Times.Once);
         }
 
         [Test]
@@ -212,7 +227,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = true,
-                Message = "Token refreshed successfully.",
+                Message = SuccessMessages.TokenRefreshed,
                 Data = new AccessTokenRefreshResponse
                 {
                     AccessToken = "new-access-token"
@@ -240,7 +255,7 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(okResult.Content.Success, Is.True);
                 Assert.That(
                     okResult.Content.Message,
-                    Is.EqualTo("Token refreshed successfully."));
+                    Is.EqualTo(SuccessMessages.TokenRefreshed));
                 Assert.That(
                     okResult.Content.Data.AccessToken,
                     Is.EqualTo("new-access-token"));
@@ -255,7 +270,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<AccessTokenRefreshResponse>
             {
                 Success = false,
-                Message = "Invalid refresh token."
+                Message = ExceptionMessages.InvalidRefreshToken
             };
 
             _authenticationService
@@ -286,7 +301,7 @@ namespace dotNetAssignment.Tests.Controllers
 
                 Assert.That(
                     unauthorized.Content.Message,
-                    Is.EqualTo("Invalid refresh token."));
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
             });
         }
 
@@ -298,7 +313,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<string>
             {
                 Success = true,
-                Message = "Logged out successfully."
+                Message = SuccessMessages.UserLoggedOut
             };
 
             _authenticationService
@@ -320,7 +335,7 @@ namespace dotNetAssignment.Tests.Controllers
                 Assert.That(okResult.Content.Success, Is.True);
                 Assert.That(
                     okResult.Content.Message,
-                    Is.EqualTo("Logged out successfully."));
+                    Is.EqualTo(SuccessMessages.UserLoggedOut));
             });
         }
 
@@ -332,7 +347,7 @@ namespace dotNetAssignment.Tests.Controllers
             var response = new ApiResponseDto<string>
             {
                 Success = false,
-                Message = "Invalid refresh token."
+                Message = ExceptionMessages.InvalidRefreshToken
             };
 
             _authenticationService
@@ -361,7 +376,7 @@ namespace dotNetAssignment.Tests.Controllers
 
                 Assert.That(
                     unauthorized.Content.Message,
-                    Is.EqualTo("Invalid refresh token."));
+                    Is.EqualTo(ExceptionMessages.InvalidRefreshToken));
             });
         }
     }

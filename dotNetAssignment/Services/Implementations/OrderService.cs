@@ -11,6 +11,7 @@ using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 using dotNetAssignment.Models.DTO.Address;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -42,17 +43,9 @@ namespace dotNetAssignment.Services.Implementations
             {
                 try
                 {
-                    var user = await _userRepository.GetUserByIdAsync(userId);
-                    if (user == null || !user.IsActive)
-                    {
-                        return new ApiResponseDto<PlaceOrderResponseDto>
-                        {
-                            Success = false,
-                            Message = ExceptionMessages.UserNotFound
-                        };
-                    }
-
+                    var user = await _userRepository.GetUserForUpdateAsync(userId);
                     var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
+
                     if (restaurant == null)
                     {
                         return new ApiResponseDto<PlaceOrderResponseDto>
@@ -87,10 +80,14 @@ namespace dotNetAssignment.Services.Implementations
                         State = address.State,
                     };
 
-                    foreach (OrderItemsRequestDto item in request.orderItems)
+                    var orderItemIds = request.OrderItems.Select(oi => oi.Id).ToList();
+                    var menuItems = await _orderRepository.GetAllMenuItemsByOrderIdAsync(orderItemIds);
+
+                    var totalPrice = 0m;
+                    foreach (OrderItemsRequestDto item in request.OrderItems)
                     {
-                        var menuitem = await _orderRepository.GetMenuItemByIdAsync(item.Id);
-                        if (menuitem == null || menuitem.RestaurantId != request.RestaurantId)
+                        var menuItem = menuItems.Find(mi => mi.Id == item.Id);
+                        if (menuItem == null || menuItem.RestaurantId != request.RestaurantId)
                         {
                             return new ApiResponseDto<PlaceOrderResponseDto>
                             {
@@ -100,7 +97,7 @@ namespace dotNetAssignment.Services.Implementations
                         }
 
 
-                        if (item.Quantity > menuitem.QuantityAvailable)
+                        if (item.Quantity > menuItem.QuantityAvailable)
                         {
                             return new ApiResponseDto<PlaceOrderResponseDto>
                             {
@@ -109,34 +106,41 @@ namespace dotNetAssignment.Services.Implementations
                             };
                         }
 
-                        var price = menuitem.Price * item.Quantity;
+                        totalPrice += menuItem.Price * item.Quantity;
+                    }
 
-                        if (user.Balance < price)
+                    if(totalPrice > user.Balance)
+                    {
+                        return new ApiResponseDto<PlaceOrderResponseDto>
                         {
-                            return new ApiResponseDto<PlaceOrderResponseDto>
-                            {
-                                Success = false,
-                                Message = ExceptionMessages.InsufficientBalance
-                            };
-                        }
+                            Success = false,
+                            Message = ExceptionMessages.InsufficientBalance
+                        };
+                    }
+
+                    foreach (OrderItemsRequestDto item in request.OrderItems)
+                    {
+                        var menuItem = menuItems.Find(mi => mi.Id == item.Id);
+
+                        var price = menuItem.Price * item.Quantity;
 
                         var OrderItem = new OrderItem
                         {
                             Id = Guid.NewGuid(),
                             OrderId = order.Id,
-                            MenuId = menuitem.Id,
+                            MenuId = menuItem.Id,
                             Quantity = item.Quantity,
-                            Price = menuitem.Price
+                            Price = menuItem.Price
                         };
 
                         user.Balance -= price;
-                        menuitem.QuantityAvailable -= item.Quantity;
+                        menuItem.QuantityAvailable -= item.Quantity;
                         _orderRepository.AddOrderItem(OrderItem);
                     }
 
                     _orderRepository.AddOrder(order);
                     await _orderRepository.SaveChangesAsync();
-
+                    await _userRepository.SaveChangesAsync();
 
                     transaction.Commit();
 
@@ -155,7 +159,7 @@ namespace dotNetAssignment.Services.Implementations
                     transaction.Rollback();
                     throw;
                 }
-            }                                        
+            }
         }
 
         /// <summary>
@@ -164,19 +168,9 @@ namespace dotNetAssignment.Services.Implementations
         /// <param name="request">The request containing the order ID.</param>
         /// <param name="userId">The ID of the user requesting the order details.</param>
         /// <returns>The result of the order details retrieval operation.</returns>
-        public async Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(OrderDetailsRequestDto request, Guid userId)
+        public async Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(Guid orderId, Guid userId)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId);
-            if (user == null || !user.IsActive)
-            {
-                return new ApiResponseDto<OrderDetailsResponseDto>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
-                };
-            }
-
-            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId.Value);
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null || order.UserId != userId)
             {
                 return new ApiResponseDto<OrderDetailsResponseDto>
@@ -228,23 +222,15 @@ namespace dotNetAssignment.Services.Implementations
         /// <param name="request">The request containing the order ID.</param>
         /// <param name="userId">The ID of the user requesting to cancel the order.</param>
         /// <returns>The result of the order cancellation operation.</returns>
-        public async Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId)
+        public async Task<ApiResponseDto<string>> CancelOrder(Guid orderId, Guid userId)
         {
             using (var transaction = _orderRepository.BeginTransaction())
             {
                 try
                 {
                     var user = await _userRepository.GetUserByIdAsync(userId);
-                    if (user == null || !user.IsActive)
-                    {
-                        return new ApiResponseDto<string>
-                        {
-                            Success = false,
-                            Message = ExceptionMessages.UserNotFound
-                        };
-                    }
 
-                    var order = await _orderRepository.GetOrderByIdAsync(request.OrderId.Value);
+                    var order = await _orderRepository.GetOrderByIdAsync(orderId);
                     if (order == null || order.UserId != userId)
                     {
                         return new ApiResponseDto<string>
@@ -275,6 +261,7 @@ namespace dotNetAssignment.Services.Implementations
                     }
 
                     await _orderRepository.SaveChangesAsync();
+                    await _userRepository.SaveChangesAsync();
                     transaction.Commit();
 
                     return new ApiResponseDto<string>

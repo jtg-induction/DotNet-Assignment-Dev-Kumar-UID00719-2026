@@ -9,7 +9,7 @@ using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -51,7 +51,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = ExceptionMessages.UserAlreadyExists
+                    Message = ExceptionMessages.EmailOrPhoneNumberAlreadyExists
                 };
             }
 
@@ -64,7 +64,7 @@ namespace dotNetAssignment.Services.Implementations
                 Password = _passwordService.HashPassword(request.Password),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
-                Balance = 1000m,
+                Balance = Constants.Constants.DefaultUserBalance,
                 PhoneNumber = request.PhoneNumber,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -74,8 +74,10 @@ namespace dotNetAssignment.Services.Implementations
             var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role);
             var refreshToken = _jwtService.GenerateRefreshToken(user.Id);
             _jwtRepository.AddJwtId(refreshToken.JwtId);
+            
             await _jwtRepository.SaveChangesAsync();
-
+            await _userRepository.SaveChangesAsync();
+            
             return new ApiResponseDto<AuthenticationResponseDto>
             {
                 Success = true,
@@ -99,8 +101,15 @@ namespace dotNetAssignment.Services.Implementations
         public async Task<ApiResponseDto<AuthenticationResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
+            if(user == null || !user.IsActive) {
+                return new ApiResponseDto<AuthenticationResponseDto>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.UserNotFound
+                };
+            }
 
-            if (user == null || !user.IsActive || !_passwordService.VerifyPassword(request.Password, user.Password))
+            if (!_passwordService.VerifyPassword(request.Password, user.Password))
             {
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
@@ -185,6 +194,20 @@ namespace dotNetAssignment.Services.Implementations
             try
             {
                 principal = _jwtService.ValidateRefreshToken(request.RefreshToken);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                var ExpiredjwtId = _jwtService.GetJwtIdFromExpiredToken(request.RefreshToken);
+                if(ExpiredjwtId != null)
+                {
+                    await _jwtRepository.RemoveJwtIdAsync(ExpiredjwtId.Value);
+                    await _jwtRepository.SaveChangesAsync();
+                }
+                return new ApiResponseDto<AccessTokenRefreshResponse>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.InvalidRefreshToken
+                };
             }
             catch (SecurityTokenException)
             {

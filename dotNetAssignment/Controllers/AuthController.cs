@@ -5,6 +5,8 @@ using dotNetAssignment.Models.DTO;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Net;
+using dotNetAssignment.Constants;
+using dotNetAssignment.Filters;
 
 namespace dotNetAssignment.Controllers
 {
@@ -33,7 +35,10 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.BadRequest, response);
+                if(response.Message == ExceptionMessages.EmailOrPhoneNumberAlreadyExists)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
             }
 
             return Ok(response);
@@ -55,7 +60,14 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidEmailOrPassword)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
+                if(response.Message == ExceptionMessages.UserNotFound)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
             }
 
             return Ok(response);
@@ -77,7 +89,10 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidRefreshToken)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
@@ -91,6 +106,7 @@ namespace dotNetAssignment.Controllers
         /// An API response indicating the success or failure of the logout operation.
         /// </returns>
         [Authorize]
+        [ActiveUserFilter]
         [HttpPost]
         [Route("logout")]
         public async Task<IHttpActionResult> Logout(LogoutRequestDto request) 
@@ -99,7 +115,10 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success) 
             {
-                return Content(HttpStatusCode.Unauthorized, response);
+                if(response.Message == ExceptionMessages.InvalidRefreshToken)
+                {
+                    return Content(HttpStatusCode.Unauthorized, response);
+                }
             }
 
             return Ok(response);
