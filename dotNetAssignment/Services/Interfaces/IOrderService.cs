@@ -13,6 +13,10 @@ namespace dotNetAssignment.Services.Interfaces
 
         Task<ApiResponseDto<OrderDetailsResponseDto>> OrderDetails(Guid orderId, Guid userId);
 
-        Task<ApiResponseDto<string>> CancelOrder(Guid orderId, Guid userId);
+        Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId);
+
+        Task<ApiResponseDto<string>> UpdateOrderStatusAsync(UpdateOrderStatusDto request, Guid ownerId);
+
+        Task<ApiResponseDto<DashboardOrderListResponseDto>> GetDashboardOrdersAsync(DashboardOrderListRequestDto request, Guid ownerId);
     }
 }

@@ -1,8 +1,11 @@
 ﻿using dotNetAssignment.Data;
+using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.EnterpriseServices.Internal;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -72,6 +75,115 @@ namespace dotNetAssignment.Repositories.OrderRepository
         public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId)
         {
             return await _context.OrderItems.AsNoTracking().Include(oi=> oi.Menu).Where(x => x.OrderId == orderId).ToListAsync();
+        }
+
+        /// <summary>
+        /// Get list of orders matching the specified dashboard filters
+        /// </summary>
+        /// <param name="request">Contains filtering, pagination, searching and sorting parameters</param>
+        /// <param name="restaurantIds">List of Id of the restaurants belonging to the owner</param>
+        /// <returns>List or orders</returns>
+        public async Task<List<Order>> GetOrdersForDashboardAsync(DashboardOrderListRequestDto request, List<Guid> restaurantIds)
+        {
+            var query = _context.Orders.AsNoTracking().Include(o => o.User).Include(o => o.Restaurant).Where(o => restaurantIds.Contains(o.RestaurantId));
+        
+            if(request.Filter.Status != null)
+            {
+                query = query.Where(o => o.Status == request.Filter.Status);
+            }
+            if (request.Filter.PlacedAt != null)
+            {
+                var date = request.Filter.PlacedAt.Value.Date;
+                var nextDate = date.AddDays(1);
+                query = query.Where(o => o.PlacedAt >= date && o.PlacedAt < nextDate);
+            }
+            else
+            {
+                var currentDate = DateTime.UtcNow.Date;
+                var tommorow = currentDate.AddDays(1);
+                query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+            }
+
+            if (request.SearchOrderId != null)
+            {
+                query = query.Where(o => o.Id == request.SearchOrderId);
+            }
+
+            if(request.SortBy == SortOrdersFields.Status)
+            {
+                var statusOrder = query.Select(o => new
+                {
+                    Order = o,
+                    StatusPriority =
+                        o.Status == OrderStatus.Dispatched ? 1 :
+                        o.Status == OrderStatus.Accepted ? 2 :
+                        o.Status == OrderStatus.Placed ? 3 :
+                        o.Status == OrderStatus.Delivered ? 4 :
+                        o.Status == OrderStatus.Rejected ? 5 :
+                        6
+                });
+
+                if (request.SortOrder == "asc")
+                {
+                    query = statusOrder
+                        .OrderBy(x => x.StatusPriority)
+                        .Select(x => x.Order);
+                }
+                else
+                {
+                    query = statusOrder
+                        .OrderByDescending(x => x.StatusPriority)
+                        .Select(x => x.Order);
+                }
+            }
+            else
+            {
+                if (request.SortOrder == "asc") 
+                {
+                    query = query.OrderBy(o => o.PlacedAt);
+                }
+                else
+                {
+                    query = query.OrderByDescending(o => o.PlacedAt);
+                }
+            }
+
+            return await query.Skip((request.Page-1) * request.PageSize).Take(request.PageSize).ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the total number of orders matching the specified dashboard filters
+        /// </summary>
+        /// <param name="request">Containing the filter parameters</param>
+        /// <param name="restaurantIds">List of Id of the restaurants belonging to the owner</param>
+        /// <returns>Count of orders</returns>
+        public async Task<int> GetDashboardOrdersCountAsync(DashboardOrderListRequestDto request, List<Guid> restaurantIds)
+        {
+            var query = _context.Orders.AsNoTracking().Where(o => restaurantIds.Contains(o.RestaurantId));
+
+           if (request.Filter.Status != null)
+            {
+                query = query.Where(o => o.Status == request.Filter.Status);
+            }
+            if (request.Filter.PlacedAt != null)
+            {
+                var date = request.Filter.PlacedAt.Value.Date;
+                var nextDate = date.AddDays(1);
+                query = query.Where(o => o.PlacedAt >= date && o.PlacedAt < nextDate);
+            }
+            else
+            {
+                var currentDate = DateTime.UtcNow.Date;
+                var tommorow = currentDate.AddDays(1);
+                query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+            }
+
+            if (request.SearchOrderId != null)
+            {
+                query = query.Where(o => o.Id == request.SearchOrderId);
+            }
+
+            return await query.CountAsync();
         }
 
         /// <summary>

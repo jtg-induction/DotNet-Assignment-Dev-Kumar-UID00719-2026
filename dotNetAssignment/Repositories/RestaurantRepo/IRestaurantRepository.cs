@@ -15,6 +15,10 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
 
         Task<Restaurant> GetRestaurantByIdAsync(Guid RestaurantId);
 
+        Task<bool> IsRestaurantOwnerAsync(Guid restaurantId, Guid ownerId);
+
+        Task<List<Guid>> GetAllRestaurantIdsByOwnerIdAsync(Guid ownerId);
+
         Task<List<Restaurant>> GetAllRestaurantsAsync(int page, int pageSize);
 
         Task<int> GetRestaurantCountAsync();

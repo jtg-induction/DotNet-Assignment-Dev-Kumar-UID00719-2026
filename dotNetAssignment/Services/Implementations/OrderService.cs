@@ -1,17 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using dotNetAssignment.Constants;
-using dotNetAssignment.Models.Enums;
+﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.DTO.Address;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
 using dotNetAssignment.Repositories.OrderRepository;
 using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
 using dotNetAssignment.Services.Interfaces;
-using dotNetAssignment.Models.DTO.Address;
+using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace dotNetAssignment.Services.Implementations
 {
@@ -222,7 +222,7 @@ namespace dotNetAssignment.Services.Implementations
         /// <param name="request">The request containing the order ID.</param>
         /// <param name="userId">The ID of the user requesting to cancel the order.</param>
         /// <returns>The result of the order cancellation operation.</returns>
-        public async Task<ApiResponseDto<string>> CancelOrder(Guid orderId, Guid userId)
+        public async Task<ApiResponseDto<string>> CancelOrder(CancelOrderRequestDto request, Guid userId)
         {
             using (var transaction = _orderRepository.BeginTransaction())
             {
@@ -230,7 +230,7 @@ namespace dotNetAssignment.Services.Implementations
                 {
                     var user = await _userRepository.GetUserByIdAsync(userId);
 
-                    var order = await _orderRepository.GetOrderByIdAsync(orderId);
+                    var order = await _orderRepository.GetOrderByIdAsync(request.OrderId);
                     if (order == null || order.UserId != userId)
                     {
                         return new ApiResponseDto<string>
@@ -276,6 +276,131 @@ namespace dotNetAssignment.Services.Implementations
                     throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Updates Order status of a specific order.
+        /// </summary>
+        /// <param name="request">Request contains id of the order to update and the new order status to which it has to be updated.</param>
+        /// <param name="ownerId">Id of the restaurant owner.</param>
+        /// <returns>Response denoting failure or success of the operation.</returns>
+        public async Task<ApiResponseDto<string>> UpdateOrderStatusAsync(UpdateOrderStatusDto request, Guid ownerId)
+        {
+            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId);
+            
+            if (order == null) 
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.OrderDoesNotExist
+                };
+            }
+
+            bool isRestaurantOwner = await _restaurantRepository.IsRestaurantOwnerAsync(order.RestaurantId, ownerId);
+            if (!isRestaurantOwner)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.YouCantPerformThisAction
+                };
+            }
+
+            if(order.Status == request.Status)
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.OrderStatusCanNotBeSame
+                };
+            }
+
+            var allowedTransitions = new Dictionary<OrderStatus, OrderStatus[]>
+            {
+                {
+                    OrderStatus.Placed,
+                    new[]
+                    {
+                        OrderStatus.Accepted,
+                        OrderStatus.Rejected
+                    }
+                },
+                {
+                    OrderStatus.Accepted,
+                    new[]
+                    {
+                        OrderStatus.Dispatched,
+                        OrderStatus.Rejected
+                    }
+                },
+                {
+                    OrderStatus.Dispatched,
+                    new[]
+                    {
+                        OrderStatus.Delivered,
+                        OrderStatus.Rejected
+                    }
+                }
+            };
+
+            if (!allowedTransitions.TryGetValue(order.Status, out var allowedStatuses) || !allowedStatuses.Contains(request.Status))
+            {
+                return new ApiResponseDto<string>
+                {
+                    Success = false,
+                    Message = ExceptionMessages.OrderStatusCanNotBeUpdated
+                };
+            }
+
+            order.Status = request.Status;
+            order.UpdatedAt = DateTime.UtcNow;
+            await _orderRepository.SaveChangesAsync();
+
+            return new ApiResponseDto<string>
+            {
+                Success = true,
+                Message = SuccessMessages.OrderStatusUpdated
+            };
+        }
+
+        /// <summary>
+        /// Fetches details of all the orders from the restaurants the owner owns.
+        /// </summary>
+        /// <param name="request">Request contains pagination, sorting, filtering and searching parameters.</param>
+        /// <param name="ownerId">Id of the restaurant owner.</param>
+        /// <returns>Returns a response denoting failure or success of the operation.</returns>
+        public async Task<ApiResponseDto<DashboardOrderListResponseDto>> GetDashboardOrdersAsync(DashboardOrderListRequestDto request, Guid ownerId)
+        {
+            var restaurantIds = await _restaurantRepository.GetAllRestaurantIdsByOwnerIdAsync(ownerId);
+
+            var totalCount = await _orderRepository.GetDashboardOrdersCountAsync(request, restaurantIds);
+            var totalPages = (int)Math.Ceiling((double)totalCount / request.PageSize);
+            var orders = await _orderRepository.GetOrdersForDashboardAsync(request, restaurantIds);
+
+            var response = new DashboardOrderListResponseDto
+            {
+                Orders = orders.Select(o => new OrderResponseDto
+                {
+                    OrderId = o.Id,
+                    RestaurantName = o.Restaurant.Name,
+                    CustomerName = o.User.Name,
+                    OrderStatus = o.Status,
+                    PlacedAt = o.PlacedAt,
+                }).ToList(),
+                Page = request.Page,
+                PageSize = request.PageSize,
+                TotalPages = totalPages,
+                TotalCount = totalCount
+            };
+
+            return new ApiResponseDto<DashboardOrderListResponseDto>
+            {
+                Success = true,
+                Message = SuccessMessages.OrdersFetched,
+                Data = response
+            };
+
         }
     }
 }

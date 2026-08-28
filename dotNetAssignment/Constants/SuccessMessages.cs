@@ -21,5 +21,7 @@ namespace dotNetAssignment.Constants
         public const string OrderCancelled = "Order cancelled";
         public const string RestaurantOwnerOnboarded = "Restaurant owner onboarded successfully";
         public const string RestaurantCreated = "Restaurant created successfully";
+        public const string OrderStatusUpdated = "Order status updated successfully";
+        public const string OrdersFetched = "Orders fetched successfully";
     }
 }

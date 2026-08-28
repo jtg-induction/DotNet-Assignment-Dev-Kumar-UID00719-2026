@@ -48,9 +48,9 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
         /// </summary>
         /// <param name="RestaurantId">The ID of the restaurant to check.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<bool> RestaurantExistsAsync(Guid RestaurantId)
+        public async Task<bool> RestaurantExistsAsync(Guid restaurantId)
         {
-            return await _context.Restaurants.AnyAsync(x => x.Id == RestaurantId);
+            return await _context.Restaurants.AnyAsync(x => x.Id == restaurantId);
         }
 
         /// <summary>
@@ -86,9 +86,30 @@ namespace dotNetAssignment.Repositories.RestaurantRepo
         /// </summary>
         /// <param name="RestaurantId">The ID of the restaurant to retrieve.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task<Restaurant> GetRestaurantByIdAsync(Guid RestaurantId)
+        public async Task<Restaurant> GetRestaurantByIdAsync(Guid restaurantId)
         {
-            return await _context.Restaurants.FirstOrDefaultAsync(x => x.Id == RestaurantId);
+            return await _context.Restaurants.FirstOrDefaultAsync(x => x.Id == restaurantId);
+        }
+
+        /// <summary>
+        /// Checks if a restaurant belongs to an owner
+        /// </summary>
+        /// <param name="restaurantId">Unique identifier of the restaurant</param>
+        /// <param name="ownerId">Unique identifier of the owner</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<bool> IsRestaurantOwnerAsync(Guid restaurantId, Guid ownerId)
+        {
+            return await _context.RestaurantOwners.AnyAsync(x => x.UserId == ownerId && x.RestaurantId == restaurantId);
+        }
+
+        /// <summary>
+        /// Gets Ids of all the restaurants of the owner
+        /// </summary>
+        /// <param name="ownerId"> Unique identifier of the owner</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task<List<Guid>> GetAllRestaurantIdsByOwnerIdAsync(Guid ownerId)
+        {
+            return await _context.RestaurantOwners.Where(x => x.UserId == ownerId).Select(x => x.RestaurantId).ToListAsync();
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace dotNetAssignment.Controllers
     public class OrderController : ApiController
     {
         private readonly IOrderService _orderService;
-
+        private const string Owner = "Owner";
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
@@ -35,7 +35,7 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [ActiveUserFilter]
         [HttpPost]
-        [Route("")]
+        [Route("place")]
         public async Task<IHttpActionResult> PlaceOrder(OrderRequestDto request)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -84,12 +84,12 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [ActiveUserFilter]
         [HttpPost]
-        [Route("cancel/{orderId:guid}")]
-        public async Task<IHttpActionResult> CancelOrder(Guid orderId)
+        [Route("cancel")]
+        public async Task<IHttpActionResult> CancelOrder(CancelOrderRequestDto request)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            var response = await _orderService.CancelOrder(orderId, userId);
+            var response = await _orderService.CancelOrder(request, userId);
             if (!response.Success)
             {
                 if(response.Message == ExceptionMessages.OrderCannotBeCancelled)
@@ -99,6 +99,56 @@ namespace dotNetAssignment.Controllers
                 return Content(HttpStatusCode.NotFound, response);
             }
 
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Updates the status of a specific order
+        /// </summary>
+        /// <param name="request">Request contains id of the order to update and the new order status to which it has to be updated.</param>
+        /// <returns>Returns failure or success response of the operation</returns>
+        [Authorize(Roles = Owner)]
+        [ActiveUserFilter]
+        [HttpPost]
+        [Route("update")]
+        public async Task<IHttpActionResult> UpdateOrderStatus(UpdateOrderStatusDto request)
+        {
+            var ownerId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
+            var response = await _orderService.UpdateOrderStatusAsync(request, ownerId);
+
+            if (!response.Success)
+            {
+                if(response.Message == ExceptionMessages.OrderDoesNotExist)
+                {
+                    return Content(HttpStatusCode.NotFound, response);
+                }
+                if (response.Message == ExceptionMessages.YouCantPerformThisAction)
+                {
+                    return Content(HttpStatusCode.Forbidden, response);
+                }
+                if (response.Message == ExceptionMessages.OrderStatusCanNotBeSame || response.Message == ExceptionMessages.OrderStatusCanNotBeUpdated)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Fetches details of all the orders from the restaurants the owner owns.
+        /// </summary>
+        /// <param name="request">Request contains pagination, sorting, filtering and searching parameters.</param>
+        /// <returns>Returns failure or success response of the operation</returns>
+        [Authorize(Roles = Owner)]
+        [ActiveUserFilter]
+        [HttpGet]
+        [Route("get")]
+        public async Task<IHttpActionResult> GetOrders([FromUri] DashboardOrderListRequestDto request)
+        {
+            request = request ?? new DashboardOrderListRequestDto();
+            var ownerId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
+            var response = await _orderService.GetDashboardOrdersAsync(request, ownerId);
             return Ok(response);
         }
     }

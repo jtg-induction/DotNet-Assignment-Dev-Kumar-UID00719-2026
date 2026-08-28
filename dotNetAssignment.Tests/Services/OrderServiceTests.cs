@@ -638,6 +638,10 @@ namespace dotNetAssignment.Tests.Services
         public async Task CancelOrder_WhenOrderDoesNotExist_ReturnsFailure()
         {
             var orderId = Guid.NewGuid();
+            var request = new CancelOrderRequestDto
+            {
+                OrderId = orderId
+            };
 
             _userRepository
                 .Setup(x => x.GetUserByIdAsync(_userId))
@@ -652,7 +656,7 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetOrderByIdAsync(orderId))
                 .ReturnsAsync((Order)null);
 
-            var result = await _orderService.CancelOrder(orderId, _userId);
+            var result = await _orderService.CancelOrder(request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -668,6 +672,10 @@ namespace dotNetAssignment.Tests.Services
         public async Task CancelOrder_WhenOrderBelongsToAnotherUser_ReturnsFailure()
         {
             var orderId = Guid.NewGuid();
+            var request = new CancelOrderRequestDto
+            {
+                OrderId = orderId
+            };
 
             var user = new User
             {
@@ -691,22 +699,23 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetOrderByIdAsync(orderId))
                 .ReturnsAsync(order);
 
-            var result = await _orderService.CancelOrder(orderId, _userId);
+            var result = await _orderService.CancelOrder(request, _userId);
 
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.OrderDoesntExists));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.OrderDoesntExists));
             });
         }
-
 
         [Test]
         public async Task CancelOrder_WhenOrderIsNotPlaced_ReturnsFailure()
         {
             var orderId = Guid.NewGuid();
+            var request = new CancelOrderRequestDto
+            {
+                OrderId = orderId
+            };
 
             var user = new User
             {
@@ -730,16 +739,228 @@ namespace dotNetAssignment.Tests.Services
                 .Setup(x => x.GetOrderByIdAsync(orderId))
                 .ReturnsAsync(order);
 
-            var result = await _orderService.CancelOrder(orderId, _userId);
+            var result = await _orderService.CancelOrder(request, _userId);
 
             Assert.Multiple(() =>
             {
                 Assert.That(result.Success, Is.False);
-                Assert.That(
-                    result.Message,
-                    Is.EqualTo(ExceptionMessages.OrderCannotBeCancelled));
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.OrderCannotBeCancelled));
             });
         }
 
+        [Test]
+        public async Task UpdateOrderStatusAsync_WhenOrderDoesNotExist_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+            var request = new UpdateOrderStatusDto
+            {
+                OrderId = orderId,
+                Status = OrderStatus.Accepted
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync((Order)null);
+
+            var result = await _orderService.UpdateOrderStatusAsync( request, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message, Is.EqualTo(ExceptionMessages.OrderDoesNotExist));
+            });
+        }
+
+
+        [Test]
+        public async Task UpdateOrderStatusAsync_WhenOwnerDoesNotOwnRestaurant_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var request = new UpdateOrderStatusDto
+            {
+                OrderId = orderId,
+                Status = OrderStatus.Accepted
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                RestaurantId = restaurantId,
+                Status = OrderStatus.Placed
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            _restaurantRepository
+                .Setup(x => x.IsRestaurantOwnerAsync(
+                    restaurantId,
+                    _userId))
+                .ReturnsAsync(false);
+
+            var result = await _orderService.UpdateOrderStatusAsync( request, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That( result.Success, Is.False);
+                Assert.That(result.Message,Is.EqualTo(ExceptionMessages.YouCantPerformThisAction));
+            });
+        }
+
+        [Test]
+        public async Task UpdateOrderStatusAsync_WhenStatusIsSame_ReturnsFailure()
+        {
+            var orderId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var request = new UpdateOrderStatusDto
+            {
+                OrderId = orderId,
+                Status = OrderStatus.Placed
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                RestaurantId = restaurantId,
+                Status = OrderStatus.Placed
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            _restaurantRepository
+                .Setup(x => x.IsRestaurantOwnerAsync(
+                    restaurantId,
+                    _userId))
+                .ReturnsAsync(true);
+
+            var result = await _orderService.UpdateOrderStatusAsync( request, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Message,Is.EqualTo(ExceptionMessages.OrderStatusCanNotBeSame));
+            });
+        }
+
+        [Test]
+        public async Task UpdateOrderStatusAsync_WhenTransitionIsValid_ReturnsSuccess()
+        {
+            var orderId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+
+            var request = new UpdateOrderStatusDto
+            {
+                OrderId = orderId,
+                Status = OrderStatus.Accepted
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                RestaurantId = restaurantId,
+                Status = OrderStatus.Placed
+            };
+
+            _orderRepository
+                .Setup(x => x.GetOrderByIdAsync(orderId))
+                .ReturnsAsync(order);
+
+            _restaurantRepository
+                .Setup(x => x.IsRestaurantOwnerAsync( restaurantId, _userId))
+                .ReturnsAsync(true);
+
+            var result = await _orderService.UpdateOrderStatusAsync( request, _userId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.OrderStatusUpdated));
+                Assert.That(order.Status, Is.EqualTo(OrderStatus.Accepted));
+            });
+        }
+
+
+        [Test]
+        public async Task GetDashboardOrdersAsync_ReturnsDashboardOrders()
+        {
+            var ownerId = Guid.NewGuid();
+            var restaurantId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            var request = new DashboardOrderListRequestDto
+            {
+                Page = 1,
+                PageSize = 10
+            };
+
+            var order = new Order
+            {
+                Id = orderId,
+                RestaurantId = restaurantId,
+                UserId = userId,
+                Status = OrderStatus.Placed,
+                PlacedAt = DateTime.UtcNow,
+                Restaurant = new Restaurant
+                {
+                    Id = restaurantId,
+                    Name = "Burger Hub"
+                },
+                User = new User
+                {
+                    Id = userId,
+                    Name = "John"
+                }
+            };
+
+            _restaurantRepository
+                .Setup(x => x.GetAllRestaurantIdsByOwnerIdAsync(ownerId))
+                .ReturnsAsync(new List<Guid>
+                {
+                    restaurantId
+                });
+
+            _orderRepository
+                .Setup(x => x.GetDashboardOrdersCountAsync(
+                    request,
+                    It.Is<List<Guid>>(ids =>
+                        ids.Count == 1 &&
+                        ids[0] == restaurantId)))
+                .ReturnsAsync(1);
+
+            _orderRepository
+                .Setup(x => x.GetOrdersForDashboardAsync(
+                    request,
+                    It.Is<List<Guid>>(ids =>
+                        ids.Count == 1 &&
+                        ids[0] == restaurantId)))
+                .ReturnsAsync(new List<Order>
+                {
+                    order
+                });
+
+            var result = await _orderService.GetDashboardOrdersAsync(request, ownerId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.True);
+                Assert.That(result.Message, Is.EqualTo(SuccessMessages.OrdersFetched));
+                Assert.That(result.Data.Orders.Count, Is.EqualTo(1));
+                Assert.That(result.Data.Orders[0].OrderId, Is.EqualTo(orderId));
+                Assert.That(result.Data.Orders[0].RestaurantName, Is.EqualTo("Burger Hub"));
+                Assert.That(result.Data.Orders[0].CustomerName, Is.EqualTo("John"));
+                Assert.That(result.Data.Orders[0].OrderStatus, Is.EqualTo(OrderStatus.Placed));
+                Assert.That(result.Data.TotalCount, Is.EqualTo(1));
+                Assert.That(result.Data.Page, Is.EqualTo(1));
+                Assert.That(result.Data.PageSize, Is.EqualTo(10));
+                Assert.That(result.Data.TotalPages, Is.EqualTo(1));
+            });
+        }
     }
 }
