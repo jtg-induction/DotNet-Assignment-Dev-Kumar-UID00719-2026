@@ -22,7 +22,13 @@ namespace dotNetAssignment.Handlers
                             ? x.Key.Substring(x.Key.LastIndexOf('.') + 1)
                             : x.Key,
                         x => x.Value.Errors
-                            .Select(e => e.ErrorMessage)
+                            .Select(e => !string.IsNullOrWhiteSpace(e.ErrorMessage)
+                            ? e.ErrorMessage 
+                            : ExceptionMessages.InvalidValue
+                            +" "
+                            +(x.Key.Contains(".")
+                            ?x.Key.Substring(x.Key.LastIndexOf('.')+1)
+                            :x.Key))
                             .ToList()
                     );
 

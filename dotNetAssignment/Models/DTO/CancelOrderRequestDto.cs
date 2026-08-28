@@ -12,6 +12,6 @@ namespace dotNetAssignment.Models.DTO
         /// The unique identifier of the order to be canceled.
         /// </summary>
         [Required]
-        public Guid? OrderId { get; set; }
+        public Guid OrderId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using dotNetAssignment.Models.Entities;
+﻿using dotNetAssignment.Models.DTO;
+using dotNetAssignment.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -19,6 +20,10 @@ namespace dotNetAssignment.Repositories.OrderRepository
         Task<Order> GetOrderByIdAsync(Guid orderId);
 
         Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(Guid orderId);
+
+        Task<List<Order>> GetOrdersForDashboardAsync(DashboardOrderListRequestDto request, List<Guid> restaurantIds);
+
+        Task<int> GetDashboardOrdersCountAsync(DashboardOrderListRequestDto request, List<Guid> restaurantIds);
 
         DbContextTransaction BeginTransaction();
 

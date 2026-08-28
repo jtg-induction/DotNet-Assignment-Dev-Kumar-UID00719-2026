@@ -561,6 +561,112 @@ namespace dotNetAssignment.Tests.Repositories.RestaurantRepo
                 x => x.SaveChangesAsync(),
                 Times.Once);
         }
+
+
+        [Test]
+        public async Task IsRestaurantOwnerAsync_WhenRestaurantBelongsToOwner_ReturnsTrue()
+        {
+            var restaurantId = Guid.NewGuid();
+            var ownerId = Guid.NewGuid();
+
+            var data = new List<RestaurantOwner>
+            {
+                new RestaurantOwner
+                {
+                    RestaurantId = restaurantId,
+                    UserId = ownerId
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.RestaurantOwners)
+                .Returns(mockSet.Object);
+
+            var result = await _repository.IsRestaurantOwnerAsync(
+                restaurantId,
+                ownerId);
+
+            Assert.That(result, Is.True);
+        }
+
+
+        [Test]
+        public async Task IsRestaurantOwnerAsync_WhenRestaurantDoesNotBelongToOwner_ReturnsFalse()
+        {
+            var restaurantId = Guid.NewGuid();
+            var ownerId = Guid.NewGuid();
+
+            var data = new List<RestaurantOwner>
+            {
+                new RestaurantOwner
+                {
+                    RestaurantId = restaurantId,
+                    UserId = Guid.NewGuid()
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.RestaurantOwners)
+                .Returns(mockSet.Object);
+
+            var result = await _repository.IsRestaurantOwnerAsync(
+                restaurantId,
+                ownerId);
+
+            Assert.That(result, Is.False);
+        }
+
+
+        [Test]
+        public async Task GetAllRestaurantIdsByOwnerIdAsync_ReturnsAllRestaurantsBelongingToOwner()
+        {
+            var ownerId = Guid.NewGuid();
+            var anotherOwnerId = Guid.NewGuid();
+
+            var restaurantId1 = Guid.NewGuid();
+            var restaurantId2 = Guid.NewGuid();
+            var otherRestaurantId = Guid.NewGuid();
+
+            var data = new List<RestaurantOwner>
+            {
+                new RestaurantOwner
+                {
+                    UserId = ownerId,
+                    RestaurantId = restaurantId1
+                },
+                new RestaurantOwner
+                {
+                    UserId = ownerId,
+                    RestaurantId = restaurantId2
+                },
+                new RestaurantOwner
+                {
+                    UserId = anotherOwnerId,
+                    RestaurantId = otherRestaurantId
+                }
+            }.AsQueryable();
+
+            var mockSet = CreateAsyncDbSet(data);
+
+            _context
+                .Setup(x => x.RestaurantOwners)
+                .Returns(mockSet.Object);
+
+            var result =
+                await _repository.GetAllRestaurantIdsByOwnerIdAsync(ownerId);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Count, Is.EqualTo(2));
+                Assert.That(result, Does.Contain(restaurantId1));
+                Assert.That(result, Does.Contain(restaurantId2));
+                Assert.That(result, Does.Not.Contain(otherRestaurantId));
+            });
+        }
     }
 }
 

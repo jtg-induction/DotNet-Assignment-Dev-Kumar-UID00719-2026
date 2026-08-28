@@ -33,5 +33,10 @@ namespace dotNetAssignment.Constants
         public const string SamePhoneNumber = "New phone number can not be same as old phone number";
         public const string UserNotUpdated = "User not updated";
         public const string AddressNotUpdated = "Address not updated";
+        public const string OrderStatusCanNotBeUpdated = "Order status can not be updated";
+        public const string OrderStatusCanNotBeSame = "New order status can not be same as old";
+        public const string OrderDoesNotExist = "Order not found";
+        public const string YouCantPerformThisAction = "You can not perform this action";
+        public const string InvalidValue = "Invalid value for";
     }
 }

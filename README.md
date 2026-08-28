@@ -90,6 +90,8 @@ Update-Database
 | GET    | /api/restaurant/menu/{restaurantId:guid}| Retrieves menu of a specific restaurant           |
 | POST   | /api/restaurant/create                  | Created a new restaurant                          |
 | POST   | /api/restaurant/onboard                 | Onboards a new restaurant owner to a restaurant   |
+| POST   | /api/order/update                       | Updates the order status of an order              |
+| POST   | /api/order/get		                   | Fetches list of orders of an owner's restaurants  |
 
 
 ## Author

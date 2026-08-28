@@ -233,6 +233,9 @@
     <Compile Include="Models\DTO\CancelOrderRequestDto.cs" />
     <Compile Include="Models\DTO\CreateRestaurantRequestDto.cs" />
     <Compile Include="Models\DTO\CreateRestaurantResponseDto.cs" />
+    <Compile Include="Models\DTO\DashboardOrderFilterParamatersDto.cs" />
+    <Compile Include="Models\DTO\DashboardOrderListRequestDto.cs" />
+    <Compile Include="Models\DTO\DashboardOrderListResponseDto.cs" />
     <Compile Include="Models\DTO\MenuListResponseDto.cs" />
     <Compile Include="Models\DTO\MenuResponseDto.cs" />
     <Compile Include="Models\DTO\OnboardNewRestaurantOwnerDto.cs" />
@@ -240,6 +243,7 @@
     <Compile Include="Models\DTO\OrderDetailsResponseDto.cs" />
     <Compile Include="Models\DTO\OrderItemDetailsDto.cs" />
     <Compile Include="Models\DTO\OrderItemsRequestDto.cs" />
+    <Compile Include="Models\DTO\OrderResponseDto.cs" />
     <Compile Include="Models\DTO\OrderRequestDto.cs" />
     <Compile Include="Models\DTO\PlaceOrderResponseDto.cs" />
     <Compile Include="Models\DTO\RestaurantListResponseDto.cs" />
@@ -250,6 +254,7 @@
     </Compile>
     <Compile Include="Models\DTO\AccessTokenRefreshResponse.cs" />
     <Compile Include="Models\DTO\DeactivateAccountRequestDto.cs" />
+    <Compile Include="Models\DTO\UpdateOrderStatusDto.cs" />
     <Compile Include="Models\Entities\RestaurantOwner.cs" />
     <Compile Include="Models\Entities\UserAddress.cs" />
     <Compile Include="Models\DTO\AddressResponseDto.cs" />
@@ -271,6 +276,7 @@
     <Compile Include="Models\Entities\Restaurant.cs" />
     <Compile Include="Models\Entities\User.cs" />
     <Compile Include="Models\Enums\OrderStatus.cs" />
+    <Compile Include="Models\Enums\SortOrdersFields.cs" />
     <Compile Include="Models\Enums\UserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Jwt\IJwtRepository.cs" />
