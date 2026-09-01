@@ -68,6 +68,9 @@ namespace dotNetAssignment
             container.RegisterType<IOrderService, OrderService>(
                 new TransientLifetimeManager());
 
+            container.RegisterType<IReportService, ReportService>(
+                new TransientLifetimeManager());
+
             container.RegisterType<IJwtRepository, JwtRepository>(
                 new HierarchicalLifetimeManager());
 

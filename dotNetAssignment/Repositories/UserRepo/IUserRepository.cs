@@ -1,7 +1,7 @@
-﻿using System;
+﻿using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
+using System;
 using System.Threading.Tasks;
-
-using dotNetAssignment.Models.Entities;
 
 namespace dotNetAssignment.Repositories.UserRepo
 {
@@ -18,6 +18,8 @@ namespace dotNetAssignment.Repositories.UserRepo
         void AddAddress(UserAddress address);
 
         Task<User> GetUserByEmailAsync(string email);
+
+        Task<UserRole?> GetUserRoleByIdAsync(Guid userId);
 
         Task<User> GetUserByIdAsync(Guid userId);
 

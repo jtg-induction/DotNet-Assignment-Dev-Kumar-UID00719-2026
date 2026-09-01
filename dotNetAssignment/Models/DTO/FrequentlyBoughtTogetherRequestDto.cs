@@ -6,12 +6,9 @@ using System.Web;
 
 namespace dotNetAssignment.Models.DTO
 {
-    public class CancelOrderRequestDto
+    public class FrequentlyBoughtTogetherRequestDto
     {
-        /// <summary>
-        /// The unique identifier of the order to be canceled.
-        /// </summary>
         [Required]
-        public Guid? OrderId { get; set; }
+        public string RestaurantId { get; set; }
     }
 }

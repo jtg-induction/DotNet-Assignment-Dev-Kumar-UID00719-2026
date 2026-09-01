@@ -29,7 +29,7 @@ namespace dotNetAssignment
 
             config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
 
-            config.Filters.Add(new ModelStateHandler());
+            config.Filters.Add(new ModelStateFilter());
 
             config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
         }

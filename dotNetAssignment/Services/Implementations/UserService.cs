@@ -49,6 +49,14 @@ namespace dotNetAssignment.Services.Implementations
 
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
+                if(user.Name == request.Name)
+                {
+                    return new ApiResponseDto<string>
+                    {
+                        Success = false,
+                        Message = ExceptionMessages.SameName
+                    };
+                }
                 user.Name = request.Name;
                 updated = true;
             }
@@ -140,8 +148,8 @@ namespace dotNetAssignment.Services.Implementations
         public async Task<ApiResponseDto<string>> UpdateAddressAsync(Guid userId, UpdateAddressRequestDto request)
         {
             var updated = false;
-
-            var address = await _userRepository.GetAddressByIdAsync(request.AddressId);
+            var addressId = request.AddressId.Value;
+            var address = await _userRepository.GetAddressByIdAsync(addressId);
 
             if (address == null || address.UserId != userId)
             {

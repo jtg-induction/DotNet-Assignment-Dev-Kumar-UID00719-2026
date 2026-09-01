@@ -12,12 +12,12 @@ namespace dotNetAssignment.Models.DTO
         /// The ID of the restaurant to be onboarded.
         /// </summary>
         [Required]
-        public Guid RestaurantId { get; set; }
+        public Guid? RestaurantId { get; set; }
 
         /// <summary>
         /// The ID of the owner to be onboarded.
         /// </summary>
         [Required]
-        public Guid OwnerId { get; set; }
+        public Guid? OwnerId { get; set; }
     }
 }

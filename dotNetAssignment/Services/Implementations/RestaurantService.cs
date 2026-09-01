@@ -120,7 +120,8 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>A task representing the failure or success asynchronous operation.</returns>
         public async Task<ApiResponseDto<CreateRestaurantResponseDto>> CreateRestaurantAsync(CreateRestaurantRequestDto request)
         {
-            var owner = await _userRepository.GetUserByIdAsync(request.OwnerId);
+            var ownerId = request.OwnerId.Value;
+            var owner = await _userRepository.GetUserByIdAsync(ownerId);
 
             if (owner == null || !owner.IsActive)
             {
@@ -181,7 +182,8 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>A task representing the failure or success asynchronous operation.</returns>
         public async Task<ApiResponseDto<string>> OnboardNewRestaurantOwnerAsync(OnboardNewRestaurantOwnerDto request)
         {
-            var owner = await _userRepository.GetUserByIdAsync(request.OwnerId);
+            var ownerId = request.OwnerId.Value;
+            var owner = await _userRepository.GetUserByIdAsync(ownerId);
 
             if (owner == null || !owner.IsActive)
             {
@@ -192,7 +194,8 @@ namespace dotNetAssignment.Services.Implementations
                 };
             }
 
-            var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
+            var restaurantId = request.RestaurantId.Value;
+            var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(restaurantId);
 
             if (restaurant == null)
             {
@@ -201,6 +204,11 @@ namespace dotNetAssignment.Services.Implementations
                     Success = false,
                     Message = ExceptionMessages.RestaurantDoesntExists
                 };
+            }
+
+            if(owner.Role == UserRole.Customer)
+            {
+                owner.Role = UserRole.Owner;
             }
 
             var restaurantOwner = new RestaurantOwner
@@ -212,6 +220,7 @@ namespace dotNetAssignment.Services.Implementations
 
             await _restaurantRepository.AddRestaurantOwnerAsync(restaurantOwner);
             await _restaurantRepository.SaveChangesAsync();
+            await _userRepository.SaveChangesAsync();
 
             return new ApiResponseDto<string>
             {

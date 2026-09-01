@@ -229,8 +229,9 @@ namespace dotNetAssignment.Services.Implementations
                 try
                 {
                     var user = await _userRepository.GetUserByIdAsync(userId);
+                    var orderId = request.OrderId.Value;
 
-                    var order = await _orderRepository.GetOrderByIdAsync(request.OrderId);
+                    var order = await _orderRepository.GetOrderByIdAsync(orderId);
                     if (order == null || order.UserId != userId)
                     {
                         return new ApiResponseDto<string>
@@ -286,7 +287,8 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>Response denoting failure or success of the operation.</returns>
         public async Task<ApiResponseDto<string>> UpdateOrderStatusAsync(UpdateOrderStatusDto request, Guid ownerId)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId);
+            var orderId = request.OrderId.Value;
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
             
             if (order == null) 
             {
@@ -344,7 +346,7 @@ namespace dotNetAssignment.Services.Implementations
                 }
             };
 
-            if (!allowedTransitions.TryGetValue(order.Status, out var allowedStatuses) || !allowedStatuses.Contains(request.Status))
+            if (!allowedTransitions.TryGetValue(order.Status, out var allowedStatuses) || !allowedStatuses.Contains(request.Status.Value))
             {
                 return new ApiResponseDto<string>
                 {
@@ -353,7 +355,7 @@ namespace dotNetAssignment.Services.Implementations
                 };
             }
 
-            order.Status = request.Status;
+            order.Status = request.Status.Value;
             order.UpdatedAt = DateTime.UtcNow;
             await _orderRepository.SaveChangesAsync();
 

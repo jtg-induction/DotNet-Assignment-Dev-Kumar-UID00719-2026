@@ -10,7 +10,7 @@ namespace dotNetAssignment.Models.DTO.Address
         /// The unique identifier of the address to be updated.
         /// </summary>
         [Required]
-        public Guid AddressId { get; set; }
+        public Guid? AddressId { get; set; }
 
         /// <summary>
         /// The first line of the address.

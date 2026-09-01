@@ -31,7 +31,7 @@ namespace dotNetAssignment.Models.DTO.SignUp
         /// The password of the user signing up.
         /// </summary>
         [Required]
-        [StringLength(100, MinimumLength = 8)]
+        [StringLength(100)]
         [RegularExpression(Regex.ValidPasswordRegex, ErrorMessage = ExceptionMessages.InvalidPassword)]
         public string Password { get; set; }
 
@@ -39,7 +39,6 @@ namespace dotNetAssignment.Models.DTO.SignUp
         /// The phone number of the user signing up.
         /// </summary>
         [Required]
-        [Phone]
         [RegularExpression(Regex.ValidPhoneNumberRegex, ErrorMessage = ExceptionMessages.InvalidPhoneNumber)]
         public string PhoneNumber { get; set; }
     }

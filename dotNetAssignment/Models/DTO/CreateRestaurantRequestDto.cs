@@ -8,7 +8,7 @@ public class CreateRestaurantRequestDto
     /// The ID of the owner of the restaurant.
     /// </summary>
     [Required]
-    public Guid OwnerId { get; set; }
+    public Guid? OwnerId { get; set; }
 
     /// <summary>
     /// The name of the restaurant being created.

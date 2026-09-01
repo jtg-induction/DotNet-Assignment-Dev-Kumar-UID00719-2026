@@ -105,7 +105,7 @@ namespace dotNetAssignment.Services.Implementations
                 return new ApiResponseDto<AuthenticationResponseDto>
                 {
                     Success = false,
-                    Message = ExceptionMessages.UserNotFound
+                    Message = ExceptionMessages.InvalidEmailOrPassword
                 };
             }
 

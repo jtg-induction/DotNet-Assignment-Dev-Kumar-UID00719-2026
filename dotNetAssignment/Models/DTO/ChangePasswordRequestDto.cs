@@ -21,7 +21,7 @@ namespace dotNetAssignment.Models.DTO
         /// The new password that the user wants to set.
         /// </summary>
         [Required]
-        [StringLength(100, MinimumLength = 8)]
+        [StringLength(100)]
         [RegularExpression(Regex.ValidPasswordRegex, ErrorMessage = ExceptionMessages.InvalidPassword)]
         public string NewPassword { get; set; }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dotNetAssignment.Constants;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace dotNetAssignment.Models.DTO
         /// The quantity of the product to be ordered.
         /// </summary>
         [Required]
-        [Range(1, int.MaxValue)]
+        [Range(1, int.MaxValue, ErrorMessage = ExceptionMessages.QuantityGreaterThanOne)]
         public int Quantity { get; set; }
     }
 }

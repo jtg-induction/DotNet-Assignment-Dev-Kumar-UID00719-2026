@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Security;
 
 namespace dotNetAssignment.Controllers
 {
@@ -18,7 +19,6 @@ namespace dotNetAssignment.Controllers
     public class OrderController : ApiController
     {
         private readonly IOrderService _orderService;
-        private const string Owner = "Owner";
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
@@ -107,7 +107,7 @@ namespace dotNetAssignment.Controllers
         /// </summary>
         /// <param name="request">Request contains id of the order to update and the new order status to which it has to be updated.</param>
         /// <returns>Returns failure or success response of the operation</returns>
-        [Authorize(Roles = Owner)]
+        [Authorize(Roles = "Owner,Admin")]
         [ActiveUserFilter]
         [HttpPost]
         [Route("update")]
@@ -140,7 +140,7 @@ namespace dotNetAssignment.Controllers
         /// </summary>
         /// <param name="request">Request contains pagination, sorting, filtering and searching parameters.</param>
         /// <returns>Returns failure or success response of the operation</returns>
-        [Authorize(Roles = Owner)]
+        [Authorize(Roles = "Owner,Admin")]
         [ActiveUserFilter]
         [HttpGet]
         [Route("get")]

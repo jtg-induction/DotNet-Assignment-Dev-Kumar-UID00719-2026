@@ -38,5 +38,7 @@ namespace dotNetAssignment.Constants
         public const string OrderDoesNotExist = "Order not found";
         public const string YouCantPerformThisAction = "You can not perform this action";
         public const string InvalidValue = "Invalid value for";
+        public const string QuantityGreaterThanOne = "Quantity should be atleast one";
+        public const string SameName = "New name can not be same as old name";
     }
 }

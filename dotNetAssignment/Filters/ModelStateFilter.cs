@@ -8,7 +8,7 @@ using dotNetAssignment.Constants;
 
 namespace dotNetAssignment.Handlers
 {
-    public class ModelStateHandler : ActionFilterAttribute
+    public class ModelStateFilter : ActionFilterAttribute
     {
         public override void OnActionExecuting(
             HttpActionContext actionContext)

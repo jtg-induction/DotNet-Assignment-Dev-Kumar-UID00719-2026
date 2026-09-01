@@ -13,12 +13,12 @@ namespace dotNetAssignment.Models.DTO
         /// The unique identifier of the order to be updated.
         /// </summary>
         [Required]
-        public Guid OrderId { get; set; }
+        public Guid? OrderId { get; set; }
 
         /// <summary>
         /// The new status of the order.
         /// </summary>
         [Required]
-        public OrderStatus Status { get; set; }
+        public OrderStatus? Status { get; set; }
     }
 }

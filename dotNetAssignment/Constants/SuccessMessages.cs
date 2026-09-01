@@ -23,5 +23,6 @@ namespace dotNetAssignment.Constants
         public const string RestaurantCreated = "Restaurant created successfully";
         public const string OrderStatusUpdated = "Order status updated successfully";
         public const string OrdersFetched = "Orders fetched successfully";
+        public const string ReportGenerated = "Report Generated Successfully";
     }
 }

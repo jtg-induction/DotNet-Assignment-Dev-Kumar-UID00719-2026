@@ -38,7 +38,7 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                if(response.Message == ExceptionMessages.SamePhoneNumber || response.Message == ExceptionMessages.UserNotUpdated || response.Message == ExceptionMessages.PhoneNumberAlreadyExists)
+                if(response.Message == ExceptionMessages.SamePhoneNumber || response.Message == ExceptionMessages.SameName || response.Message == ExceptionMessages.UserNotUpdated || response.Message == ExceptionMessages.PhoneNumberAlreadyExists)
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }

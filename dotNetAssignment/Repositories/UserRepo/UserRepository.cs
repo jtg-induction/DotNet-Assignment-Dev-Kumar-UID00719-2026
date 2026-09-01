@@ -1,9 +1,10 @@
-﻿using System;
-using System.Data.Entity;
-using System.Threading.Tasks;
-
-using dotNetAssignment.Data;
+﻿using dotNetAssignment.Data;
 using dotNetAssignment.Models.Entities;
+using dotNetAssignment.Models.Enums;
+using System;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace dotNetAssignment.Repositories.UserRepo
 {
@@ -75,6 +76,15 @@ namespace dotNetAssignment.Repositories.UserRepo
         public async Task<User> GetUserByEmailAsync(string email)
         {
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email.ToLower());
+        }
+
+
+        public async Task<UserRole?> GetUserRoleByIdAsync(Guid userId)
+        {
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => (UserRole?)u.Role)
+                .FirstOrDefaultAsync();
         }
 
         /// <summary>
