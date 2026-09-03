@@ -66,12 +66,11 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = Guid.NewGuid(),
                 OrderItems = new List<OrderItemsRequestDto>()
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -111,12 +110,11 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>()
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -162,12 +160,11 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>()
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -227,7 +224,6 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>
                 {
@@ -239,7 +235,7 @@ namespace dotNetAssignment.Tests.Services
                 }
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -310,7 +306,6 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>
                 {
@@ -322,7 +317,7 @@ namespace dotNetAssignment.Tests.Services
                 }
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -387,7 +382,6 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>
                 {
@@ -399,7 +393,7 @@ namespace dotNetAssignment.Tests.Services
                 }
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {
@@ -464,7 +458,6 @@ namespace dotNetAssignment.Tests.Services
 
             var request = new OrderRequestDto
             {
-                RestaurantId = restaurantId,
                 AddressId = addressId,
                 OrderItems = new List<OrderItemsRequestDto>
                 {
@@ -476,7 +469,7 @@ namespace dotNetAssignment.Tests.Services
                 }
             };
 
-            var result = await _orderService.PlaceOrder(request, _userId);
+            var result = await _orderService.PlaceOrder(restaurantId, request, _userId);
 
             Assert.Multiple(() =>
             {

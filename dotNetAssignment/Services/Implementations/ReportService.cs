@@ -1,6 +1,7 @@
 ﻿using dotNetAssignment.Constants;
 using dotNetAssignment.Models.DTO;
 using dotNetAssignment.Models.Enums;
+using dotNetAssignment.Reports;
 using dotNetAssignment.Repositories.OrderRepository;
 using dotNetAssignment.Repositories.RestaurantRepo;
 using dotNetAssignment.Repositories.UserRepo;
@@ -67,15 +68,7 @@ namespace dotNetAssignment.Services.Implementations
                 }
             }
 
-            var reportPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reports", "FrequentlyBoughtTogether.trdp");
-            var reportPackager = new ReportPackager();
-
-            Telerik.Reporting.Report report;
-
-            using (var stream = File.OpenRead(reportPath))
-            {
-                report = (Telerik.Reporting.Report)reportPackager.UnpackageDocument(stream);
-            }
+            var report = new FrequentlyBoughtTogetherReport();
 
             report.ReportParameters["RestaurantId"].Value = request?.RestaurantId ?? "";
             var reportProcessor = new ReportProcessor();

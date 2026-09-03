@@ -13,13 +13,13 @@ namespace dotNetAssignment.Models.DTO
         /// The unique identifier of the product to be ordered.
         /// </summary>
         [Required]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         /// <summary>
         /// The quantity of the product to be ordered.
         /// </summary>
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = ExceptionMessages.QuantityGreaterThanOne)]
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
     }
 }

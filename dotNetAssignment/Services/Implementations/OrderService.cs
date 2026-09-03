@@ -37,14 +37,14 @@ namespace dotNetAssignment.Services.Implementations
         /// <param name="request">The order request details.</param>
         /// <param name="userId">The ID of the user placing the order.</param>
         /// <returns>The result of the order placement operation.</returns>
-        public async Task<ApiResponseDto<PlaceOrderResponseDto>> PlaceOrder(OrderRequestDto request, Guid userId)
+        public async Task<ApiResponseDto<PlaceOrderResponseDto>> PlaceOrder(Guid restaurantId, OrderRequestDto request, Guid userId)
         {
             using (var transaction = _orderRepository.BeginTransaction())
             {
                 try
                 {
                     var user = await _userRepository.GetUserForUpdateAsync(userId);
-                    var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(request.RestaurantId);
+                    var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(restaurantId);
 
                     if (restaurant == null)
                     {
@@ -69,7 +69,7 @@ namespace dotNetAssignment.Services.Implementations
                     {
                         Id = Guid.NewGuid(),
                         UserId = userId,
-                        RestaurantId = request.RestaurantId,
+                        RestaurantId = restaurantId,
                         Status = OrderStatus.Placed,
                         PlacedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
@@ -80,33 +80,45 @@ namespace dotNetAssignment.Services.Implementations
                         State = address.State,
                     };
 
-                    var orderItemIds = request.OrderItems.Select(oi => oi.Id).ToList();
+                    var orderItemIds = request.OrderItems.Select(oi => oi.Id.Value).ToList();
                     var menuItems = await _orderRepository.GetAllMenuItemsByOrderIdAsync(orderItemIds);
+                    var errors = new Dictionary<string, List<string>>();
 
                     var totalPrice = 0m;
-                    foreach (OrderItemsRequestDto item in request.OrderItems)
+                    for (int i = 0 ; i < request.OrderItems.Count; i++)
                     {
-                        var menuItem = menuItems.Find(mi => mi.Id == item.Id);
-                        if (menuItem == null || menuItem.RestaurantId != request.RestaurantId)
+                        var item = request.OrderItems[i];
+                        var menuItem = menuItems.Find(mi => mi.Id == item.Id.Value);
+                        if (menuItem == null || menuItem.RestaurantId != restaurantId)
                         {
-                            return new ApiResponseDto<PlaceOrderResponseDto>
+                            errors[$"orderItems[{i}]"] = new List<string>
                             {
-                                Success = false,
-                                Message = ExceptionMessages.MenuItemDoesntExists
+                                ExceptionMessages.MenuItemDoesntExists
                             };
+                            continue;
                         }
 
 
-                        if (item.Quantity > menuItem.QuantityAvailable)
+                        if (item.Quantity.Value > menuItem.QuantityAvailable)
                         {
-                            return new ApiResponseDto<PlaceOrderResponseDto>
+                            errors[$"orderItems[{i}].quantity"] = new List<string>
                             {
-                                Success = false,
-                                Message = ExceptionMessages.InsufficientStock
+                                ExceptionMessages.AvailableQuantityIs + menuItem.QuantityAvailable
                             };
+                            continue;
                         }
 
-                        totalPrice += menuItem.Price * item.Quantity;
+                        totalPrice += menuItem.Price * item.Quantity.Value;
+                    }
+
+                    if (errors.Any())
+                    {
+                        return new ApiResponseDto<PlaceOrderResponseDto>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.InvalidOrderItems,
+                            Error = errors
+                        };
                     }
 
                     if(totalPrice > user.Balance)
@@ -120,21 +132,21 @@ namespace dotNetAssignment.Services.Implementations
 
                     foreach (OrderItemsRequestDto item in request.OrderItems)
                     {
-                        var menuItem = menuItems.Find(mi => mi.Id == item.Id);
+                        var menuItem = menuItems.Find(mi => mi.Id == item.Id.Value);
 
-                        var price = menuItem.Price * item.Quantity;
+                        var price = menuItem.Price * item.Quantity.Value;
 
                         var OrderItem = new OrderItem
                         {
                             Id = Guid.NewGuid(),
                             OrderId = order.Id,
                             MenuId = menuItem.Id,
-                            Quantity = item.Quantity,
+                            Quantity = item.Quantity.Value,
                             Price = menuItem.Price
                         };
 
                         user.Balance -= price;
-                        menuItem.QuantityAvailable -= item.Quantity;
+                        menuItem.QuantityAvailable -= item.Quantity.Value;
                         _orderRepository.AddOrderItem(OrderItem);
                     }
 
@@ -241,6 +253,15 @@ namespace dotNetAssignment.Services.Implementations
                         };
                     }
 
+                    if (order.Status == OrderStatus.Cancelled)
+                    {
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderAlreadyCancelled
+                        };
+                    }
+
                     if (order.Status != OrderStatus.Placed)
                     {
                         return new ApiResponseDto<string>
@@ -287,83 +308,118 @@ namespace dotNetAssignment.Services.Implementations
         /// <returns>Response denoting failure or success of the operation.</returns>
         public async Task<ApiResponseDto<string>> UpdateOrderStatusAsync(UpdateOrderStatusDto request, Guid ownerId)
         {
-            var orderId = request.OrderId.Value;
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            using (var transaction = _orderRepository.BeginTransaction())
+            {
+                try
+                {
+                    var orderId = request.OrderId.Value;
+                    var order = await _orderRepository.GetOrderByIdAsync(orderId);
             
-            if (order == null) 
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.OrderDoesNotExist
-                };
-            }
-
-            bool isRestaurantOwner = await _restaurantRepository.IsRestaurantOwnerAsync(order.RestaurantId, ownerId);
-            if (!isRestaurantOwner)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.YouCantPerformThisAction
-                };
-            }
-
-            if(order.Status == request.Status)
-            {
-                return new ApiResponseDto<string>
-                {
-                    Success = false,
-                    Message = ExceptionMessages.OrderStatusCanNotBeSame
-                };
-            }
-
-            var allowedTransitions = new Dictionary<OrderStatus, OrderStatus[]>
-            {
-                {
-                    OrderStatus.Placed,
-                    new[]
+                    if (order == null) 
                     {
-                        OrderStatus.Accepted,
-                        OrderStatus.Rejected
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderDoesNotExist
+                        };
                     }
-                },
-                {
-                    OrderStatus.Accepted,
-                    new[]
+
+                    bool isRestaurantOwner = await _restaurantRepository.IsRestaurantOwnerAsync(order.RestaurantId, ownerId);
+                    if (!isRestaurantOwner)
                     {
-                        OrderStatus.Dispatched,
-                        OrderStatus.Rejected
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderDoesNotExist
+                        };
                     }
-                },
-                {
-                    OrderStatus.Dispatched,
-                    new[]
+
+                    if(order.Status == request.Status)
                     {
-                        OrderStatus.Delivered,
-                        OrderStatus.Rejected
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderStatusCanNotBeSame
+                        };
                     }
+
+                    var allowedTransitions = new Dictionary<OrderStatus, OrderStatus[]>
+                    {
+                        {
+                            OrderStatus.Placed,
+                            new[]
+                            {
+                                OrderStatus.Accepted,
+                                OrderStatus.Rejected
+                            }
+                        },
+                        {
+                            OrderStatus.Accepted,
+                            new[]
+                            {
+                                OrderStatus.Dispatched,
+                                OrderStatus.Rejected
+                            }
+                        },
+                        {
+                            OrderStatus.Dispatched,
+                            new[]
+                            {
+                                OrderStatus.Delivered,
+                                OrderStatus.Rejected
+                            }
+                        }
+                    };
+
+                    if (!allowedTransitions.TryGetValue(order.Status, out var allowedStatuses) || !allowedStatuses.Contains(request.Status.Value))
+                    {
+                        return new ApiResponseDto<string>
+                        {
+                            Success = false,
+                            Message = ExceptionMessages.OrderStatusCanNotBeUpdated
+                        };
+                    }
+
+                    if(request.Status.Value == OrderStatus.Rejected)
+                    {
+                        var orderItems = await _orderRepository.GetOrderItemsByOrderIdAsync(order.Id);
+                        var menuItemIds = orderItems.Select(x => x.MenuId).ToList();
+                        var menuItems = await _orderRepository.GetAllMenuItemsByOrderIdAsync(menuItemIds);
+                        var user = await _userRepository.GetUserForUpdateAsync(order.UserId);
+
+                        foreach (var item in orderItems)
+                        {
+                            var refundAmount = item.Price * item.Quantity;
+                            user.Balance += refundAmount;
+
+                            var menuItem = menuItems.Find(x => x.Id == item.MenuId);
+
+                            if (menuItem != null)
+                            {
+                                menuItem.QuantityAvailable += item.Quantity;
+                            }
+                        }    
+                    }
+
+                    order.Status = request.Status.Value;
+                    order.UpdatedAt = DateTime.UtcNow;
+                    await _orderRepository.SaveChangesAsync();
+                    await _userRepository.SaveChangesAsync();
+
+                    transaction.Commit();
+
+                    return new ApiResponseDto<string>
+                    {
+                        Success = true,
+                        Message = SuccessMessages.OrderStatusUpdated
+                    };
                 }
-            };
-
-            if (!allowedTransitions.TryGetValue(order.Status, out var allowedStatuses) || !allowedStatuses.Contains(request.Status.Value))
-            {
-                return new ApiResponseDto<string>
+                catch
                 {
-                    Success = false,
-                    Message = ExceptionMessages.OrderStatusCanNotBeUpdated
-                };
+                    transaction.Rollback();
+                    throw;
+                }
             }
-
-            order.Status = request.Status.Value;
-            order.UpdatedAt = DateTime.UtcNow;
-            await _orderRepository.SaveChangesAsync();
-
-            return new ApiResponseDto<string>
-            {
-                Success = true,
-                Message = SuccessMessages.OrderStatusUpdated
-            };
         }
 
         /// <summary>

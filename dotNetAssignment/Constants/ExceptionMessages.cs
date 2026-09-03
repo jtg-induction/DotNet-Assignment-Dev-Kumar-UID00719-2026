@@ -23,6 +23,7 @@ namespace dotNetAssignment.Constants
         public const string RestaurantDoesntExists = "Restaurant doesn't exist";
         public const string OrderDoesntExists = "Order doesn't exist";
         public const string MenuItemDoesntExists = "Item doesn't exists";
+        public const string InvalidOrderItems = "Invalid order items";
         public const string InsufficientBalance = "Insufficient Balance";
         public const string InsufficientStock = "Insufficient Stock";
         public const string AddressNotFound = "Address not found";
@@ -40,5 +41,7 @@ namespace dotNetAssignment.Constants
         public const string InvalidValue = "Invalid value for";
         public const string QuantityGreaterThanOne = "Quantity should be atleast one";
         public const string SameName = "New name can not be same as old name";
+        public const string AvailableQuantityIs = "Available quanity for this item is ";
+        public const string OrderAlreadyCancelled = "Order is already cancelled";
     }
 }

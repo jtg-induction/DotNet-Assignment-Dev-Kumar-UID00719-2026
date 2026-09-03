@@ -1,4 +1,6 @@
-﻿namespace dotNetAssignment.Models.DTO
+﻿using System.Collections.Generic;
+
+namespace dotNetAssignment.Models.DTO
 {
     public class ApiResponseDto<T>
     {
@@ -20,6 +22,6 @@
         /// <summary>
         /// Contains the error information, if the API request failed.
         /// </summary>
-        public T Error { get; set; }
+        public Dictionary<string, List<string>> Error { get; set; }
     }
 }

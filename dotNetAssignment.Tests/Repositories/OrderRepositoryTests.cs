@@ -326,7 +326,7 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
                 SortOrder = "desc"
             };
 
-            request.Filter.Status = OrderStatus.Accepted;
+            request.Status = OrderStatus.Accepted;
 
             var result = await _repository.GetOrdersForDashboardAsync(
                 request,
@@ -341,12 +341,12 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
 
 
         [Test]
-        public async Task GetOrdersForDashboardAsync_FiltersByPlacedAtDate()
+        public async Task GetOrdersForDashboardAsync_FiltersByDateRange()
         {
             var restaurantId = Guid.NewGuid();
 
-            var targetDate = new DateTime(2026, 8, 26);
-            var nextDate = targetDate.AddDays(1);
+            var fromDate = new DateTime(2026, 8, 26);
+            var toDate = new DateTime(2026, 8, 27);
 
             var data = new List<Order>
             {
@@ -355,21 +355,21 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Status = OrderStatus.Placed,
-                    PlacedAt = targetDate.AddHours(5)
+                    PlacedAt = fromDate.AddHours(5)
                 },
                 new Order
                 {
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Status = OrderStatus.Accepted,
-                    PlacedAt = targetDate.AddHours(10)
+                    PlacedAt = fromDate.AddHours(10)
                 },
                 new Order
                 {
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Status = OrderStatus.Dispatched,
-                    PlacedAt = nextDate.AddHours(2)
+                    PlacedAt = toDate.AddHours(2)
                 }
             }.AsQueryable();
 
@@ -381,10 +381,10 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
                 Page = 1,
                 PageSize = 10,
                 SortBy = SortOrdersFields.PlacedAt,
-                SortOrder = "desc"
+                SortOrder = "desc",
+                FromDate = fromDate,
+                ToDate = fromDate
             };
-
-            request.Filter.PlacedAt = targetDate.AddHours(15);
 
             var result = await _repository.GetOrdersForDashboardAsync(
                 request,
@@ -394,14 +394,14 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
             {
                 Assert.That(result.Count, Is.EqualTo(2));
                 Assert.That(result.All(x =>
-                    x.PlacedAt >= targetDate &&
-                    x.PlacedAt < nextDate), Is.True);
+                    x.PlacedAt >= fromDate &&
+                    x.PlacedAt < fromDate.AddDays(1)), Is.True);
             });
         }
 
 
         [Test]
-        public async Task GetOrdersForDashboardAsync_FiltersBySearchOrderId()
+        public async Task GetOrdersForDashboardAsync_FiltersBySearchOrderIds()
         {
             var restaurantId = Guid.NewGuid();
             var searchOrderId = Guid.NewGuid();
@@ -431,7 +431,7 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
             {
                 Page = 1,
                 PageSize = 10,
-                SearchOrderId = searchOrderId,
+                SearchOrderIds = searchOrderId.ToString(),
                 SortBy = SortOrdersFields.PlacedAt,
                 SortOrder = "desc"
             };
@@ -776,7 +776,7 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
                 PageSize = 10
             };
 
-            request.Filter.Status = OrderStatus.Accepted;
+            request.Status = OrderStatus.Accepted;
 
             var result = await _repository.GetDashboardOrdersCountAsync(
                 request,
@@ -787,12 +787,12 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
 
 
         [Test]
-        public async Task GetDashboardOrdersCountAsync_FiltersByPlacedAtDate()
+        public async Task GetDashboardOrdersCountAsync_FiltersByDateRange()
         {
             var restaurantId = Guid.NewGuid();
 
-            var targetDate = new DateTime(2026, 8, 26);
-            var nextDate = targetDate.AddDays(1);
+            var fromDate = new DateTime(2026, 8, 26);
+            var toDate = new DateTime(2026, 8, 27);
 
             var data = new List<Order>
             {
@@ -800,19 +800,19 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
                 {
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
-                    PlacedAt = targetDate.AddHours(5)
+                    PlacedAt = fromDate.AddHours(5)
                 },
                 new Order
                 {
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
-                    PlacedAt = targetDate.AddHours(10)
+                    PlacedAt = fromDate.AddHours(10)
                 },
                 new Order
                 {
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
-                    PlacedAt = nextDate.AddHours(2)
+                    PlacedAt = fromDate.AddHours(2)
                 }
             }.AsQueryable();
 
@@ -822,10 +822,10 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
             var request = new DashboardOrderListRequestDto
             {
                 Page = 1,
-                PageSize = 10
+                PageSize = 10,
+                FromDate = fromDate,
+                ToDate = fromDate
             };
-
-            request.Filter.PlacedAt = targetDate;
 
             var result = await _repository.GetDashboardOrdersCountAsync(
                 request,
@@ -864,7 +864,7 @@ namespace dotNetAssignment.Tests.Repositories.OrderRepo
             {
                 Page = 1,
                 PageSize = 10,
-                SearchOrderId = searchOrderId
+                SearchOrderIds = searchOrderId.ToString()
             };
 
             var result = await _repository.GetDashboardOrdersCountAsync(

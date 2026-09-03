@@ -110,7 +110,7 @@ namespace dotNetAssignment.Controllers
 
             if (!response.Success)
             {
-                if (response.Message == ExceptionMessages.UserNotFound || response.Message == ExceptionMessages.RestaurantDoesntExists)
+                if (response.Message == ExceptionMessages.InvalidRequest)
                 {
                     return Content(HttpStatusCode.NotFound, response);
                 }

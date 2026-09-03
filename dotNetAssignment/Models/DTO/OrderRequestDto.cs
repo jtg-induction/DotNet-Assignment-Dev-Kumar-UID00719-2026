@@ -9,12 +9,6 @@ namespace dotNetAssignment.Models.DTO
     public class OrderRequestDto
     {
         /// <summary>
-        /// The unique identifier of the restaurant where the order is being placed.
-        /// </summary>
-        [Required]
-        public Guid RestaurantId { get; set; }
-
-        /// <summary>
         /// The unique identifier of the address where the order should be delivered.
         /// </summary>
         [Required]

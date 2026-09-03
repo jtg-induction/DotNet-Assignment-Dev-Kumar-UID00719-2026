@@ -35,15 +35,15 @@ namespace dotNetAssignment.Controllers
         [Authorize]
         [ActiveUserFilter]
         [HttpPost]
-        [Route("place")]
-        public async Task<IHttpActionResult> PlaceOrder(OrderRequestDto request)
+        [Route("{restaurantId}")]
+        public async Task<IHttpActionResult> PlaceOrder([FromUri] Guid restaurantId, [FromBody] OrderRequestDto request)
         {
             var userId = Guid.Parse(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier).Value);
-            var response = await _orderService.PlaceOrder(request, userId);
+            var response = await _orderService.PlaceOrder(restaurantId, request, userId);
             
             if (!response.Success)
             {
-                if (response.Message == ExceptionMessages.InsufficientBalance || response.Message == ExceptionMessages.InsufficientStock)
+                if (response.Message == ExceptionMessages.InsufficientBalance || response.Message==ExceptionMessages.InvalidOrderItems)
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -92,7 +92,7 @@ namespace dotNetAssignment.Controllers
             var response = await _orderService.CancelOrder(request, userId);
             if (!response.Success)
             {
-                if(response.Message == ExceptionMessages.OrderCannotBeCancelled)
+                if(response.Message == ExceptionMessages.OrderCannotBeCancelled || response.Message == ExceptionMessages.OrderAlreadyCancelled)
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -121,10 +121,6 @@ namespace dotNetAssignment.Controllers
                 if(response.Message == ExceptionMessages.OrderDoesNotExist)
                 {
                     return Content(HttpStatusCode.NotFound, response);
-                }
-                if (response.Message == ExceptionMessages.YouCantPerformThisAction)
-                {
-                    return Content(HttpStatusCode.Forbidden, response);
                 }
                 if (response.Message == ExceptionMessages.OrderStatusCanNotBeSame || response.Message == ExceptionMessages.OrderStatusCanNotBeUpdated)
                 {

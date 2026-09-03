@@ -184,13 +184,13 @@ namespace dotNetAssignment.Services.Implementations
         {
             var ownerId = request.OwnerId.Value;
             var owner = await _userRepository.GetUserByIdAsync(ownerId);
+            var errors = new Dictionary<string, List<string>>();
 
             if (owner == null || !owner.IsActive)
             {
-                return new ApiResponseDto<string>
+                errors["ownerId"] = new List<string>
                 {
-                    Success = false,
-                    Message = ExceptionMessages.UserNotFound
+                    ExceptionMessages.UserNotFound
                 };
             }
 
@@ -199,10 +199,19 @@ namespace dotNetAssignment.Services.Implementations
 
             if (restaurant == null)
             {
+                errors["restaurantId"] = new List<string>
+                {
+                    ExceptionMessages.RestaurantDoesntExists
+                };
+            }
+
+            if (errors.Any())
+            {
                 return new ApiResponseDto<string>
                 {
                     Success = false,
-                    Message = ExceptionMessages.RestaurantDoesntExists
+                    Message = ExceptionMessages.InvalidRequest,
+                    Error = errors
                 };
             }
 

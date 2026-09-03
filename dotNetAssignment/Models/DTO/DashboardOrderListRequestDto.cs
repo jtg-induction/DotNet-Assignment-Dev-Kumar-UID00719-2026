@@ -21,7 +21,7 @@ namespace dotNetAssignment.Models.DTO
         /// <summary>
         /// Order id used to search order.
         /// </summary>
-        public Guid? SearchOrderId { get; set; } 
+        public string SearchOrderIds { get; set; } 
 
         /// <summary>
         /// Fields by which orders are to be sorted.
@@ -34,8 +34,18 @@ namespace dotNetAssignment.Models.DTO
         public string SortOrder { get; set; } = "desc";
 
         /// <summary>
-        /// Filtering parameters for the orders.
+        /// Status used to filter the order.
         /// </summary>
-        public DashboardOrderFilterParamatersDto Filter { get; set; } = new DashboardOrderFilterParamatersDto();
+        public OrderStatus? Status { get; set; }
+
+        /// <summary>
+        /// Start date used to filter the order.
+        /// </summary>
+        public DateTime? FromDate { get; set; }
+
+        /// <summary>
+        /// End date used to filter the order.
+        /// </summary>
+        public DateTime? ToDate { get; set; }
     }
 }

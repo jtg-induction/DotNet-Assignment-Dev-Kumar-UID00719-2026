@@ -299,6 +299,12 @@
     <Compile Include="Models\Enums\SortOrdersFields.cs" />
     <Compile Include="Models\Enums\UserRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reports\FrequentlyBoughtTogetherReport.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\FrequentlyBoughtTogetherReport.Designer.cs">
+      <DependentUpon>FrequentlyBoughtTogetherReport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Repositories\Jwt\IJwtRepository.cs" />
     <Compile Include="Repositories\Jwt\JwtRepository.cs" />
     <Compile Include="Repositories\OrderRepository\IOrderRepository.cs" />
@@ -351,6 +357,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.resx">
       <DependentUpon>202608171159418_AddQuantityAvailableAndChangeRestaurantRatingToDecimal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Reports\FrequentlyBoughtTogetherReport.resx">
+      <DependentUpon>FrequentlyBoughtTogetherReport.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

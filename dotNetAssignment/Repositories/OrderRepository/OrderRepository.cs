@@ -87,29 +87,35 @@ namespace dotNetAssignment.Repositories.OrderRepository
         {
             var query = _context.Orders.AsNoTracking().Include(o => o.User).Include(o => o.Restaurant).Where(o => restaurantIds.Contains(o.RestaurantId));
         
-            if(request.Filter.Status != null)
+            if(request.Status != null)
             {
-                query = query.Where(o => o.Status == request.Filter.Status);
+                query = query.Where(o => o.Status == request.Status);
             }
-            if (request.Filter.PlacedAt != null)
+            if (request.FromDate != null)
             {
-                var date = request.Filter.PlacedAt.Value.Date;
-                var nextDate = date.AddDays(1);
-                query = query.Where(o => o.PlacedAt >= date && o.PlacedAt < nextDate);
+                var fromDate = request.FromDate.Value.Date;
+                query = query.Where(o => o.PlacedAt >= fromDate);
             }
-            else
+            if (request.ToDate != null)
             {
-                var currentDate = DateTime.UtcNow.Date;
-                var tommorow = currentDate.AddDays(1);
-                query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+                var toDate = request.ToDate.Value.Date.AddDays(1);
+                query = query.Where(o => o.PlacedAt < toDate);
             }
 
-            if (request.SearchOrderId != null)
+            //else
+            //{
+            //    var currentDate = DateTime.UtcNow.Date;
+            //    var tommorow = currentDate.AddDays(1);
+            //    query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+            //}
+
+            if (!string.IsNullOrWhiteSpace(request.SearchOrderIds))
             {
-                query = query.Where(o => o.Id == request.SearchOrderId);
+                var searchOrderIds = request.SearchOrderIds.Split(',').Select(id => Guid.Parse(id.Trim())).ToList();
+                query = query.Where(o => searchOrderIds.Contains(o.Id));
             }
 
-            if(request.SortBy == SortOrdersFields.Status)
+            if (request.SortBy == SortOrdersFields.Status)
             {
                 var statusOrder = query.Select(o => new
                 {
@@ -161,26 +167,31 @@ namespace dotNetAssignment.Repositories.OrderRepository
         {
             var query = _context.Orders.AsNoTracking().Where(o => restaurantIds.Contains(o.RestaurantId));
 
-           if (request.Filter.Status != null)
+           if (request.Status != null)
             {
-                query = query.Where(o => o.Status == request.Filter.Status);
+                query = query.Where(o => o.Status == request.Status);
             }
-            if (request.Filter.PlacedAt != null)
+            if (request.FromDate != null)
             {
-                var date = request.Filter.PlacedAt.Value.Date;
-                var nextDate = date.AddDays(1);
-                query = query.Where(o => o.PlacedAt >= date && o.PlacedAt < nextDate);
+                var fromDate = request.FromDate.Value.Date;
+                query = query.Where(o => o.PlacedAt >= fromDate);
             }
-            else
+            if (request.ToDate != null)
             {
-                var currentDate = DateTime.UtcNow.Date;
-                var tommorow = currentDate.AddDays(1);
-                query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+                var toDate = request.ToDate.Value.Date.AddDays(1);
+                query = query.Where(o => o.PlacedAt < toDate);
             }
+            //else
+            //{
+            //    var currentDate = DateTime.UtcNow.Date;
+            //    var tommorow = currentDate.AddDays(1);
+            //    query = query.Where(o => o.PlacedAt >= currentDate && o.PlacedAt < tommorow);
+            //}
 
-            if (request.SearchOrderId != null)
+            if (!string.IsNullOrWhiteSpace(request.SearchOrderIds))
             {
-                query = query.Where(o => o.Id == request.SearchOrderId);
+                var searchOrderIds = request.SearchOrderIds.Split(',').Select(id => Guid.Parse(id.Trim())).ToList();
+                query = query.Where(o => searchOrderIds.Contains(o.Id));
             }
 
             return await query.CountAsync();

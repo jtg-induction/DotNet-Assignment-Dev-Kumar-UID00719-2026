@@ -50,6 +50,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task PlaceOrder_WhenSuccessful_ReturnsOk()
         {
             var request = new OrderRequestDto();
+            var restaurantId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<PlaceOrderResponseDto>
                 {
@@ -57,14 +58,14 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.PlaceOrder(request, _userId))
+                .Setup(x => x.PlaceOrder(restaurantId, request, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.PlaceOrder(request);
+            var result = await _orderController.PlaceOrder(restaurantId, request);
 
             Assert.That(result, Is.TypeOf<OkNegotiatedContentResult<ApiResponseDto<PlaceOrderResponseDto>>>());
             
-            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
+            _orderService.Verify(x => x.PlaceOrder(restaurantId, request, _userId), Times.Once);
         }
 
 
@@ -72,6 +73,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task PlaceOrder_WhenBalanceIsInsufficient_ReturnsBadRequest()
         {
             var request = new OrderRequestDto();
+            var restaurantId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<PlaceOrderResponseDto>
                 {
@@ -80,10 +82,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.PlaceOrder(request, _userId))
+                .Setup(x => x.PlaceOrder(restaurantId, request, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.PlaceOrder(request);
+            var result = await _orderController.PlaceOrder(restaurantId, request);
 
             var badRequest =
                 result as NegotiatedContentResult<
@@ -102,7 +104,7 @@ namespace dotNetAssignment.Tests.Controllers
                         ExceptionMessages.InsufficientBalance));
             });
 
-            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
+            _orderService.Verify(x => x.PlaceOrder(restaurantId, request, _userId), Times.Once);
         }
 
 
@@ -110,6 +112,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task PlaceOrder_WhenStockIsInsufficient_ReturnsBadRequest()
         {
             var request = new OrderRequestDto();
+            var restaurantId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<PlaceOrderResponseDto>
                 {
@@ -118,10 +121,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.PlaceOrder(request, _userId))
+                .Setup(x => x.PlaceOrder(restaurantId, request, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.PlaceOrder(request);
+            var result = await _orderController.PlaceOrder(restaurantId, request);
 
             var badRequest =
                 result as NegotiatedContentResult<
@@ -140,7 +143,7 @@ namespace dotNetAssignment.Tests.Controllers
                         ExceptionMessages.InsufficientStock));
             });
 
-            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
+            _orderService.Verify(x => x.PlaceOrder(restaurantId, request, _userId), Times.Once);
         }
 
 
@@ -148,6 +151,7 @@ namespace dotNetAssignment.Tests.Controllers
         public async Task PlaceOrder_WhenOtherFailureOccurs_ReturnsNotFound()
         {
             var request = new OrderRequestDto();
+            var restaurantId = Guid.NewGuid();
             var response =
                 new ApiResponseDto<PlaceOrderResponseDto>
                 {
@@ -156,10 +160,10 @@ namespace dotNetAssignment.Tests.Controllers
                 };
 
             _orderService
-                .Setup(x => x.PlaceOrder(request, _userId))
+                .Setup(x => x.PlaceOrder(restaurantId, request, _userId))
                 .ReturnsAsync(response);
 
-            var result = await _orderController.PlaceOrder(request);
+            var result = await _orderController.PlaceOrder(restaurantId, request);
 
             var notFound = result as NegotiatedContentResult<
                 ApiResponseDto<PlaceOrderResponseDto>>;
@@ -177,7 +181,7 @@ namespace dotNetAssignment.Tests.Controllers
                         ExceptionMessages.RestaurantDoesntExists));
             });
 
-            _orderService.Verify(x => x.PlaceOrder(request, _userId), Times.Once);
+            _orderService.Verify(x => x.PlaceOrder(restaurantId, request, _userId), Times.Once);
         }
 
 
