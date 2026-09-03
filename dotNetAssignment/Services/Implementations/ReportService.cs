@@ -29,6 +29,11 @@ namespace dotNetAssignment.Services.Implementations
             _userRepository = userRepository;
         }
 
+        /// <summary>
+        /// Generates a report for the top ten most ordered items, excluding specified item IDs.
+        /// </summary>
+        /// <param name="request">Contains unique identfiers of the order items to exclude</param>
+        /// <returns>Report in PDF format</returns>
         public async Task<byte[]> GetTopTenItemsReport(TopTenMostOrderedRequestDto request)
         {
             var reportPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reports", "Top10MostOrderedItems.trdp");
@@ -51,6 +56,12 @@ namespace dotNetAssignment.Services.Implementations
         }
 
 
+        /// <summary>
+        /// Generates a report for items that are frequently bought together for a specific restaurant.
+        /// </summary>
+        /// <param name="request">Contains the unique identifier of the restaurant</param>
+        /// <param name="ownerId">Unique identifier of the restaurant owner or Admin</param>
+        /// <returns>Api respone with report in PDF format</returns>
         public async Task<ApiResponseDto<byte[]>> FrequentlyBoughtTogether(FrequentlyBoughtTogetherRequestDto request, Guid ownerId) 
         {
             var role = await _userRepository.GetUserRoleByIdAsync(ownerId);

@@ -28,6 +28,11 @@ namespace dotNetAssignment.Controllers
             _reportService = reportService;
         }
 
+        /// <summary>
+        /// Generates a report of the top ten most ordered item from all restaurants. This endpoint is restricted to users with the "Admin" role.
+        /// </summary>
+        /// <param name="request">Contains unique identifier for order items to exclude</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("top-items")]
@@ -46,6 +51,11 @@ namespace dotNetAssignment.Controllers
             return ResponseMessage(httpResponse);
         }
 
+        /// <summary>
+        /// Generates a report of items that are frequently bought together for a specific restaurant. This endpoint is restricted to users with the "Admin" or "Owner" role.
+        /// </summary>
+        /// <param name="request">Contains the unique identifier of the restaurant</param>
+        /// <returns>Returns failure or success response of the operation</returns>
         [Authorize(Roles = "Admin,Owner")]
         [HttpGet]
         [Route("frequently-bought")]
