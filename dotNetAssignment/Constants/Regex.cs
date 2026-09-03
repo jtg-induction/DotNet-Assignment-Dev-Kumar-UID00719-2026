@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace dotNetAssignment.Constants
+{
+    public class Regex
+    {
+        public const string ValidPincodeRegex = @"^[1-9][0-9]{5}$";
+        public const string ValidEmailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        public const string ValidPhoneNumberRegex = @"^[0-9]{10}$";
+        public const string ValidPasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+        public const string ValidNameRegex = @"^[A-Za-z ]+$";
+    }
+}
